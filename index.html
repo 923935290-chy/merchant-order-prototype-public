@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>滴滴商户平台 - 订单管理高保真原型</title>
+  <style>
+    :root {
+      --bg: oklch(0.966 0.004 78);
+      --panel: oklch(0.992 0.003 78);
+      --panel-2: oklch(0.952 0.006 78);
+      --panel-3: oklch(0.982 0.004 78);
+      --line: oklch(0.878 0.008 78);
+      --line-strong: oklch(0.74 0.014 78);
+      --text: oklch(0.235 0.016 74);
+      --muted: oklch(0.50 0.012 74);
+      --subtle: oklch(0.66 0.011 74);
+      --accent: oklch(0.68 0.155 47);
+      --accent-dark: oklch(0.56 0.15 45);
+      --accent-soft: oklch(0.946 0.035 52);
+      --success: oklch(0.58 0.125 150);
+      --warning: oklch(0.68 0.14 70);
+      --danger: oklch(0.57 0.155 25);
+      --info: oklch(0.58 0.12 245);
+      --nav: oklch(0.30 0.018 285);
+      --shadow: 0 8px 22px oklch(0.42 0.022 74 / 0.055);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 1280px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 176px 1fr;
+      grid-template-rows: 56px 1fr;
+    }
+
+    .topbar {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 18px;
+      background: var(--nav);
+      border-bottom: 1px solid oklch(0.23 0.017 285);
+      color: oklch(0.96 0.004 78);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .brand-mark {
+      width: 34px;
+      height: 32px;
+      border-radius: 8px;
+      display: grid;
+      place-items: center;
+      color: var(--nav);
+      background: oklch(0.96 0.004 78);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .account {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      color: oklch(0.86 0.006 78);
+      font-size: 13px;
+    }
+
+    .account strong {
+      color: oklch(0.96 0.004 78);
+      font-weight: 650;
+    }
+
+    .home-link {
+      color: oklch(0.96 0.004 78);
+      font-weight: 650;
+      text-decoration: none;
+    }
+
+    .sidebar {
+      background: var(--panel);
+      border-right: 1px solid var(--line);
+      padding: 16px 10px;
+    }
+
+    .nav-section {
+      margin-bottom: 18px;
+    }
+
+    .nav-item {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 11px;
+      border-radius: 6px;
+      color: oklch(0.43 0.012 74);
+      font-weight: 520;
+      margin-bottom: 3px;
+    }
+
+    .nav-item svg {
+      width: 17px;
+      height: 17px;
+      stroke-width: 1.75;
+      opacity: 0.72;
+    }
+
+    .nav-item.active {
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+      font-weight: 680;
+    }
+
+    .main {
+      padding: 18px 18px 24px;
+      overflow: hidden;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .title-wrap h1 {
+      margin: 0 0 6px;
+      font-size: 22px;
+      line-height: 1.25;
+      font-weight: 720;
+    }
+
+    .title-wrap p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .head-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    button {
+      height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 0 14px;
+      background: var(--panel);
+      color: var(--text);
+      font: inherit;
+      font-weight: 600;
+      cursor: default;
+    }
+
+    button.primary {
+      border-color: var(--accent);
+      color: oklch(0.99 0.004 78);
+      background: var(--accent);
+    }
+
+    .tabs {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 7px;
+      padding: 4px;
+      width: fit-content;
+      margin-bottom: 14px;
+    }
+
+    .tab {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 12px;
+      border-radius: 5px;
+      color: oklch(0.48 0.012 74);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .tab.active {
+      color: var(--accent-dark);
+      background: var(--accent-soft);
+      box-shadow: inset 0 0 0 1px oklch(0.88 0.04 52);
+    }
+
+    .count {
+      min-width: 20px;
+      height: 20px;
+      display: inline-grid;
+      place-items: center;
+      padding: 0 6px;
+      border-radius: 10px;
+      background: oklch(0.91 0.009 78);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tab.active .count {
+      background: oklch(0.88 0.06 52);
+      color: var(--accent-dark);
+    }
+
+    .filter-panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 14px 14px 12px;
+      margin-bottom: 12px;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      column-gap: 12px;
+      row-gap: 10px;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 78px minmax(0, 1fr);
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .field label {
+      color: oklch(0.46 0.012 74);
+      text-align: right;
+      font-size: 12px;
+      font-weight: 560;
+      white-space: nowrap;
+    }
+
+    .input,
+    .select,
+    .date-range {
+      height: 34px;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 0 10px;
+      border: 1px solid oklch(0.84 0.009 78);
+      border-radius: 6px;
+      background: oklch(0.99 0.003 78);
+      color: var(--text);
+      font-size: 12px;
+    }
+
+    .placeholder {
+      color: var(--subtle);
+    }
+
+    .date-range span {
+      color: var(--subtle);
+    }
+
+    .filter-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .toolbar {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px 8px 0 0;
+      box-shadow: var(--shadow);
+    }
+
+    .batch {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .batch strong {
+      color: var(--text);
+    }
+
+    .table-wrap {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top: none;
+      border-radius: 0 0 8px 8px;
+      overflow: auto;
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      table-layout: fixed;
+      font-size: 11px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      height: 38px;
+      padding: 0 5px;
+      background: oklch(0.946 0.006 78);
+      border-bottom: 1px solid var(--line);
+      color: oklch(0.43 0.012 74);
+      text-align: left;
+      font-weight: 720;
+      white-space: normal;
+      line-height: 1.18;
+    }
+
+    tbody td {
+      min-height: 54px;
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--line);
+      color: var(--text);
+      vertical-align: top;
+      line-height: 1.25;
+    }
+
+    tbody tr:hover td {
+      background: oklch(0.978 0.01 74);
+    }
+
+    thead th:nth-child(8),
+    thead th:nth-child(9),
+    thead th:nth-child(10),
+    thead th:nth-child(11),
+    thead th:nth-child(12),
+    tbody td:nth-child(8),
+    tbody td:nth-child(9),
+    tbody td:nth-child(10),
+    tbody td:nth-child(11),
+    tbody td:nth-child(12) {
+      text-align: right;
+    }
+
+    thead th:nth-child(14),
+    thead th:nth-child(15),
+    thead th:nth-child(16),
+    thead th:nth-child(17),
+    thead th:nth-child(18),
+    thead th:nth-child(19),
+    tbody td:nth-child(14),
+    tbody td:nth-child(15),
+    tbody td:nth-child(16),
+    tbody td:nth-child(17),
+    tbody td:nth-child(18),
+    tbody td:nth-child(19) {
+      text-align: center;
+    }
+
+    tbody td:nth-child(4),
+    tbody td:nth-child(13),
+    tbody td:nth-child(20) {
+      color: var(--muted);
+    }
+
+    .check {
+      width: 16px;
+      height: 16px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: var(--panel);
+      display: inline-block;
+    }
+
+    .order-id {
+      color: var(--info);
+      font-weight: 720;
+      line-height: 1.32;
+    }
+
+    .phone {
+      color: var(--muted);
+    }
+
+    .product {
+      width: 100%;
+      display: flex;
+      gap: 6px;
+    }
+
+    .thumb {
+      flex: 0 0 auto;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background:
+        linear-gradient(135deg, oklch(0.84 0.08 78), oklch(0.92 0.04 45)),
+        var(--panel-2);
+      border: 1px solid var(--line);
+    }
+
+    .product-name {
+      font-weight: 720;
+      margin-bottom: 3px;
+    }
+
+    .product-meta {
+      color: oklch(0.49 0.012 74);
+    }
+
+    .money {
+      font-weight: 650;
+      white-space: nowrap;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 20px;
+      padding: 0 6px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 680;
+      white-space: nowrap;
+    }
+
+    .tag.pay { color: oklch(0.42 0.012 74); background: oklch(0.93 0.006 78); }
+    .tag.ship { color: var(--accent-dark); background: var(--accent-soft); }
+    .tag.sent { color: var(--info); background: oklch(0.94 0.035 245); }
+    .tag.after { color: var(--danger); background: oklch(0.94 0.04 25); }
+    .tag.gray { color: oklch(0.42 0.012 74); background: oklch(0.93 0.006 78); }
+
+    .ship-deadline {
+      margin-top: 4px;
+      color: oklch(0.48 0.012 74);
+      font-size: 11px;
+      line-height: 1.25;
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .ship-deadline.overdue {
+      color: var(--danger);
+      font-weight: 650;
+    }
+
+    .ops {
+      display: grid;
+      gap: 3px;
+    }
+
+    .op {
+      color: oklch(0.34 0.012 74);
+      text-decoration: none;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .op.primary-op {
+      color: var(--accent-dark);
+      font-weight: 720;
+    }
+
+    .op:hover {
+      color: var(--accent-dark);
+    }
+
+    .pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top: none;
+      color: var(--muted);
+      font-size: 13px;
+      border-radius: 0 0 8px 8px;
+    }
+
+    .pages {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .page {
+      min-width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border: 1px solid var(--line);
+      border-radius: 5px;
+      background: var(--panel);
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .page.current {
+      color: oklch(0.99 0.004 78);
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">滴</div>
+        <span>滴滴商户平台</span>
+      </div>
+      <div class="account">
+        <span>账号：<strong>0302103210</strong></span>
+        <a class="home-link" href="#">回到首页</a>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <div class="nav-section">
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 7h16M7 7v13h10V7M9 4h6l1 3H8l1-3Z"/></svg>
+          商户管理
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 9h16v11H4z"/><path d="M7 9V5h10v4"/></svg>
+          门店管理
+        </div>
+        <div class="nav-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M6 6h15l-2 9H8L6 6Z"/><path d="M6 6 5 3H2"/><circle cx="9" cy="20" r="1"/><circle cx="18" cy="20" r="1"/></svg>
+          商品管理
+        </div>
+        <div class="nav-item active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M7 3h10l3 3v15H4V3h3Z"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>
+          订单管理
+        </div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div class="title-wrap">
+          <h1>订单管理</h1>
+        </div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active">全部订单 <span class="count">200</span></div>
+        <div class="tab">待发货 <span class="count">50</span></div>
+        <div class="tab">24h需发货 <span class="count">10</span></div>
+        <div class="tab">超时未发货 <span class="count">20</span></div>
+        <div class="tab">已发货 <span class="count">10</span></div>
+        <div class="tab">售后中 <span class="count">15</span></div>
+      </div>
+
+      <section class="filter-panel">
+        <div class="filters">
+          <div class="field">
+            <label>发布渠道</label>
+            <div class="select">滴滴有车严选车品 <span>⌄</span></div>
+          </div>
+          <div class="field">
+            <label>商户名称</label>
+            <div class="select">米果车品精选店 <span>⌄</span></div>
+          </div>
+          <div class="field">
+            <label>订单ID</label>
+            <div class="input"><span class="placeholder">请输入订单ID</span></div>
+          </div>
+          <div class="field">
+            <label>购买人手机号</label>
+            <div class="input"><span class="placeholder">请输入购买人手机号</span></div>
+          </div>
+          <div class="field">
+            <label>订单创建时间</label>
+            <div class="date-range"><span>开始日期</span><span>至</span><span>结束日期</span></div>
+          </div>
+          <div class="field">
+            <label>付款时间</label>
+            <div class="date-range"><span>开始日期</span><span>至</span><span>结束日期</span></div>
+          </div>
+          <div class="field">
+            <label>支付状态</label>
+            <div class="select"><span class="placeholder">请选择</span><span>⌄</span></div>
+          </div>
+          <div class="field">
+            <label>发票状态</label>
+            <div class="select"><span class="placeholder">请选择</span><span>⌄</span></div>
+          </div>
+          <div class="field">
+            <label>物流状态</label>
+            <div class="select">待发货 <span>⌄</span></div>
+          </div>
+          <div class="field">
+            <label>订单状态</label>
+            <div class="select"><span class="placeholder">请选择</span><span>⌄</span></div>
+          </div>
+          <div class="field">
+            <label>分账状态</label>
+            <div class="select"><span class="placeholder">请选择</span><span>⌄</span></div>
+          </div>
+          <div class="field">
+            <label>商品ID</label>
+            <div class="input"><span class="placeholder">请输入查询的商品ID</span></div>
+          </div>
+        </div>
+        <div class="filter-actions">
+          <button class="primary">搜索</button>
+          <button>重置</button>
+        </div>
+      </section>
+
+      <div class="toolbar">
+        <div class="batch">
+          <span class="check"></span>
+          <span>已选择 <strong>0</strong> 项</span>
+        </div>
+        <div class="head-actions">
+          <button>订单上传</button>
+          <button>订单下载</button>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:2%;"></th>
+              <th style="width:6.2%;">订单ID</th>
+              <th style="width:5.2%;">购买人手机号</th>
+              <th style="width:5%;">订单创建时间</th>
+              <th style="width:3.8%;">商品ID</th>
+              <th style="width:11.5%;">商品名称</th>
+              <th style="width:4.8%;">商品规格</th>
+              <th style="width:3.2%;">购买数量</th>
+              <th style="width:4%;">售卖价格</th>
+              <th style="width:3.4%;">服务费率</th>
+              <th style="width:3.8%;">服务费金额</th>
+              <th style="width:4.2%;">商家分账金额</th>
+              <th style="width:5%;">付款时间</th>
+              <th style="width:5%;">退款类型</th>
+              <th style="width:4.8%;">退货审核临期</th>
+              <th style="width:4.8%;">退款审核临期</th>
+              <th style="width:5.2%;">订单发货状态</th>
+              <th style="width:3.8%;">订单状态</th>
+              <th style="width:3.8%;">分账状态</th>
+              <th style="width:4.4%;">分账时间</th>
+              <th style="width:6.1%;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="check"></span></td>
+              <td><div class="order-id">7469965396<br>67504410</div></td>
+              <td><span class="phone">13****4082</span></td>
+              <td>2026-06-09<br>12:19:34</td>
+              <td>213098</td>
+              <td>
+                <div class="product">
+                  <div class="thumb"></div>
+                  <div>
+                    <div class="product-name">网约车司机新手严选套装</div>
+                    <div class="product-meta">车载香薰挂件/临时停车牌</div>
+                  </div>
+                </div>
+              </td>
+              <td>规格: 出风口<br>手机支架</td>
+              <td>1</td>
+              <td class="money">8.8元</td>
+              <td>10%</td>
+              <td>0元</td>
+              <td>0元</td>
+              <td>2026-06-09<br>12:19:50</td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td><span class="tag ship">待发货</span><div class="ship-deadline">47小时22分钟<br>内发货</div></td>
+              <td><span class="tag gray">已支付</span></td>
+              <td><span class="tag gray">未分账</span></td>
+              <td class="muted">暂无</td>
+              <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">联系用户</a></div></td>
+            </tr>
+
+            <tr>
+              <td><span class="check"></span></td>
+              <td><div class="order-id">7469958483<br>38135295</div></td>
+              <td><span class="phone">190****9958</span></td>
+              <td>2026-05-09<br>11:48:07</td>
+              <td>213042</td>
+              <td>
+                <div class="product">
+                  <div class="thumb"></div>
+                  <div>
+                    <div class="product-name">汽车油膜玻璃清洁套装</div>
+                    <div class="product-meta">防雾湿巾/玻璃水补充装</div>
+                  </div>
+                </div>
+              </td>
+              <td>规格: 清洁1<br>瓶+抹布</td>
+              <td>1</td>
+              <td class="money">8.9元</td>
+              <td>8%</td>
+              <td>0元</td>
+              <td>0元</td>
+              <td>2026-06-09<br>11:48:14</td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td><span class="tag ship">待发货</span><div class="ship-deadline overdue">发货超时</div></td>
+              <td><span class="tag gray">已支付</span></td>
+              <td><span class="tag gray">未分账</span></td>
+              <td class="muted">暂无</td>
+              <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">联系用户</a></div></td>
+            </tr>
+
+            <tr>
+              <td><span class="check"></span></td>
+              <td><div class="order-id">7469951040<br>02924088</div></td>
+              <td><span class="phone">185****7879</span></td>
+              <td>2026-06-09<br>11:18:32</td>
+              <td>226450</td>
+              <td>
+                <div class="product">
+                  <div class="thumb"></div>
+                  <div>
+                    <div class="product-name">挪车号码牌高档套装</div>
+                    <div class="product-meta">临停牌/号码贴/香片</div>
+                  </div>
+                </div>
+              </td>
+              <td>规格: 香奈凝<br>逸一瓶</td>
+              <td>1</td>
+              <td class="money">9.9元</td>
+              <td>20%</td>
+              <td>0元</td>
+              <td>0元</td>
+              <td>2026-06-09<br>11:18:36</td>
+              <td><span class="tag after">退货退款</span><div class="ship-deadline">6天内处理</div></td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td><span class="tag sent">已发货</span></td>
+              <td><span class="tag gray">已支付</span></td>
+              <td><span class="tag gray">未分账</span></td>
+              <td class="muted">暂无</td>
+              <td><div class="ops"><a class="op">查看</a><a class="op primary-op">修改物流信息</a><a class="op primary-op">退货申请处理</a><a class="op">联系用户</a></div></td>
+            </tr>
+
+            <tr>
+              <td><span class="check"></span></td>
+              <td><div class="order-id">7469948010<br>83661369</div></td>
+              <td><span class="phone">150****6899</span></td>
+              <td>2026-06-09<br>11:06:32</td>
+              <td>207335</td>
+              <td>
+                <div class="product">
+                  <div class="thumb"></div>
+                  <div>
+                    <div class="product-name">男士控油保湿护肤套装</div>
+                    <div class="product-meta">洁面乳/保湿乳/便携包</div>
+                  </div>
+                </div>
+              </td>
+              <td>规格: 男士控<br>油洗护一瓶</td>
+              <td>1</td>
+              <td class="money">19.9元</td>
+              <td>10%</td>
+              <td>0元</td>
+              <td>0元</td>
+              <td>2026-06-09<br>11:06:52</td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td><span class="tag ship">待发货</span><div class="ship-deadline">18小时40分钟<br>内发货</div></td>
+              <td><span class="tag gray">已支付</span></td>
+              <td><span class="tag gray">未分账</span></td>
+              <td class="muted">暂无</td>
+              <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">联系用户</a></div></td>
+            </tr>
+
+            <tr>
+              <td><span class="check"></span></td>
+              <td><div class="order-id">7469949601<br>291730425</div></td>
+              <td><span class="phone">173****8323</span></td>
+              <td>2026-06-09<br>10:37:14</td>
+              <td>213098</td>
+              <td>
+                <div class="product">
+                  <div class="thumb"></div>
+                  <div>
+                    <div class="product-name">网约车司机新手严选套装</div>
+                    <div class="product-meta">车载香薰挂件/号码牌</div>
+                  </div>
+                </div>
+              </td>
+              <td>规格: 出风口<br>手机支架</td>
+              <td>1</td>
+              <td class="money">8.8元</td>
+              <td>10%</td>
+              <td>0元</td>
+              <td>0元</td>
+              <td>2026-06-09<br>10:37:17</td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td class="muted">暂无</td>
+              <td><span class="tag ship">待发货</span><div class="ship-deadline">6小时35分钟<br>内发货</div></td>
+              <td><span class="tag gray">已支付</span></td>
+              <td><span class="tag gray">未分账</span></td>
+              <td class="muted">暂无</td>
+              <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">联系用户</a></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <span>共 200 条，当前展示 1-5 条</span>
+        <div class="pages">
+          <span class="page">‹</span>
+          <span class="page current">1</span>
+          <span class="page">2</span>
+          <span class="page">3</span>
+          <span class="page">4</span>
+          <span class="page">…</span>
+          <span class="page">40</span>
+          <span class="page">›</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
