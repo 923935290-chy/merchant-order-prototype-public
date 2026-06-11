@@ -587,7 +587,7 @@
         <div class="tab">24h需发货 <span class="count">10</span></div>
         <div class="tab">超时未发货 <span class="count">20</span></div>
         <div class="tab">已发货 <span class="count">10</span></div>
-        <div class="tab">售后中 <span class="count">15</span></div>
+        <div class="tab">退货中 <span class="count">15</span></div>
       </div>
 
       <section class="filter-panel">
@@ -617,6 +617,14 @@
             <div class="date-range"><span>开始日期</span><span>至</span><span>结束日期</span></div>
           </div>
           <div class="field">
+            <label>退款类型</label>
+            <div class="select"><span class="placeholder">请选择</span><span>⌄</span></div>
+          </div>
+          <div class="field">
+            <label>审核临期</label>
+            <div class="select"><span class="placeholder">请选择</span><span>⌄</span></div>
+          </div>
+          <div class="field">
             <label>支付状态</label>
             <div class="select"><span class="placeholder">请选择</span><span>⌄</span></div>
           </div>
@@ -639,6 +647,10 @@
           <div class="field">
             <label>商品ID</label>
             <div class="input"><span class="placeholder">请输入查询的商品ID</span></div>
+          </div>
+          <div class="field">
+            <label>SKU ID</label>
+            <div class="input"><span class="placeholder">请输入查询的SKU ID</span></div>
           </div>
         </div>
         <div class="filter-actions">
@@ -679,10 +691,9 @@
               <th style="width:4.8%;">退货审核临期</th>
               <th style="width:4.8%;">退款审核临期</th>
               <th style="width:5.2%;">订单发货状态</th>
+              <th style="width:4.4%;">订单支付状态</th>
               <th style="width:3.8%;">订单状态</th>
-              <th style="width:3.8%;">分账状态</th>
-              <th style="width:4.4%;">分账时间</th>
-              <th style="width:6.1%;">操作</th>
+              <th style="width:7.1%;">操作</th>
             </tr>
           </thead>
           <tbody>
@@ -713,9 +724,8 @@
               <td class="muted">暂无</td>
               <td><span class="tag ship">待发货</span><div class="ship-deadline">47小时22分钟<br>内发货</div></td>
               <td><span class="tag gray">已支付</span></td>
-              <td><span class="tag gray">未分账</span></td>
-              <td class="muted">暂无</td>
-              <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">联系用户</a></div></td>
+              <td><span class="tag gray">进行中</span></td>
+              <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">发票</a><a class="op">联系用户</a></div></td>
             </tr>
 
             <tr>
@@ -745,8 +755,7 @@
               <td class="muted">暂无</td>
               <td><span class="tag ship">待发货</span><div class="ship-deadline overdue">发货超时</div></td>
               <td><span class="tag gray">已支付</span></td>
-              <td><span class="tag gray">未分账</span></td>
-              <td class="muted">暂无</td>
+              <td><span class="tag gray">进行中</span></td>
               <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">联系用户</a></div></td>
             </tr>
 
@@ -777,8 +786,7 @@
               <td class="muted">暂无</td>
               <td><span class="tag sent">已发货</span></td>
               <td><span class="tag gray">已支付</span></td>
-              <td><span class="tag gray">未分账</span></td>
-              <td class="muted">暂无</td>
+              <td><span class="tag gray">退货中</span></td>
               <td><div class="ops"><a class="op">查看</a><a class="op primary-op">修改物流信息</a><a class="op primary-op">退货申请处理</a><a class="op">联系用户</a></div></td>
             </tr>
 
@@ -809,8 +817,7 @@
               <td class="muted">暂无</td>
               <td><span class="tag ship">待发货</span><div class="ship-deadline">18小时40分钟<br>内发货</div></td>
               <td><span class="tag gray">已支付</span></td>
-              <td><span class="tag gray">未分账</span></td>
-              <td class="muted">暂无</td>
+              <td><span class="tag gray">进行中</span></td>
               <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">联系用户</a></div></td>
             </tr>
 
@@ -841,8 +848,7 @@
               <td class="muted">暂无</td>
               <td><span class="tag ship">待发货</span><div class="ship-deadline">6小时35分钟<br>内发货</div></td>
               <td><span class="tag gray">已支付</span></td>
-              <td><span class="tag gray">未分账</span></td>
-              <td class="muted">暂无</td>
+              <td><span class="tag gray">进行中</span></td>
               <td><div class="ops"><a class="op">查看</a><a class="op primary-op">发货</a><a class="op">联系用户</a></div></td>
             </tr>
           </tbody>
