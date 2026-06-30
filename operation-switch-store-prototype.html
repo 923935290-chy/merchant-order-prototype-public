@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>UT工作台 - 年检门店管理原型</title>
+  <title>车服运营台 - 门店管理原型</title>
   <style>
     :root {
       --bg: #f2f4f8;
@@ -600,6 +600,110 @@
       color: #707989;
     }
 
+    .merchant-combobox {
+      position: relative;
+    }
+
+    .merchant-trigger {
+      width: 100%;
+      cursor: pointer;
+      text-align: left;
+      font: inherit;
+    }
+
+    .merchant-trigger::after {
+      content: "⌄";
+      color: #8d96a6;
+      font-size: 16px;
+      margin-left: 12px;
+    }
+
+    .merchant-combobox.error .merchant-trigger {
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(229, 72, 63, .08);
+    }
+
+    .merchant-menu {
+      display: none;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 46px;
+      z-index: 5;
+      background: #fffffe;
+      border: 1px solid #d8deea;
+      border-radius: 5px;
+      box-shadow: 0 12px 28px rgba(31, 38, 55, .12);
+      overflow: hidden;
+    }
+
+    .merchant-menu.show {
+      display: block;
+    }
+
+    .merchant-search {
+      width: calc(100% - 20px);
+      height: 36px;
+      margin: 10px;
+      border: 1px solid #d8deea;
+      border-radius: 5px;
+      outline: 0;
+      padding: 0 12px;
+      color: #252b38;
+      font: inherit;
+    }
+
+    .merchant-search:focus {
+      border-color: #3f7df2;
+      box-shadow: 0 0 0 3px rgba(63, 125, 242, .1);
+    }
+
+    .merchant-options {
+      max-height: 224px;
+      overflow: auto;
+      border-top: 1px solid #edf0f5;
+    }
+
+    .merchant-option {
+      min-height: 42px;
+      padding: 9px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      color: #323846;
+    }
+
+    .merchant-option:hover {
+      background: #f4f8ff;
+      color: #2e73f6;
+    }
+
+    .merchant-option.selected {
+      background: #edf4ff;
+      color: #2e73f6;
+      font-weight: 800;
+    }
+
+    .merchant-option.empty {
+      color: #9aa2b0;
+      cursor: default;
+      justify-content: flex-start;
+    }
+
+    .form-error {
+      display: none;
+      margin-top: 6px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .merchant-combobox.error .form-error {
+      display: block;
+    }
+
     .form-actions {
       display: flex;
       gap: 14px;
@@ -769,15 +873,15 @@
 <body>
   <header class="topbar">
     <div class="top-left">
-      <div class="brand"><span class="brand-mark"></span><span>业务工作台 · UT⌄</span></div>
+      <div class="brand"><span class="brand-mark"></span><span>车服运营台</span></div>
       <nav class="top-tabs">
-        <div class="top-tab">数据分析</div>
-        <div class="top-tab">智能触达</div>
-        <div class="top-tab">端内投放</div>
-        <div class="top-tab">端外投放</div>
-        <div class="top-tab active">车主服务</div>
-        <div class="top-tab">POI服务</div>
-        <div class="top-tab">营销增长</div>
+        <div class="top-tab">经营看板</div>
+        <div class="top-tab">用户触达</div>
+        <div class="top-tab">活动投放</div>
+        <div class="top-tab">渠道协同</div>
+        <div class="top-tab active">车服业务</div>
+        <div class="top-tab">网点服务</div>
+        <div class="top-tab">增长工具</div>
         <div class="top-tab">常用工具</div>
         <div class="top-tab">平台促活</div>
       </nav>
@@ -877,30 +981,30 @@
               </tr>
             </thead>
             <tbody>
-              <tr data-store-id="27522" data-store-name="鑫源车检" data-merchant="68036｜经济技术开发区名度汽车修理中心">
+              <tr data-store-id="27522" data-store-name="星程车检中心" data-merchant="90036｜澄安汽车服务中心">
                 <td><span class="checkbox row-check" data-store-id="27522"></span></td>
                 <td>27522</td>
-                <td>鑫源车检</td>
-                <td>长春市</td>
-                <td>182****3222</td>
+                <td>星程车检中心</td>
+                <td>示例市</td>
+                <td>138****2301</td>
                 <td><span class="status status-on">启用</span></td>
                 <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27522">更换商户</a></div></td>
               </tr>
-              <tr data-store-id="27520" data-store-name="卫星检车线" data-merchant="68036｜经济技术开发区名度汽车修理中心">
+              <tr data-store-id="27520" data-store-name="云桥检测站" data-merchant="90036｜澄安汽车服务中心">
                 <td><span class="checkbox row-check" data-store-id="27520"></span></td>
                 <td>27520</td>
-                <td>卫星检车线</td>
-                <td>长春市</td>
-                <td>180****7917</td>
+                <td>云桥检测站</td>
+                <td>示例市</td>
+                <td>138****4516</td>
                 <td><span class="status status-on">启用</span></td>
                 <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27520">更换商户</a></div></td>
               </tr>
-              <tr data-store-id="27506" data-store-name="鼎顺检车线" data-merchant="68102｜吉林车检服务商">
+              <tr data-store-id="27506" data-store-name="衡安车检广场" data-merchant="90102｜衡安检测服务商">
                 <td><span class="checkbox row-check" data-store-id="27506"></span></td>
                 <td>27506</td>
-                <td>鼎顺检车线</td>
-                <td>长春市</td>
-                <td>155****8715</td>
+                <td>衡安车检广场</td>
+                <td>示例市</td>
+                <td>138****7812</td>
                 <td><span class="status status-off">停用</span></td>
                 <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27506">更换商户</a></div></td>
               </tr>
@@ -949,15 +1053,15 @@
               <tr>
                 <td>27522</td>
                 <td>更换商户</td>
-                <td>门店归属商户由「68036 经济技术开发区名度汽车修理中心」变更为「68088 长春年检代理商」</td>
-                <td>陈怀宇</td>
+                <td>门店归属商户由「90036 澄安汽车服务中心」变更为「90088 星途车服运营商」</td>
+                <td>运营专员A</td>
                 <td>2026-01-09 15:42:16</td>
               </tr>
               <tr>
                 <td>27520</td>
                 <td>更换商户</td>
-                <td>门店归属商户由「68036 经济技术开发区名度汽车修理中心」变更为「68102 吉林车检服务商」</td>
-                <td>袁雨晴</td>
+                <td>门店归属商户由「90036 澄安汽车服务中心」变更为「90102 衡安检测服务商」</td>
+                <td>运营专员B</td>
                 <td>2026-01-09 14:18:03</td>
               </tr>
             </tbody>
@@ -969,11 +1073,11 @@
         <div class="card detail-card">
           <div class="section-title" style="padding:0 0 22px;">门店详情</div>
           <div class="detail-grid">
-            <div class="detail-label">门店名称</div><div class="detail-value">鑫源车检</div>
+            <div class="detail-label">门店名称</div><div class="detail-value">星程车检中心</div>
             <div class="detail-label">状态</div><div class="detail-value"><span class="status status-on">启用</span></div>
-            <div class="detail-label">门店地址</div><div class="detail-value">吉林省长春市南关区生态大街 1688 号</div>
-            <div class="detail-label">门店联系电话</div><div class="detail-value">182****3222</div>
-            <div class="detail-label">门店子账户手机号</div><div class="detail-value">150****3603</div>
+            <div class="detail-label">门店地址</div><div class="detail-value">示例市滨河区云桥路 88 号</div>
+            <div class="detail-label">门店联系电话</div><div class="detail-value">138****2301</div>
+            <div class="detail-label">门店子账户手机号</div><div class="detail-value">139****6208</div>
           </div>
           <div class="form-actions"><button class="btn" data-page="stores">返回</button></div>
         </div>
@@ -989,7 +1093,19 @@
               <div class="form-hint">批量更换时，所选门店将统一变更为同一个新商户；提交后商品发布状态保持不变。</div>
             </div>
           </div>
-          <div class="form-row"><div class="form-label required">新门店归属商户</div><div class="input">68088｜长春年检代理商</div></div>
+          <div class="form-row">
+            <div class="form-label required">新门店归属商户</div>
+            <div class="merchant-combobox" id="merchantBox">
+              <button class="input merchant-trigger" id="merchantTrigger" type="button">
+                <span class="placeholder" id="merchantValue">请选择或搜索商户</span>
+              </button>
+              <div class="merchant-menu" id="merchantMenu">
+                <input class="merchant-search" id="merchantSearch" type="text" placeholder="输入商户ID或商户名称搜索">
+                <div class="merchant-options" id="merchantOptions"></div>
+              </div>
+              <div class="form-error" id="merchantError">请选择新门店归属商户</div>
+            </div>
+          </div>
           <div class="form-actions">
             <button class="btn btn-primary" id="submitChange">提交</button>
             <button class="btn" data-page="stores">取消</button>
@@ -1011,7 +1127,7 @@
           <span>门店数量</span><b id="confirmStoreCount">1 个</b>
           <span>待更换门店</span>
           <div class="confirm-store-list" id="confirmStoreList"></div>
-          <span>新归属商户</span><b>68088｜长春年检代理商</b>
+          <span>新归属商户</span><b id="confirmMerchant">-</b>
         </div>
       </div>
       <div class="modal-foot">
@@ -1038,8 +1154,27 @@
     const changeStoreList = document.getElementById('changeStoreList');
     const confirmStoreCount = document.getElementById('confirmStoreCount');
     const confirmStoreList = document.getElementById('confirmStoreList');
+    const confirmMerchant = document.getElementById('confirmMerchant');
+    const merchantBox = document.getElementById('merchantBox');
+    const merchantTrigger = document.getElementById('merchantTrigger');
+    const merchantValue = document.getElementById('merchantValue');
+    const merchantMenu = document.getElementById('merchantMenu');
+    const merchantSearch = document.getElementById('merchantSearch');
+    const merchantOptions = document.getElementById('merchantOptions');
     let selectedStoreIds = [];
     let changeStoreIds = ['27522'];
+    let selectedMerchant = null;
+
+    const merchants = [
+      { id: '90088', name: '星途车服运营商' },
+      { id: '90102', name: '衡安检测服务商' },
+      { id: '90036', name: '澄安汽车服务中心' },
+      { id: '90216', name: '云程车检合作商' },
+      { id: '90309', name: '路安综合服务商' }
+    ].map(merchant => ({
+      ...merchant,
+      label: `${merchant.id}｜${merchant.name}`
+    }));
 
     const storeRows = [...document.querySelectorAll('tr[data-store-id]')];
     const stores = storeRows.map(row => ({
@@ -1073,6 +1208,56 @@
       confirmStoreCount.textContent = `${storeList.length} 个`;
     }
 
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function renderMerchantOptions(keyword = '') {
+      const normalized = keyword.trim().toLowerCase();
+      const matched = merchants.filter(merchant => (
+        `${merchant.id} ${merchant.name}`.toLowerCase().includes(normalized)
+      ));
+
+      merchantOptions.innerHTML = matched.length
+        ? matched.map(merchant => `
+          <div class="merchant-option ${selectedMerchant?.id === merchant.id ? 'selected' : ''}" data-merchant-id="${merchant.id}">
+            <span>${merchant.label}</span>
+          </div>
+        `).join('')
+        : '<div class="merchant-option empty">未找到匹配商户</div>';
+    }
+
+    function openMerchantMenu() {
+      merchantMenu.classList.add('show');
+      renderMerchantOptions(merchantSearch.value);
+      setTimeout(() => merchantSearch.focus(), 0);
+    }
+
+    function closeMerchantMenu() {
+      merchantMenu.classList.remove('show');
+    }
+
+    function resetMerchant() {
+      selectedMerchant = null;
+      merchantValue.textContent = '请选择或搜索商户';
+      merchantValue.classList.add('placeholder');
+      merchantSearch.value = '';
+      merchantBox.classList.remove('error');
+      closeMerchantMenu();
+      renderMerchantOptions();
+    }
+
+    function selectMerchant(merchant) {
+      selectedMerchant = merchant;
+      merchantValue.textContent = merchant.label;
+      merchantValue.classList.remove('placeholder');
+      merchantBox.classList.remove('error');
+      closeMerchantMenu();
+      renderMerchantOptions(merchantSearch.value);
+    }
+
     function updateSelection() {
       const selectedStores = getStoresByIds(selectedStoreIds);
       rowChecks.forEach(check => {
@@ -1101,10 +1286,13 @@
     function openChange(ids) {
       changeStoreIds = ids.length ? ids : ['27522'];
       renderStoreList(changeStoreList, getStoresByIds(changeStoreIds));
+      resetMerchant();
       showPage('change');
     }
 
     document.addEventListener('click', (event) => {
+      if (!event.target.closest('#merchantBox')) closeMerchantMenu();
+
       const checkbox = event.target.closest('.checkbox');
       if (checkbox) {
         if (checkbox.id === 'selectAll') {
@@ -1139,16 +1327,30 @@
       selectedStoreIds = [];
       updateSelection();
     });
+    merchantTrigger.addEventListener('click', () => openMerchantMenu());
+    merchantSearch.addEventListener('input', () => renderMerchantOptions(merchantSearch.value));
+    merchantOptions.addEventListener('click', (event) => {
+      const option = event.target.closest('[data-merchant-id]');
+      if (!option) return;
+      const merchant = merchants.find(item => item.id === option.dataset.merchantId);
+      if (merchant) selectMerchant(merchant);
+    });
     document.getElementById('submitChange').addEventListener('click', () => {
+      if (!selectedMerchant) {
+        merchantBox.classList.add('error');
+        showToast('请选择新门店归属商户');
+        openMerchantMenu();
+        return;
+      }
       renderConfirmStoreList(getStoresByIds(changeStoreIds));
+      confirmMerchant.textContent = selectedMerchant.label;
       confirmMask.style.display = 'flex';
     });
     document.getElementById('closeConfirm').addEventListener('click', () => confirmMask.style.display = 'none');
     document.getElementById('cancelConfirm').addEventListener('click', () => confirmMask.style.display = 'none');
     document.getElementById('confirmChange').addEventListener('click', () => {
       confirmMask.style.display = 'none';
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 1800);
+      showToast('更换商户成功');
       selectedStoreIds = [];
       updateSelection();
       showPage('stores');
@@ -1156,6 +1358,7 @@
 
     const initial = window.location.hash.replace('#', '');
     renderStoreList(changeStoreList, getStoresByIds(changeStoreIds));
+    renderMerchantOptions();
     updateSelection();
     if (initial && document.getElementById(initial)) showPage(initial);
   </script>
