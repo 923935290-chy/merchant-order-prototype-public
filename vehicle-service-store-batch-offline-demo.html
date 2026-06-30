@@ -1,0 +1,962 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>车检服务管理台 - 门店批量下线原型</title>
+  <style>
+    :root {
+      --bg: oklch(0.985 0.003 70);
+      --surface: oklch(0.997 0.002 70);
+      --nav: oklch(0.30 0.012 275);
+      --line: oklch(0.90 0.004 70);
+      --line-strong: oklch(0.82 0.006 70);
+      --text: oklch(0.33 0.007 70);
+      --heading: oklch(0.24 0.008 70);
+      --muted: oklch(0.58 0.007 70);
+      --weak: oklch(0.72 0.007 70);
+      --table-head: oklch(0.965 0.004 70);
+      --accent: oklch(0.72 0.155 52);
+      --accent-hover: oklch(0.66 0.17 49);
+      --accent-soft: oklch(0.974 0.028 54);
+      --danger: oklch(0.62 0.18 26);
+      --danger-soft: oklch(0.968 0.022 27);
+      --success: oklch(0.56 0.12 150);
+      --success-soft: oklch(0.965 0.028 150);
+      --shadow: 0 18px 48px oklch(0.33 0.01 70 / 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 1440px;
+      background: var(--surface);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    .topbar {
+      height: 62px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 88px;
+      background: var(--nav);
+      color: oklch(0.94 0.004 70);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .logo {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 6px;
+      background: oklch(0.98 0.003 70);
+      color: var(--nav);
+      font-size: 15px;
+      font-weight: 760;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 48px;
+      font-size: 15px;
+      color: oklch(0.88 0.004 70);
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 238px 1fr;
+      min-height: calc(100vh - 62px);
+    }
+
+    .sidebar {
+      padding-top: 36px;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+    }
+
+    .side-caption {
+      margin-bottom: 18px;
+      padding-left: 78px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .side-item {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      padding-left: 78px;
+      font-weight: 560;
+      color: var(--text);
+    }
+
+    .side-item.active {
+      color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .content {
+      padding: 36px 54px 52px;
+      background: var(--surface);
+    }
+
+    h1 {
+      margin: 0 0 42px;
+      color: var(--heading);
+      font-size: 22px;
+      line-height: 1.2;
+      font-weight: 620;
+    }
+
+    .filters {
+      width: 1090px;
+      display: grid;
+      grid-template-columns: 320px 330px 330px;
+      gap: 18px 64px;
+      align-items: center;
+      margin: 0 auto 18px;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .field label {
+      text-align: right;
+      color: var(--muted);
+      font-weight: 560;
+    }
+
+    .control, .select, .date-range {
+      height: 34px;
+      width: 100%;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      background: oklch(0.997 0.002 70);
+      color: var(--text);
+      padding: 0 12px;
+      outline: 0;
+    }
+
+    .control::placeholder {
+      color: var(--weak);
+    }
+
+    .select {
+      appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, var(--weak) 50%), linear-gradient(135deg, var(--weak) 50%, transparent 50%);
+      background-position: calc(100% - 15px) 14px, calc(100% - 10px) 14px;
+      background-size: 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .date-range {
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      color: var(--weak);
+    }
+
+    .city-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .toolbar {
+      width: 1090px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin: 16px auto 28px;
+    }
+
+    .btn {
+      min-width: 90px;
+      height: 34px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 0 18px;
+      cursor: pointer;
+      font-weight: 650;
+      transition: background 160ms ease-out, opacity 160ms ease-out, border-color 160ms ease-out;
+    }
+
+    .btn.primary {
+      color: oklch(0.99 0.003 70);
+      background: var(--accent);
+    }
+
+    .btn.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn.secondary {
+      background: var(--surface);
+      border-color: var(--line-strong);
+      color: var(--text);
+    }
+
+    .table-wrap {
+      width: 1090px;
+      margin: 0 auto;
+      overflow: hidden;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    th {
+      height: 50px;
+      padding: 0 10px;
+      background: var(--table-head);
+      color: var(--heading);
+      text-align: left;
+      font-weight: 650;
+      border-bottom: 1px solid var(--line);
+    }
+
+    td {
+      height: 52px;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--line);
+      color: oklch(0.48 0.006 70);
+      vertical-align: middle;
+      word-break: break-all;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tr.selected td {
+      background: var(--accent-soft);
+    }
+
+    .check {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .status {
+      display: inline-flex;
+      min-width: 32px;
+      align-items: center;
+    }
+
+    .status.offline {
+      color: var(--danger);
+      font-weight: 650;
+    }
+
+    .op-link {
+      margin-right: 8px;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-weight: 560;
+    }
+
+    .pager {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .pages {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .page {
+      min-width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      background: var(--surface);
+    }
+
+    .page.active {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 3px;
+      background: var(--success-soft);
+      color: var(--success);
+      font-weight: 650;
+    }
+
+    .mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      background: oklch(0.28 0.008 70 / 0.36);
+    }
+
+    .mask.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 430px;
+      overflow: hidden;
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .modal.large {
+      width: 620px;
+    }
+
+    .modal-head {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      color: var(--heading);
+      font-size: 16px;
+      font-weight: 650;
+    }
+
+    .modal-body {
+      padding: 22px 22px 18px;
+      line-height: 1.7;
+    }
+
+    .modal-foot {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 22px 22px;
+    }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: var(--weak);
+      font-size: 22px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .hint {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .store-list {
+      margin-top: 14px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .store-list-row {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 10px;
+      min-height: 34px;
+      align-items: center;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .store-list-row:last-child {
+      border-bottom: 0;
+    }
+
+    .summary-row {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .summary-row .label {
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .fail-list {
+      margin-top: 12px;
+      padding: 10px 12px;
+      border-radius: 4px;
+      background: var(--danger-soft);
+      color: var(--danger);
+      line-height: 1.85;
+    }
+
+    .result-detail {
+      margin-top: 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      overflow: hidden;
+      background: oklch(0.995 0.002 70);
+    }
+
+    .result-title {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      color: var(--heading);
+      font-weight: 650;
+    }
+
+    .result-list {
+      padding: 8px 12px;
+      line-height: 1.85;
+      color: var(--muted);
+    }
+
+    .result-list.success {
+      color: var(--success);
+    }
+
+    .result-list.fail {
+      color: var(--danger);
+      background: var(--danger-soft);
+    }
+
+    .toast {
+      position: fixed;
+      top: 76px;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 340px;
+      min-height: 38px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border: 1px solid oklch(0.88 0.04 150);
+      border-radius: 4px;
+      background: var(--success-soft);
+      color: var(--success);
+      box-shadow: 0 8px 24px oklch(0.35 0.01 70 / 0.12);
+      z-index: 30;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    .drawer-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      background: oklch(0.28 0.008 70 / 0.22);
+      z-index: 18;
+    }
+
+    .drawer-mask.show {
+      display: block;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: -720px;
+      width: 720px;
+      height: 100vh;
+      padding: 22px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      z-index: 21;
+      transition: right 200ms ease-out;
+    }
+
+    .drawer.show {
+      right: 0;
+    }
+
+    .drawer h2 {
+      margin: 0 0 20px;
+      color: var(--heading);
+      font-size: 18px;
+      font-weight: 650;
+    }
+
+    .log-filters {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .log-table th,
+    .log-table td {
+      height: 44px;
+      padding: 0 9px;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">检</span>
+      <span>车检服务管理台</span>
+    </div>
+    <div class="top-actions">
+      <span>♙ demo_operator</span>
+      <span>回到首页</span>
+    </div>
+  </header>
+
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="side-caption">管理员</div>
+      <div class="side-item">服务商管理</div>
+      <div class="side-item active">门店管理</div>
+      <div class="side-item">优惠券管理</div>
+    </aside>
+
+    <section class="content">
+      <h1>门店管理</h1>
+
+      <form class="filters">
+        <div class="field">
+          <label>业务类型</label>
+          <select class="select"><option>车检</option></select>
+        </div>
+        <div class="field">
+          <label>门店ID</label>
+          <input class="control" placeholder="单行输入">
+        </div>
+        <div class="field">
+          <label>门店名称</label>
+          <input class="control" placeholder="单行输入">
+        </div>
+        <div class="field">
+          <label>城市选择</label>
+          <div class="city-pair">
+            <select class="select"><option>示例省</option></select>
+            <select class="select"><option>示例市</option></select>
+          </div>
+        </div>
+        <div class="field">
+          <label>注册时间</label>
+          <div class="date-range"><span>开始日期</span><span>~</span><span>结束日期</span><span>▦</span></div>
+        </div>
+        <div class="field">
+          <label>审核状态</label>
+          <select class="select"><option>审核通过</option></select>
+        </div>
+        <div class="field">
+          <label>服务商id</label>
+          <input class="control" value="SV10001">
+        </div>
+        <div class="field">
+          <label>服务商名称</label>
+          <input class="control" value="星程车检服务">
+        </div>
+        <div class="field">
+          <label>发布状态</label>
+          <select class="select"><option>上线</option></select>
+        </div>
+      </form>
+
+      <div class="toolbar">
+        <button class="btn primary" id="batchOffline" type="button">批量下线</button>
+        <button class="btn primary" type="button">批量上线</button>
+        <button class="btn primary" id="openLogs" type="button">操作日志</button>
+        <button class="btn primary" type="button">搜索</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <colgroup>
+            <col style="width: 46px">
+            <col style="width: 72px">
+            <col style="width: 96px">
+            <col style="width: 200px">
+            <col style="width: 70px">
+            <col style="width: 108px">
+            <col>
+            <col style="width: 72px">
+            <col style="width: 86px">
+            <col style="width: 96px">
+            <col style="width: 76px">
+          </colgroup>
+          <thead>
+            <tr>
+              <th><input class="check" id="selectAll" type="checkbox" aria-label="全选"></th>
+              <th>业务类型</th>
+              <th>服务商名称<br>服务商ID</th>
+              <th>门店名称</th>
+              <th>门店ID</th>
+              <th>创建时间</th>
+              <th>门店地址</th>
+              <th>所在城市</th>
+              <th>门店发布状态</th>
+              <th>门店管理状态</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody id="storeRows">
+            <tr data-id="ST10024" data-name="星河车检中心" data-fail="false">
+              <td><input class="check row-check" type="checkbox"></td>
+              <td>车检</td>
+              <td>星程车检服务<br>SV10001</td>
+              <td>星河车检中心</td>
+              <td>ST10024</td>
+              <td>2026-06-30<br>11:47:13</td>
+              <td>示例省示例市城东新区示例路25号</td>
+              <td>示例市</td>
+              <td><span class="status">上线</span></td>
+              <td>审核通过</td>
+              <td><a class="op-link">查看</a><a class="op-link single-offline">下线</a></td>
+            </tr>
+            <tr data-id="ST10022" data-name="安途车检服务站" data-fail="true">
+              <td><input class="check row-check" type="checkbox"></td>
+              <td>车检</td>
+              <td>星程车检服务<br>SV10001</td>
+              <td>安途车检服务站</td>
+              <td>ST10022</td>
+              <td>2026-06-30<br>11:41:31</td>
+              <td>示例省示例市城北片区示例路283号</td>
+              <td>示例市</td>
+              <td><span class="status">上线</span></td>
+              <td>审核通过</td>
+              <td><a class="op-link">查看</a><a class="op-link single-offline">下线</a></td>
+            </tr>
+            <tr data-id="ST10020" data-name="新桥车检中心" data-fail="false">
+              <td><input class="check row-check" type="checkbox"></td>
+              <td>车检</td>
+              <td>星程车检服务<br>SV10001</td>
+              <td>新桥车检中心</td>
+              <td>ST10020</td>
+              <td>2026-06-30<br>11:35:21</td>
+              <td>示例省示例市高新片区示例路58号</td>
+              <td>示例市</td>
+              <td><span class="status">上线</span></td>
+              <td>审核通过</td>
+              <td><a class="op-link">查看</a><a class="op-link single-offline">下线</a></td>
+            </tr>
+            <tr data-id="ST10018" data-name="云程车检服务站" data-fail="false">
+              <td><input class="check row-check" type="checkbox"></td>
+              <td>车检</td>
+              <td>星程车检服务<br>SV10001</td>
+              <td>云程车检服务站</td>
+              <td>ST10018</td>
+              <td>2026-06-30<br>11:22:49</td>
+              <td>示例省示例市经开区示例大道128号</td>
+              <td>示例市</td>
+              <td><span class="status">上线</span></td>
+              <td>审核通过</td>
+              <td><a class="op-link">查看</a><a class="op-link single-offline">下线</a></td>
+            </tr>
+            <tr data-id="ST10016" data-name="示例城南车检服务中心" data-fail="false">
+              <td><input class="check row-check" type="checkbox"></td>
+              <td>车检</td>
+              <td>星程车检服务<br>SV10001</td>
+              <td>示例城南车检服务中心</td>
+              <td>ST10016</td>
+              <td>2026-06-30<br>11:07:08</td>
+              <td>示例省示例市城南片区示例西路2888号</td>
+              <td>示例市</td>
+              <td><span class="status">上线</span></td>
+              <td>审核通过</td>
+              <td><a class="op-link">查看</a><a class="op-link single-offline">下线</a></td>
+            </tr>
+            <tr data-id="ST10014" data-name="北环车检中心" data-fail="false">
+              <td><input class="check row-check" type="checkbox"></td>
+              <td>车检</td>
+              <td>星程车检服务<br>SV10001</td>
+              <td>北环车检中心</td>
+              <td>ST10014</td>
+              <td>2026-06-30<br>11:03:48</td>
+              <td>示例省示例市产业园区示例二路2001号</td>
+              <td>示例市</td>
+              <td><span class="status">上线</span></td>
+              <td>审核通过</td>
+              <td><a class="op-link">查看</a><a class="op-link single-offline">下线</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="pager">
+          <span>共 86 条，当前展示第 21-30 条</span>
+          <div class="pages">
+            <span class="page">‹</span>
+            <span class="page">1</span>
+            <span class="page">2</span>
+            <span class="page active">3</span>
+            <span class="page">4</span>
+            <span class="page">5</span>
+            <span class="page">›</span>
+            <select class="select" style="width: 90px; height: 28px"><option>10条/页</option></select>
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="mask" id="confirmMask">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="modal-head">
+        <span id="confirmTitle">确认批量下线</span>
+        <button class="close" type="button" data-close="confirmMask">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="confirmText">确认批量下线 0 家门店？</div>
+        <div class="store-list" id="confirmStores"></div>
+        <div class="hint">点击确认后，系统将执行下线；失败门店状态保持不变。</div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" type="button" data-close="confirmMask">取消</button>
+        <button class="btn primary" id="confirmOffline" type="button">确认</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="mask" id="resultMask">
+    <section class="modal large" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
+      <div class="modal-head">
+        <span id="resultTitle">下线结果</span>
+        <button class="close" type="button" data-close="resultMask">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="summary-row">
+          <span class="label">处理结果</span>
+          <span>下线成功 <strong id="successCount">0</strong> 家，下线失败 <strong id="failCount">0</strong> 家</span>
+        </div>
+        <div class="result-detail">
+          <div class="result-title">成功门店</div>
+          <div class="result-list success" id="successList"></div>
+        </div>
+        <div class="result-detail">
+          <div class="result-title">失败门店</div>
+          <div class="result-list fail" id="failList"></div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn primary" type="button" data-close="resultMask">我知道了</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="drawer-mask" id="drawerMask"></div>
+  <aside class="drawer" id="logDrawer" aria-label="操作日志">
+    <button class="close" style="float: right" type="button" id="closeDrawer">×</button>
+    <h2>门店管理操作日志</h2>
+    <div class="log-filters">
+      <input class="control" value="demo_operator" aria-label="操作人">
+      <select class="select" aria-label="操作类型"><option>批量下线</option><option>上线</option><option>下线</option></select>
+      <input class="control" value="ST10024" aria-label="门店ID">
+      <div class="date-range"><span>2026-06-30</span><span>~</span><span>2026-06-30</span></div>
+    </div>
+    <table class="log-table">
+      <colgroup>
+        <col style="width: 86px">
+        <col style="width: 96px">
+        <col>
+        <col style="width: 96px">
+        <col style="width: 132px">
+      </colgroup>
+      <thead>
+        <tr>
+          <th>门店ID</th>
+          <th>操作类型</th>
+          <th>操作内容</th>
+          <th>操作人</th>
+          <th>操作时间</th>
+        </tr>
+      </thead>
+      <tbody id="logRows">
+        <tr>
+          <td>ST10018</td>
+          <td>上线</td>
+          <td>门店发布状态由下线变更为上线</td>
+          <td>demo_operator</td>
+          <td>2026-06-30 11:22:49</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="hint">日志默认按操作时间倒序排列；操作人、操作类型、门店ID 可组合检索。</p>
+  </aside>
+
+  <script>
+    const selectAll = document.querySelector("#selectAll");
+    const checks = Array.from(document.querySelectorAll(".row-check"));
+    const rows = Array.from(document.querySelectorAll("#storeRows tr"));
+    const batchOffline = document.querySelector("#batchOffline");
+    const confirmMask = document.querySelector("#confirmMask");
+    const resultMask = document.querySelector("#resultMask");
+    const confirmText = document.querySelector("#confirmText");
+    const confirmStores = document.querySelector("#confirmStores");
+    const confirmOffline = document.querySelector("#confirmOffline");
+    const successCount = document.querySelector("#successCount");
+    const failCount = document.querySelector("#failCount");
+    const successList = document.querySelector("#successList");
+    const failList = document.querySelector("#failList");
+    const toast = document.querySelector("#toast");
+    const openLogs = document.querySelector("#openLogs");
+    const drawer = document.querySelector("#logDrawer");
+    const drawerMask = document.querySelector("#drawerMask");
+    const closeDrawer = document.querySelector("#closeDrawer");
+    const logRows = document.querySelector("#logRows");
+
+    function selectedRows() {
+      return rows.filter(row => row.querySelector(".row-check").checked);
+    }
+
+    function syncSelection() {
+      const selected = selectedRows();
+      rows.forEach(row => row.classList.toggle("selected", row.querySelector(".row-check").checked));
+      selectAll.checked = selected.length === checks.length;
+      selectAll.indeterminate = selected.length > 0 && selected.length < checks.length;
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 2000);
+    }
+
+    function storeLine(row) {
+      return `<div class="store-list-row"><span>${row.dataset.id}</span><span>${row.dataset.name}</span></div>`;
+    }
+
+    function openConfirm() {
+      const selected = selectedRows();
+      if (!selected.length) {
+        return;
+      }
+      confirmText.textContent = `确认批量下线 ${selected.length} 家门店？`;
+      confirmStores.innerHTML = selected.map(storeLine).join("");
+      confirmMask.classList.add("show");
+    }
+
+    function clearChecks() {
+      checks.forEach(check => check.checked = false);
+      syncSelection();
+    }
+
+    selectAll.addEventListener("change", () => {
+      checks.forEach(check => check.checked = selectAll.checked);
+      syncSelection();
+    });
+
+    checks.forEach(check => check.addEventListener("change", syncSelection));
+    batchOffline.addEventListener("click", openConfirm);
+
+    document.querySelectorAll(".single-offline").forEach(link => {
+      link.addEventListener("click", event => {
+        clearChecks();
+        event.target.closest("tr").querySelector(".row-check").checked = true;
+        syncSelection();
+        openConfirm();
+      });
+    });
+
+    document.querySelectorAll("[data-close]").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelector(`#${button.dataset.close}`).classList.remove("show");
+      });
+    });
+
+    confirmOffline.addEventListener("click", () => {
+      const selected = selectedRows();
+      const failed = selected.filter(row => row.dataset.fail === "true");
+      const succeeded = selected.filter(row => row.dataset.fail !== "true");
+
+      succeeded.forEach(row => {
+        const status = row.querySelector(".status");
+        status.textContent = "下线";
+        status.classList.add("offline");
+        const log = document.createElement("tr");
+        log.innerHTML = `<td>${row.dataset.id}</td><td>批量下线</td><td>门店发布状态由上线变更为下线</td><td>demo_operator</td><td>2026-06-30 15:58:25</td>`;
+        logRows.prepend(log);
+      });
+
+      successCount.textContent = succeeded.length;
+      failCount.textContent = failed.length;
+      successList.innerHTML = succeeded.length
+        ? succeeded.map(row => `${row.dataset.name}（门店ID ${row.dataset.id}）`).join("<br>")
+        : "无成功门店";
+      failList.innerHTML = failed.length
+        ? failed.map(row => `${row.dataset.name}（门店ID ${row.dataset.id}）：门店状态已变化，请刷新后重试`).join("<br>")
+        : "无失败门店";
+
+      confirmMask.classList.remove("show");
+      resultMask.classList.add("show");
+      clearChecks();
+    });
+
+    openLogs.addEventListener("click", () => {
+      drawer.classList.add("show");
+      drawerMask.classList.add("show");
+    });
+
+    function hideDrawer() {
+      drawer.classList.remove("show");
+      drawerMask.classList.remove("show");
+    }
+
+    closeDrawer.addEventListener("click", hideDrawer);
+    drawerMask.addEventListener("click", hideDrawer);
+    syncSelection();
+  </script>
+</body>
+</html>
