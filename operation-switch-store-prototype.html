@@ -508,6 +508,11 @@
       background: #eef1f5;
     }
 
+    .status-pending {
+      color: #b66d05;
+      background: #fff4df;
+    }
+
     .ops {
       display: flex;
       justify-content: center;
@@ -774,6 +779,10 @@
       overflow: hidden;
     }
 
+    .modal-wide {
+      width: 680px;
+    }
+
     .modal-head {
       height: 58px;
       border-bottom: 1px solid #edf0f5;
@@ -841,6 +850,71 @@
     }
 
     .confirm-store-row:first-child { border-top: 0; }
+
+    .result-summary {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .result-pill {
+      flex: 1;
+      min-height: 58px;
+      border: 1px solid #e2e7f0;
+      border-radius: 5px;
+      background: #f7f8fb;
+      padding: 10px 14px;
+    }
+
+    .result-pill b {
+      display: block;
+      color: #252b38;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .result-pill span {
+      color: #6b7484;
+      font-weight: 700;
+    }
+
+    .result-pill.success b { color: var(--green); }
+    .result-pill.fail b { color: var(--danger); }
+
+    .failure-list {
+      max-height: 220px;
+      overflow: auto;
+      border: 1px solid #e2e7f0;
+      border-radius: 5px;
+      background: #fffffe;
+    }
+
+    .failure-head,
+    .failure-row {
+      display: grid;
+      grid-template-columns: 92px minmax(130px, 1fr) minmax(210px, 1.5fr);
+      gap: 10px;
+      align-items: center;
+      min-height: 40px;
+      padding: 0 12px;
+    }
+
+    .failure-head {
+      background: #f1f3f7;
+      color: #6a7285;
+      font-weight: 800;
+    }
+
+    .failure-row {
+      border-top: 1px solid #edf0f5;
+      color: #3f4655;
+    }
+
+    .failure-empty {
+      padding: 14px 12px;
+      color: #6b7484;
+      font-weight: 700;
+    }
 
     .modal-foot {
       display: flex;
@@ -976,37 +1050,51 @@
                 <th>门店名称</th>
                 <th style="width:130px;">城市</th>
                 <th style="width:160px;">电话</th>
+                <th style="width:210px;">归属商户</th>
                 <th style="width:120px;">状态</th>
                 <th style="width:190px;">操作</th>
               </tr>
             </thead>
             <tbody>
-              <tr data-store-id="27522" data-store-name="星程车检中心" data-merchant="90036｜澄安汽车服务中心">
+              <tr data-store-id="27522" data-store-name="星程车检中心" data-merchant="90036｜澄安汽车服务中心" data-status="启用">
                 <td><span class="checkbox row-check" data-store-id="27522"></span></td>
                 <td>27522</td>
                 <td>星程车检中心</td>
                 <td>示例市</td>
                 <td>138****2301</td>
+                <td>90036｜澄安汽车服务中心</td>
                 <td><span class="status status-on">启用</span></td>
                 <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27522">更换商户</a></div></td>
               </tr>
-              <tr data-store-id="27520" data-store-name="云桥检测站" data-merchant="90036｜澄安汽车服务中心">
+              <tr data-store-id="27520" data-store-name="云桥检测站" data-merchant="90036｜澄安汽车服务中心" data-latest-merchant="90102｜衡安检测服务商" data-status="启用">
                 <td><span class="checkbox row-check" data-store-id="27520"></span></td>
                 <td>27520</td>
                 <td>云桥检测站</td>
                 <td>示例市</td>
                 <td>138****4516</td>
+                <td>90036｜澄安汽车服务中心</td>
                 <td><span class="status status-on">启用</span></td>
                 <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27520">更换商户</a></div></td>
               </tr>
-              <tr data-store-id="27506" data-store-name="衡安车检广场" data-merchant="90102｜衡安检测服务商">
+              <tr data-store-id="27506" data-store-name="衡安车检广场" data-merchant="90102｜衡安检测服务商" data-status="启用" data-latest-status="停用">
                 <td><span class="checkbox row-check" data-store-id="27506"></span></td>
                 <td>27506</td>
                 <td>衡安车检广场</td>
                 <td>示例市</td>
                 <td>138****7812</td>
-                <td><span class="status status-off">停用</span></td>
+                <td>90102｜衡安检测服务商</td>
+                <td><span class="status status-on">启用</span></td>
                 <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27506">更换商户</a></div></td>
+              </tr>
+              <tr data-store-id="27518" data-store-name="启明检测服务站" data-merchant="90216｜云程车检合作商" data-status="审核中">
+                <td><span class="checkbox row-check" data-store-id="27518"></span></td>
+                <td>27518</td>
+                <td>启明检测服务站</td>
+                <td>示例市</td>
+                <td>138****6729</td>
+                <td>90216｜云程车检合作商</td>
+                <td><span class="status status-pending">审核中</span></td>
+                <td><div class="ops"><a data-page="detail">查看详情</a></div></td>
               </tr>
             </tbody>
           </table>
@@ -1137,12 +1225,32 @@
     </div>
   </div>
 
+  <div class="mask" id="resultMask">
+    <div class="modal modal-wide">
+      <div class="modal-head">
+        <div class="modal-title">更换商户执行结果</div>
+        <button class="close" id="closeResult">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="result-summary">
+          <div class="result-pill success"><b id="successCount">0 家</b><span>成功</span></div>
+          <div class="result-pill fail"><b id="failureCount">0 家</b><span>失败</span></div>
+        </div>
+        <div class="failure-list" id="failureList"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-primary" id="finishResult">我知道了</button>
+      </div>
+    </div>
+  </div>
+
   <div class="toast" id="toast">更换商户成功</div>
 
   <script>
     const pages = [...document.querySelectorAll('.page')];
     const subtabs = [...document.querySelectorAll('.subtab')];
     const confirmMask = document.getElementById('confirmMask');
+    const resultMask = document.getElementById('resultMask');
     const toast = document.getElementById('toast');
     const selectAll = document.getElementById('selectAll');
     const rowChecks = [...document.querySelectorAll('.row-check')];
@@ -1155,6 +1263,9 @@
     const confirmStoreCount = document.getElementById('confirmStoreCount');
     const confirmStoreList = document.getElementById('confirmStoreList');
     const confirmMerchant = document.getElementById('confirmMerchant');
+    const successCount = document.getElementById('successCount');
+    const failureCount = document.getElementById('failureCount');
+    const failureList = document.getElementById('failureList');
     const merchantBox = document.getElementById('merchantBox');
     const merchantTrigger = document.getElementById('merchantTrigger');
     const merchantValue = document.getElementById('merchantValue');
@@ -1181,6 +1292,9 @@
       id: row.dataset.storeId,
       name: row.dataset.storeName,
       merchant: row.dataset.merchant,
+      latestMerchant: row.dataset.latestMerchant || row.dataset.merchant,
+      status: row.dataset.status,
+      latestStatus: row.dataset.latestStatus || row.dataset.status,
       row
     }));
 
@@ -1206,6 +1320,38 @@
         <div class="confirm-store-row"><span>${store.id}</span><b>${store.name}</b></div>
       `).join('');
       confirmStoreCount.textContent = `${storeList.length} 个`;
+    }
+
+    function getBlockReason(store) {
+      if (store.latestStatus !== store.status) {
+        return `门店状态已由「${store.status}」变更为「${store.latestStatus}」，请刷新后重试`;
+      }
+      if (store.latestMerchant !== store.merchant) {
+        return `归属商户已由「${store.merchant}」变更为「${store.latestMerchant}」，请刷新后重试`;
+      }
+      if (store.status === '审核中') return '门店审核中，暂不支持更换商户';
+      if (store.status !== '启用') return `门店状态为「${store.status}」，暂不支持更换商户`;
+      return '';
+    }
+
+    function renderChangeResult(results) {
+      const successList = results.filter(result => result.success);
+      const failureRows = results.filter(result => !result.success);
+      successCount.textContent = `${successList.length} 家`;
+      failureCount.textContent = `${failureRows.length} 家`;
+      failureList.innerHTML = failureRows.length
+        ? `
+          <div class="failure-head"><span>门店id</span><span>门店名称</span><span>失败原因</span></div>
+          ${failureRows.map(result => `
+            <div class="failure-row">
+              <span>${result.store.id}</span>
+              <span>${result.store.name}</span>
+              <span>${result.reason}</span>
+            </div>
+          `).join('')}
+        `
+        : '<div class="failure-empty">本次无失败门店</div>';
+      resultMask.style.display = 'flex';
     }
 
     function showToast(message) {
@@ -1350,11 +1496,18 @@
     document.getElementById('cancelConfirm').addEventListener('click', () => confirmMask.style.display = 'none');
     document.getElementById('confirmChange').addEventListener('click', () => {
       confirmMask.style.display = 'none';
-      showToast('更换商户成功');
+      const results = getStoresByIds(changeStoreIds).map(store => {
+        const reason = getBlockReason(store);
+        return { store, success: !reason, reason };
+      });
+      renderChangeResult(results);
+      showToast('更换商户处理完成');
       selectedStoreIds = [];
       updateSelection();
       showPage('stores');
     });
+    document.getElementById('closeResult').addEventListener('click', () => resultMask.style.display = 'none');
+    document.getElementById('finishResult').addEventListener('click', () => resultMask.style.display = 'none');
 
     const initial = window.location.hash.replace('#', '');
     renderStoreList(changeStoreList, getStoresByIds(changeStoreIds));
