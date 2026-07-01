@@ -780,7 +780,7 @@
     }
 
     .modal-wide {
-      width: 680px;
+      width: 760px;
     }
 
     .modal-head {
@@ -852,24 +852,28 @@
     .confirm-store-row:first-child { border-top: 0; }
 
     .result-summary {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 16px;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
     }
 
     .result-pill {
-      flex: 1;
-      min-height: 58px;
-      border: 1px solid #e2e7f0;
+      min-height: 72px;
+      border: 1px solid #dfe5ee;
       border-radius: 5px;
-      background: #f7f8fb;
-      padding: 10px 14px;
+      background: #fffffe;
+      padding: 13px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
     }
 
     .result-pill b {
       display: block;
       color: #252b38;
-      font-size: 22px;
+      font-size: 28px;
       line-height: 1.2;
     }
 
@@ -878,39 +882,103 @@
       font-weight: 700;
     }
 
+    .result-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+    }
+
+    .result-pill.success {
+      border-color: #ccebdc;
+      background: #f4fbf7;
+    }
+
     .result-pill.success b { color: var(--green); }
+
+    .result-pill.success .result-icon {
+      color: var(--green);
+      background: #e2f6ec;
+    }
+
+    .result-pill.fail {
+      border-color: #f4cbc8;
+      background: #fff7f6;
+    }
+
     .result-pill.fail b { color: var(--danger); }
 
-    .failure-list {
-      max-height: 220px;
-      overflow: auto;
+    .result-pill.fail .result-icon {
+      color: var(--danger);
+      background: #ffe8e6;
+    }
+
+    .result-sections {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .result-detail {
       border: 1px solid #e2e7f0;
       border-radius: 5px;
       background: #fffffe;
+      overflow: hidden;
     }
 
-    .failure-head,
-    .failure-row {
+    .result-detail-title {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      background: #f7f8fb;
+      border-bottom: 1px solid #e7ebf2;
+      color: #252b38;
+      font-weight: 800;
+    }
+
+    .result-detail-title span {
+      color: #7a8394;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .result-list {
+      max-height: 220px;
+      overflow: auto;
+    }
+
+    .result-head,
+    .result-row {
       display: grid;
-      grid-template-columns: 92px minmax(130px, 1fr) minmax(210px, 1.5fr);
+      grid-template-columns: 88px minmax(120px, 1fr);
       gap: 10px;
       align-items: center;
       min-height: 40px;
       padding: 0 12px;
     }
 
-    .failure-head {
+    .result-head {
       background: #f1f3f7;
       color: #6a7285;
       font-weight: 800;
     }
 
-    .failure-row {
+    .result-row {
       border-top: 1px solid #edf0f5;
       color: #3f4655;
     }
 
-    .failure-empty {
+    .result-row.reason,
+    .result-head.reason {
+      grid-template-columns: 80px minmax(110px, 1fr) minmax(210px, 1.5fr);
+    }
+
+    .result-empty {
       padding: 14px 12px;
       color: #6b7484;
       font-weight: 700;
@@ -1233,10 +1301,25 @@
       </div>
       <div class="modal-body">
         <div class="result-summary">
-          <div class="result-pill success"><b id="successCount">0 家</b><span>成功</span></div>
-          <div class="result-pill fail"><b id="failureCount">0 家</b><span>失败</span></div>
+          <div class="result-pill success">
+            <div><b id="successCount">0 家</b><span>处理成功</span></div>
+            <span class="result-icon">✓</span>
+          </div>
+          <div class="result-pill fail">
+            <div><b id="failureCount">0 家</b><span>处理失败</span></div>
+            <span class="result-icon">!</span>
+          </div>
         </div>
-        <div class="failure-list" id="failureList"></div>
+        <div class="result-sections">
+          <div class="result-detail">
+            <div class="result-detail-title">成功门店 <span id="successTitleCount">0 家</span></div>
+            <div class="result-list" id="successList"></div>
+          </div>
+          <div class="result-detail">
+            <div class="result-detail-title">失败门店 <span id="failureTitleCount">0 家</span></div>
+            <div class="result-list" id="failureList"></div>
+          </div>
+        </div>
       </div>
       <div class="modal-foot">
         <button class="btn btn-primary" id="finishResult">我知道了</button>
@@ -1265,6 +1348,9 @@
     const confirmMerchant = document.getElementById('confirmMerchant');
     const successCount = document.getElementById('successCount');
     const failureCount = document.getElementById('failureCount');
+    const successTitleCount = document.getElementById('successTitleCount');
+    const failureTitleCount = document.getElementById('failureTitleCount');
+    const successList = document.getElementById('successList');
     const failureList = document.getElementById('failureList');
     const merchantBox = document.getElementById('merchantBox');
     const merchantTrigger = document.getElementById('merchantTrigger');
@@ -1335,22 +1421,35 @@
     }
 
     function renderChangeResult(results) {
-      const successList = results.filter(result => result.success);
+      const successRows = results.filter(result => result.success);
       const failureRows = results.filter(result => !result.success);
-      successCount.textContent = `${successList.length} 家`;
+      successCount.textContent = `${successRows.length} 家`;
       failureCount.textContent = `${failureRows.length} 家`;
+      successTitleCount.textContent = `${successRows.length} 家`;
+      failureTitleCount.textContent = `${failureRows.length} 家`;
+      successList.innerHTML = successRows.length
+        ? `
+          <div class="result-head"><span>门店id</span><span>门店名称</span></div>
+          ${successRows.map(result => `
+            <div class="result-row">
+              <span>${result.store.id}</span>
+              <span>${result.store.name}</span>
+            </div>
+          `).join('')}
+        `
+        : '<div class="result-empty">本次无成功门店</div>';
       failureList.innerHTML = failureRows.length
         ? `
-          <div class="failure-head"><span>门店id</span><span>门店名称</span><span>失败原因</span></div>
+          <div class="result-head reason"><span>门店id</span><span>门店名称</span><span>失败原因</span></div>
           ${failureRows.map(result => `
-            <div class="failure-row">
+            <div class="result-row reason">
               <span>${result.store.id}</span>
               <span>${result.store.name}</span>
               <span>${result.reason}</span>
             </div>
           `).join('')}
         `
-        : '<div class="failure-empty">本次无失败门店</div>';
+        : '<div class="result-empty">本次无失败门店</div>';
       resultMask.style.display = 'flex';
     }
 
