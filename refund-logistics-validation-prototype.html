@@ -466,13 +466,6 @@
 
         <div class="form-block">
           <div class="field">
-            <div class="field-label"><span class="required">*</span>物流公司</div>
-            <div class="input-wrap" id="companyWrap">
-              <input id="companyInput" value="圆通速递" placeholder="将根据运单号自动识别">
-            </div>
-          </div>
-
-          <div class="field">
             <div class="field-label"><span class="required">*</span>物流单号</div>
             <div class="input-wrap" id="trackingWrap">
               <input id="trackingInput" value="YT8882272201348" placeholder="请输入退货物流单号">
@@ -480,8 +473,11 @@
             <div class="identify success show" id="identifyTip">已识别物流公司：圆通速递。确认寄出时后端会再次校验。</div>
           </div>
 
-          <div class="rule-card">
-            校验规则：物流单号仅允许英文大小写字母和数字。格式错误会阻断提交；未识别物流公司时会提醒核对，但确认后可继续提交。
+          <div class="field">
+            <div class="field-label">物流公司</div>
+            <div class="input-wrap" id="companyWrap">
+              <input id="companyInput" value="圆通速递" placeholder="将根据运单号自动识别">
+            </div>
           </div>
         </div>
       </section>
