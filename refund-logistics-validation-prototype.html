@@ -470,7 +470,7 @@
             <div class="input-wrap" id="trackingWrap">
               <input id="trackingInput" value="YT8882272201348" placeholder="请输入退货物流单号">
             </div>
-            <div class="identify success show" id="identifyTip">已识别物流公司：圆通速递。确认寄出时后端会再次校验。</div>
+            <div class="identify success show" id="identifyTip">已识别物流公司：圆通速递</div>
           </div>
 
           <div class="field">
@@ -555,7 +555,7 @@
       if (carrier) {
         companyInput.value = carrier.name;
         identifyTip.classList.add('success', 'show');
-        identifyTip.textContent = `已识别物流公司：${carrier.name}。确认寄出时后端会再次校验。`;
+        identifyTip.textContent = `已识别物流公司：${carrier.name}`;
         return { valid: true, recognized: true };
       }
 
