@@ -1,0 +1,534 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>退款详情 - 售后进度原型</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #fffffe;
+      --text: #222631;
+      --muted: #7b8494;
+      --subtle: #a4acba;
+      --line: #edf0f5;
+      --orange: #ff7a35;
+      --orange-soft: #fff0e8;
+      --green: #18a766;
+      --blue: #3478f6;
+      --shadow: 0 8px 22px rgba(42, 49, 66, .08);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #e8ecf3;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 24px 0;
+      font-size: 14px;
+    }
+
+    .phone {
+      width: 390px;
+      min-height: 844px;
+      background: var(--bg);
+      border: 1px solid #d7dce6;
+      box-shadow: 0 18px 46px rgba(26, 32, 46, .18);
+      overflow: hidden;
+    }
+
+    .status-bar {
+      height: 38px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fffffe;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .system-icons {
+      letter-spacing: 2px;
+      color: #10131a;
+    }
+
+    .nav {
+      height: 46px;
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      background: #fffffe;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .back {
+      width: 13px;
+      height: 13px;
+      margin-left: 18px;
+      border-left: 2px solid #2b303b;
+      border-bottom: 2px solid #2b303b;
+      transform: rotate(45deg);
+    }
+
+    .nav-title {
+      text-align: center;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .hero {
+      background: linear-gradient(100deg, #ffe5db, #fff5ef 68%, #fff9f5);
+      min-height: 104px;
+      padding: 17px 22px 16px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "!";
+      position: absolute;
+      right: 24px;
+      top: 12px;
+      width: 66px;
+      height: 66px;
+      border-radius: 50%;
+      border: 8px solid rgba(255, 255, 255, .52);
+      color: rgba(255, 255, 255, .72);
+      display: grid;
+      place-items: center;
+      font-size: 40px;
+      font-weight: 900;
+    }
+
+    .hero h1 {
+      margin: 0 0 6px;
+      font-size: 25px;
+      line-height: 1.12;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 270px;
+      color: #7f6c65;
+      line-height: 1.45;
+      font-weight: 650;
+    }
+
+    .content {
+      padding: 10px 10px 18px;
+    }
+
+    .mode-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 7px;
+      margin-bottom: 10px;
+    }
+
+    .mode-tabs button {
+      height: 34px;
+      border: 1px solid #e4e8f0;
+      border-radius: 9px;
+      background: #fffffe;
+      color: #687184;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .mode-tabs button.active {
+      color: var(--orange);
+      border-color: #ffc5a6;
+      background: #fff5ef;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .product {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 12px;
+      padding: 13px;
+    }
+
+    .thumb {
+      width: 76px;
+      height: 76px;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 42% 50%, #20242d 0 18%, transparent 19%),
+        radial-gradient(circle at 64% 50%, #3b414c 0 15%, transparent 16%),
+        linear-gradient(135deg, #e2f1f4, #d2e8ee);
+      position: relative;
+    }
+
+    .thumb::before,
+    .thumb::after {
+      content: "";
+      position: absolute;
+      top: 34px;
+      width: 22px;
+      height: 10px;
+      border-radius: 9px;
+      background: #2a2e37;
+    }
+
+    .thumb::before { left: 16px; }
+    .thumb::after { right: 15px; }
+
+    .product-title {
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 800;
+      margin: 1px 0 8px;
+    }
+
+    .refund-money {
+      display: flex;
+      gap: 9px;
+      align-items: baseline;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .price {
+      color: var(--orange);
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .section {
+      padding: 15px 14px;
+    }
+
+    .section-title {
+      margin: 0 0 14px;
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .progress-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+
+    .current-node {
+      color: var(--orange);
+      background: var(--orange-soft);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .stepper {
+      display: grid;
+      grid-template-columns: repeat(var(--step-count), 1fr);
+      position: relative;
+      padding: 7px 0 2px;
+    }
+
+    .stepper::before {
+      content: "";
+      position: absolute;
+      left: calc(100% / var(--step-count) / 2);
+      right: calc(100% / var(--step-count) / 2);
+      top: 18px;
+      height: 2px;
+      background: #e6ebf2;
+    }
+
+    .progress-line {
+      position: absolute;
+      left: calc(100% / var(--step-count) / 2);
+      top: 18px;
+      height: 2px;
+      width: var(--progress-width);
+      background: var(--orange);
+      z-index: 1;
+    }
+
+    .step {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      justify-items: center;
+      gap: 7px;
+      color: var(--subtle);
+      font-size: 12px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #d8dee8;
+      background: #fffffe;
+      display: grid;
+      place-items: center;
+      color: #b6bfcd;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .step.done,
+    .step.active {
+      color: #2e3542;
+    }
+
+    .step.done .dot {
+      border-color: var(--orange);
+      background: var(--orange);
+      color: #fffffe;
+    }
+
+    .step.active .dot {
+      border-color: var(--orange);
+      background: #fff5ef;
+      color: var(--orange);
+      box-shadow: 0 0 0 5px rgba(255, 122, 53, .11);
+    }
+
+    .node-copy {
+      margin-top: 12px;
+      padding: 10px 11px;
+      border-radius: 9px;
+      background: #f7f9fc;
+      color: #697386;
+      line-height: 1.45;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .info-row {
+      display: grid;
+      grid-template-columns: 82px 1fr;
+      gap: 8px;
+      align-items: start;
+      margin-bottom: 10px;
+      font-size: 13px;
+      line-height: 1.42;
+    }
+
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .label {
+      color: #a0a8b6;
+      font-weight: 800;
+    }
+
+    .value {
+      color: #505968;
+      font-weight: 750;
+      word-break: break-word;
+    }
+
+    .copy {
+      display: inline-flex;
+      margin-left: 7px;
+      color: #9ca5b5;
+      font-size: 12px;
+    }
+
+    .reason {
+      color: #4d5665;
+      max-height: 112px;
+      overflow: hidden;
+    }
+
+    .contact {
+      height: 46px;
+      margin-top: 12px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      gap: 6px;
+      color: #3d4450;
+      font-weight: 850;
+      font-size: 13px;
+    }
+
+    .footnote {
+      color: #98a2b2;
+      text-align: center;
+      font-size: 12px;
+      margin-top: 18px;
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span class="system-icons">▮▮▮ Wi-Fi ▰</span>
+    </div>
+    <div class="nav">
+      <span class="back"></span>
+      <div class="nav-title">退款详情</div>
+      <span></span>
+    </div>
+
+    <section class="hero">
+      <h1 id="statusTitle">退货申请中</h1>
+      <p id="statusDesc">若商家未在0天23时59分58秒内处理，将自动同意退货</p>
+    </section>
+
+    <div class="content">
+      <div class="mode-tabs" aria-label="售后场景切换">
+        <button class="active" data-mode="return-processing">退货退款处理中</button>
+        <button data-mode="refund-processing">仅退款处理中</button>
+        <button data-mode="refund-closed">退款结束态</button>
+      </div>
+
+      <section class="card product">
+        <div class="thumb" aria-hidden="true"></div>
+        <div>
+          <div class="product-title">网易严选 车载无线充支架10W大功率能充电支架</div>
+          <div class="refund-money"><span>退款金额</span><span class="price">¥79</span></div>
+        </div>
+      </section>
+
+      <section class="card section">
+        <div class="progress-head">
+          <h2 class="section-title" style="margin:0;">售后进度</h2>
+          <span class="current-node" id="currentNode">当前节点：商家处理</span>
+        </div>
+        <div class="stepper" id="stepper" style="--step-count:3; --progress-width:0%;">
+          <span class="progress-line" id="progressLine"></span>
+          <div class="step active">
+            <span class="dot">1</span>
+            <span>商家处理</span>
+          </div>
+          <div class="step">
+            <span class="dot">2</span>
+            <span>寄回商品</span>
+          </div>
+          <div class="step">
+            <span class="dot">3</span>
+            <span>退款结束</span>
+          </div>
+        </div>
+        <div class="node-copy" id="nodeCopy">退款类型为退货退款，用户已发起退款，当前等待商家处理。</div>
+      </section>
+
+      <section class="card section">
+        <h2 class="section-title">退款信息</h2>
+        <div class="info-row">
+          <div class="label">订单编号</div>
+          <div class="value">140129909743584989 <span class="copy">复制</span></div>
+        </div>
+        <div class="info-row">
+          <div class="label">申请时间</div>
+          <div class="value">2022-06-13 13:23:51</div>
+        </div>
+        <div class="info-row">
+          <div class="label">退款类型</div>
+          <div class="value" id="refundType">退货退款</div>
+        </div>
+        <div class="info-row">
+          <div class="label">退款状态</div>
+          <div class="value" id="refundStatus">待商家处理</div>
+        </div>
+        <div class="info-row">
+          <div class="label">退款原因</div>
+          <div class="value reason">其他，不能更换快递公司，想更换为顺丰。超级长的退款原因超级长的退款原因超级长的退款原因超级长的退款原因超级长的退款原因超级长的退款原因超级长的退款原因超级长的退款原因。</div>
+        </div>
+        <div class="contact">🎧 联系店家</div>
+      </section>
+
+      <div class="footnote">页面刷新或退款状态变更后，售后进度同步展示最新节点</div>
+    </div>
+  </main>
+
+  <script>
+    const scenarios = {
+      'return-processing': {
+        title: '退货申请中',
+        desc: '若商家未在0天23时59分58秒内处理，将自动同意退货',
+        type: '退货退款',
+        status: '待商家处理',
+        current: 0,
+        nodes: ['商家处理', '寄回商品', '退款结束'],
+        copy: '退款类型为退货退款，用户已发起退款，当前等待商家处理。'
+      },
+      'refund-processing': {
+        title: '退款申请中',
+        desc: '若商家未在0天23时59分58秒内处理，将自动同意退款',
+        type: '仅退款',
+        status: '待商家处理',
+        current: 0,
+        nodes: ['商家处理', '退款结束'],
+        copy: '退款类型为仅退款，共两个节点，当前等待商家处理。'
+      },
+      'refund-closed': {
+        title: '退款已关闭',
+        desc: '商家已拒绝退款，本次售后流程已结束',
+        type: '退货退款',
+        status: '退款关闭',
+        current: 2,
+        nodes: ['商家处理', '寄回商品', '退款结束'],
+        copy: '退款状态为退款成功、退款结束或退款关闭时，当前节点展示为退款结束。'
+      }
+    };
+
+    const tabs = [...document.querySelectorAll('[data-mode]')];
+    const statusTitle = document.getElementById('statusTitle');
+    const statusDesc = document.getElementById('statusDesc');
+    const currentNode = document.getElementById('currentNode');
+    const stepper = document.getElementById('stepper');
+    const progressLine = document.getElementById('progressLine');
+    const nodeCopy = document.getElementById('nodeCopy');
+    const refundType = document.getElementById('refundType');
+    const refundStatus = document.getElementById('refundStatus');
+
+    function renderScenario(key) {
+      const scenario = scenarios[key];
+      statusTitle.textContent = scenario.title;
+      statusDesc.textContent = scenario.desc;
+      currentNode.textContent = `当前节点：${scenario.nodes[scenario.current]}`;
+      nodeCopy.textContent = scenario.copy;
+      refundType.textContent = scenario.type;
+      refundStatus.textContent = scenario.status;
+      stepper.style.setProperty('--step-count', scenario.nodes.length);
+      const progressWidth = scenario.nodes.length === 1 ? 0 : (scenario.current / (scenario.nodes.length - 1)) * (100 - (100 / scenario.nodes.length));
+      stepper.style.setProperty('--progress-width', `${progressWidth}%`);
+      progressLine.style.display = scenario.current > 0 ? 'block' : 'none';
+      stepper.innerHTML = '<span class="progress-line" id="progressLine"></span>' + scenario.nodes.map((node, index) => {
+        const state = index < scenario.current ? 'done' : (index === scenario.current ? 'active' : '');
+        const mark = index < scenario.current ? '✓' : index + 1;
+        return `<div class="step ${state}"><span class="dot">${mark}</span><span>${node}</span></div>`;
+      }).join('');
+      stepper.querySelector('.progress-line').style.display = scenario.current > 0 ? 'block' : 'none';
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(item => item.classList.toggle('active', item === tab));
+        renderScenario(tab.dataset.mode);
+      });
+    });
+  </script>
+</body>
+</html>
