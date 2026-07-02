@@ -83,37 +83,56 @@
     }
 
     .top-progress {
-      height: 42px;
-      display: grid;
-      grid-template-columns: 44px 1fr 44px;
-      align-items: center;
+      min-height: 56px;
+      padding: 8px 14px 10px;
       background: #fffffe;
       border-bottom: 1px solid var(--line);
     }
 
     .progress-strip {
-      min-width: 0;
-      height: 30px;
-      display: flex;
+      min-height: 38px;
+      display: grid;
+      grid-template-columns: repeat(var(--node-count), minmax(0, 1fr));
       align-items: center;
-      justify-content: center;
-      gap: 8px;
-      border: 1px solid #f05b65;
-      border-radius: 4px;
-      color: #a7adb8;
-      font-size: 17px;
-      font-weight: 700;
-      white-space: nowrap;
+      position: relative;
+      padding: 0 2px;
+      color: #a1a8b4;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .progress-strip::before {
+      content: "";
+      position: absolute;
+      left: calc(100% / var(--node-count) / 2);
+      right: calc(100% / var(--node-count) / 2);
+      top: 12px;
+      height: 2px;
+      background: #edf0f5;
+    }
+
+    .progress-fill {
+      position: absolute;
+      left: calc(100% / var(--node-count) / 2);
+      top: 12px;
+      width: var(--progress-width);
+      height: 2px;
+      background: #ff7a35;
+      z-index: 1;
     }
 
     .progress-strip .node {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      justify-items: center;
+      gap: 6px;
       min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      text-align: center;
     }
 
     .progress-strip .node.done {
-      color: #8d949f;
+      color: #7e8794;
     }
 
     .progress-strip .node.active {
@@ -121,21 +140,31 @@
       font-weight: 900;
     }
 
-    .progress-strip .sep {
-      width: 0;
-      height: 0;
-      border-top: 6px solid transparent;
-      border-bottom: 6px solid transparent;
-      border-left: 7px solid #eceff4;
-      flex: 0 0 auto;
-    }
-
-    .more {
-      color: #1f2430;
-      text-align: center;
-      font-size: 26px;
+    .progress-dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #dde3ec;
+      background: #fffffe;
+      color: #a8b0bd;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
       font-weight: 900;
       line-height: 1;
+    }
+
+    .node.done .progress-dot {
+      border-color: #ff7a35;
+      background: #ff7a35;
+      color: #fffffe;
+    }
+
+    .node.active .progress-dot {
+      border-color: #ff7a35;
+      color: #ff7a35;
+      background: #fff5ef;
+      box-shadow: 0 0 0 4px rgba(255, 122, 53, .12);
     }
 
     .hero {
@@ -183,7 +212,7 @@
     }
 
     .mode-tabs {
-      display: grid;
+      display: none;
       grid-template-columns: repeat(3, 1fr);
       gap: 7px;
       margin-bottom: 10px;
@@ -330,6 +359,7 @@
     }
 
     .footnote {
+      display: none;
       color: #98a2b2;
       text-align: center;
       font-size: 12px;
@@ -349,15 +379,12 @@
       <span></span>
     </div>
     <div class="top-progress">
-      <span></span>
-      <div class="progress-strip" id="topProgress">
-        <span class="node active">1商家处理</span>
-        <span class="sep"></span>
-        <span class="node">寄回商品</span>
-        <span class="sep"></span>
-        <span class="node">3退款结束</span>
+      <div class="progress-strip" id="topProgress" style="--node-count:3; --progress-width:0%;">
+        <span class="progress-fill"></span>
+        <span class="node active"><span class="progress-dot">1</span><span>商家处理</span></span>
+        <span class="node"><span class="progress-dot">2</span><span>寄回商品</span></span>
+        <span class="node"><span class="progress-dot">3</span><span>退款结束</span></span>
       </div>
-      <span class="more">...</span>
     </div>
 
     <section class="hero">
@@ -450,11 +477,13 @@
       statusDesc.textContent = scenario.desc;
       refundType.textContent = scenario.type;
       refundStatus.textContent = scenario.status;
-      topProgress.innerHTML = scenario.nodes.map((node, index) => {
+      topProgress.style.setProperty('--node-count', scenario.nodes.length);
+      const progressWidth = scenario.nodes.length === 1 ? 0 : (scenario.current / (scenario.nodes.length - 1)) * (100 - (100 / scenario.nodes.length));
+      topProgress.style.setProperty('--progress-width', `${progressWidth}%`);
+      topProgress.innerHTML = '<span class="progress-fill"></span>' + scenario.nodes.map((node, index) => {
         const state = index < scenario.current ? 'done' : (index === scenario.current ? 'active' : '');
-        const label = `${index < scenario.current ? '✓' : (index === scenario.current ? index + 1 : '')}${node}`;
-        const separator = index < scenario.nodes.length - 1 ? '<span class="sep"></span>' : '';
-        return `<span class="node ${state}">${label}</span>${separator}`;
+        const mark = index < scenario.current ? '✓' : index + 1;
+        return `<span class="node ${state}"><span class="progress-dot">${mark}</span><span>${node}</span></span>`;
       }).join('');
     }
 
