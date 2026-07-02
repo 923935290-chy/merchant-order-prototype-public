@@ -211,6 +211,19 @@
       font-weight: 900;
     }
 
+    .address-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 9px;
+    }
+
+    .address-title {
+      color: #3c4350;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
     .address-line {
       display: grid;
       grid-template-columns: 56px 1fr;
@@ -228,9 +241,15 @@
     }
 
     .copy {
-      margin-left: 6px;
-      color: #a2aab7;
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 9px;
+      border-radius: 999px;
+      background: #fff4ec;
+      color: var(--orange);
       font-size: 12px;
+      font-weight: 900;
     }
 
     .address-desc {
@@ -464,9 +483,17 @@
 
       <section class="card section">
         <h2 class="section-title">请按以下地址寄回货物，并上传物流单号</h2>
+        <div class="address-head">
+          <span class="address-title">寄回信息</span>
+          <span class="copy">复制全部</span>
+        </div>
         <div class="address-line">
           <span class="label">收件人</span>
-          <span>典衣佳 13345556888 <span class="copy">复制</span></span>
+          <span>典衣佳</span>
+        </div>
+        <div class="address-line">
+          <span class="label">手机号</span>
+          <span>13345556888</span>
         </div>
         <div class="address-line">
           <span class="label">地址</span>
