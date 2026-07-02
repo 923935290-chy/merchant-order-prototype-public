@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>退货物流校验高保真原型</title>
+  <style>
+    :root {
+      --bg: #f5f7fb;
+      --card: #fffffe;
+      --text: #1f2430;
+      --muted: #7e8795;
+      --subtle: #a9b1bd;
+      --line: #edf0f5;
+      --orange: #ff6f32;
+      --orange-soft: #fff0e8;
+      --danger: #ee4d3f;
+      --danger-soft: #fff0ee;
+      --green: #18a866;
+      --green-soft: #edf9f3;
+      --blue: #3377f6;
+      --shadow: 0 8px 22px rgba(39, 48, 67, .08);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: #e8ecf3;
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      padding: 24px 0;
+      font-size: 14px;
+    }
+
+    .phone {
+      width: 390px;
+      min-height: 844px;
+      background: var(--bg);
+      border: 1px solid #d7dce6;
+      box-shadow: 0 18px 46px rgba(26, 32, 46, .18);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .status-bar {
+      height: 38px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #fffffe;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .system-icons {
+      letter-spacing: 2px;
+      color: #10131a;
+    }
+
+    .nav {
+      height: 46px;
+      display: grid;
+      grid-template-columns: 44px 1fr 44px;
+      align-items: center;
+      background: #fffffe;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .back {
+      width: 13px;
+      height: 13px;
+      margin-left: 18px;
+      border-left: 2px solid #2b303b;
+      border-bottom: 2px solid #2b303b;
+      transform: rotate(45deg);
+    }
+
+    .nav-title {
+      text-align: center;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .hero {
+      min-height: 98px;
+      padding: 17px 22px 14px;
+      background: linear-gradient(100deg, #ffe5dc, #fff5ef 70%, #fffaf6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "!";
+      position: absolute;
+      right: 26px;
+      top: 13px;
+      width: 62px;
+      height: 62px;
+      border-radius: 50%;
+      border: 8px solid rgba(255, 255, 255, .52);
+      color: rgba(255, 255, 255, .7);
+      display: grid;
+      place-items: center;
+      font-size: 38px;
+      font-weight: 900;
+    }
+
+    .hero h1 {
+      margin: 0 0 6px;
+      font-size: 25px;
+      line-height: 1.1;
+      font-weight: 900;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 284px;
+      color: #7e6c64;
+      line-height: 1.42;
+      font-weight: 650;
+    }
+
+    .content {
+      padding: 10px 10px 92px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      margin-bottom: 10px;
+      overflow: hidden;
+    }
+
+    .product {
+      display: grid;
+      grid-template-columns: 76px 1fr;
+      gap: 12px;
+      padding: 13px;
+    }
+
+    .thumb {
+      width: 76px;
+      height: 76px;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 42% 50%, #20242d 0 18%, transparent 19%),
+        radial-gradient(circle at 64% 50%, #3b414c 0 15%, transparent 16%),
+        linear-gradient(135deg, #e2f1f4, #d2e8ee);
+      position: relative;
+    }
+
+    .thumb::before,
+    .thumb::after {
+      content: "";
+      position: absolute;
+      top: 34px;
+      width: 22px;
+      height: 10px;
+      border-radius: 9px;
+      background: #2a2e37;
+    }
+
+    .thumb::before { left: 16px; }
+    .thumb::after { right: 15px; }
+
+    .product-title {
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 800;
+      margin: 1px 0 8px;
+    }
+
+    .refund-money {
+      display: flex;
+      gap: 9px;
+      align-items: baseline;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .price {
+      color: var(--orange);
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .notice {
+      border: 1px solid #ffb493;
+      background: #fff8f4;
+      color: #ff7a45;
+      font-size: 13px;
+      line-height: 1.48;
+      font-weight: 750;
+      padding: 10px 12px;
+    }
+
+    .section {
+      padding: 15px 14px;
+    }
+
+    .section-title {
+      margin: 0 0 12px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+
+    .address-line {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 10px;
+      color: #4c5565;
+      line-height: 1.45;
+      margin-bottom: 6px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .label {
+      color: #9fa8b6;
+      font-weight: 800;
+    }
+
+    .copy {
+      margin-left: 6px;
+      color: #a2aab7;
+      font-size: 12px;
+    }
+
+    .address-desc {
+      color: #687184;
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 650;
+      margin: 4px 0 14px;
+    }
+
+    .form-block {
+      border-top: 1px solid var(--line);
+      padding-top: 13px;
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      margin-bottom: 7px;
+      color: #3c4350;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .required {
+      color: var(--danger);
+    }
+
+    .input-wrap {
+      height: 42px;
+      border: 1px solid #e1e6ef;
+      border-radius: 9px;
+      background: #f9fbfe;
+      display: flex;
+      align-items: center;
+      padding: 0 11px;
+      transition: border-color .18s ease, background .18s ease, box-shadow .18s ease;
+    }
+
+    .input-wrap.error {
+      border-color: var(--danger);
+      background: #fffafa;
+      box-shadow: 0 0 0 3px rgba(238, 77, 63, .08);
+    }
+
+    .input-wrap input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: #303744;
+      font: inherit;
+      font-weight: 800;
+      letter-spacing: .2px;
+    }
+
+    .input-wrap input::placeholder {
+      color: #b8c0cc;
+      font-weight: 650;
+      letter-spacing: 0;
+    }
+
+    .identify {
+      display: none;
+      margin-top: 7px;
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 12px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .identify.show { display: block; }
+    .identify.success { color: var(--green); background: var(--green-soft); }
+    .identify.warning { color: #c46a24; background: #fff4e8; }
+    .identify.error { color: var(--danger); background: var(--danger-soft); }
+
+    .rule-card {
+      margin-top: 10px;
+      padding: 10px 11px;
+      border-radius: 9px;
+      background: #f7f9fc;
+      color: #788292;
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 700;
+    }
+
+    .bottom-bar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 82px;
+      background: rgba(255, 255, 254, .96);
+      border-top: 1px solid var(--line);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding: 12px 20px 18px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 24px;
+      font: inherit;
+      font-size: 15px;
+      font-weight: 900;
+    }
+
+    .btn-secondary {
+      color: #7c8492;
+      background: #f2f4f7;
+    }
+
+    .btn-primary {
+      color: #fffffe;
+      background: #ff6f32;
+      box-shadow: 0 8px 18px rgba(255, 111, 50, .22);
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 104px;
+      transform: translateX(-50%) translateY(10px);
+      max-width: 320px;
+      opacity: 0;
+      pointer-events: none;
+      border-radius: 999px;
+      background: rgba(30, 35, 45, .92);
+      color: #fffffe;
+      padding: 9px 14px;
+      font-size: 13px;
+      font-weight: 750;
+      transition: opacity .18s ease, transform .18s ease;
+      text-align: center;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .mask {
+      display: none;
+      position: absolute;
+      inset: 0;
+      background: rgba(30, 35, 45, .42);
+      align-items: flex-end;
+      z-index: 5;
+    }
+
+    .mask.show { display: flex; }
+
+    .sheet {
+      width: 100%;
+      background: #fffffe;
+      border-radius: 18px 18px 0 0;
+      padding: 20px 20px 18px;
+      box-shadow: 0 -12px 30px rgba(30, 35, 45, .12);
+    }
+
+    .sheet-title {
+      margin: 0 0 8px;
+      font-size: 18px;
+      font-weight: 900;
+      text-align: center;
+    }
+
+    .sheet-text {
+      margin: 0 0 18px;
+      color: #626b7a;
+      line-height: 1.55;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .sheet-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <div class="status-bar">
+      <span>9:41</span>
+      <span class="system-icons">▮▮▮ Wi-Fi ▰</span>
+    </div>
+    <div class="nav">
+      <span class="back"></span>
+      <div class="nav-title">退款详情</div>
+      <span></span>
+    </div>
+
+    <section class="hero">
+      <h1>等待寄回商品</h1>
+      <p>商家已同意退货退款，请在6天23小时59分58秒内填写退货物流单号。</p>
+    </section>
+
+    <div class="content">
+      <section class="card product">
+        <div class="thumb" aria-hidden="true"></div>
+        <div>
+          <div class="product-title">网易严选 车载无线充支架10W大功率能充电支架</div>
+          <div class="refund-money"><span>退款金额</span><span class="price">¥79</span></div>
+        </div>
+      </section>
+
+      <section class="card notice">
+        部分商品在不影响二次销售的情况下支持七天无理由退货。为避免退款失败，建议您先联系店家，确认是否满足退货规则，再发起退货申请。
+      </section>
+
+      <section class="card section">
+        <h2 class="section-title">请按以下地址寄回货物，并上传物流单号</h2>
+        <div class="address-line">
+          <span class="label">收件人</span>
+          <span>典衣佳 13345556888 <span class="copy">复制</span></span>
+        </div>
+        <div class="address-line">
+          <span class="label">地址</span>
+          <span>广东省深圳市南山区深南大道10128号 南山数字文化产业基地西塔1座1501-1502室</span>
+        </div>
+        <p class="address-desc">商品寄出前请在购买页面联系店家咨询退货要求，不符合退货要求将拒收原路退回。</p>
+
+        <div class="form-block">
+          <div class="field">
+            <div class="field-label"><span class="required">*</span>物流公司</div>
+            <div class="input-wrap" id="companyWrap">
+              <input id="companyInput" value="圆通速递" placeholder="将根据运单号自动识别">
+            </div>
+          </div>
+
+          <div class="field">
+            <div class="field-label"><span class="required">*</span>物流单号</div>
+            <div class="input-wrap" id="trackingWrap">
+              <input id="trackingInput" value="YT8882272201348" placeholder="请输入退货物流单号">
+            </div>
+            <div class="identify success show" id="identifyTip">已识别物流公司：圆通速递。确认寄出时后端会再次校验。</div>
+          </div>
+
+          <div class="rule-card">
+            校验规则：物流单号仅允许英文大小写字母和数字。格式错误会阻断提交；未识别物流公司时会提醒核对，但确认后可继续提交。
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="btn-secondary" id="cancelBtn">取消</button>
+      <button class="btn-primary" id="submitBtn">确认寄出</button>
+    </div>
+
+    <div class="toast" id="toast">物流单号格式有误，请重新输入</div>
+
+    <div class="mask" id="warningMask">
+      <div class="sheet">
+        <h3 class="sheet-title">请核对物流单号</h3>
+        <p class="sheet-text">该物流单号未匹配到物流公司，请仔细核对。确认无误后可继续提交。</p>
+        <div class="sheet-actions">
+          <button class="btn-secondary" id="backEdit">返回修改</button>
+          <button class="btn-primary" id="continueSubmit">继续提交</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const trackingInput = document.getElementById('trackingInput');
+    const companyInput = document.getElementById('companyInput');
+    const trackingWrap = document.getElementById('trackingWrap');
+    const identifyTip = document.getElementById('identifyTip');
+    const toast = document.getElementById('toast');
+    const warningMask = document.getElementById('warningMask');
+
+    const carriers = [
+      { name: '圆通速递', patterns: [/^YT[A-Z0-9]{8,}$/i, /^KD[0-9]{10,}$/i] },
+      { name: '顺丰速运', patterns: [/^SF[A-Z0-9]{8,}$/i] },
+      { name: '京东物流', patterns: [/^JD[A-Z0-9]{8,}$/i] },
+      { name: '中通快递', patterns: [/^ZTO[A-Z0-9]{8,}$/i] }
+    ];
+
+    function normalize(value) {
+      return value.trim().replace(/[\s-]/g, '').toUpperCase();
+    }
+
+    function showToast(message) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    function identifyCarrier(no) {
+      return carriers.find(carrier => carrier.patterns.some(pattern => pattern.test(no)));
+    }
+
+    function validateTracking({ silent = false } = {}) {
+      const no = normalize(trackingInput.value);
+      trackingInput.value = no;
+      trackingWrap.classList.remove('error');
+      identifyTip.className = 'identify';
+
+      if (!no) {
+        identifyTip.textContent = '';
+        companyInput.value = '';
+        return { valid: false, empty: true };
+      }
+
+      if (!/^[A-Z0-9]+$/.test(no)) {
+        trackingWrap.classList.add('error');
+        identifyTip.classList.add('error', 'show');
+        identifyTip.textContent = '物流单号格式有误，请重新输入';
+        if (!silent) showToast('物流单号格式有误，请重新输入');
+        return { valid: false, formatError: true };
+      }
+
+      const carrier = identifyCarrier(no);
+      if (carrier) {
+        companyInput.value = carrier.name;
+        identifyTip.classList.add('success', 'show');
+        identifyTip.textContent = `已识别物流公司：${carrier.name}。确认寄出时后端会再次校验。`;
+        return { valid: true, recognized: true };
+      }
+
+      companyInput.value = '';
+      identifyTip.classList.add('warning', 'show');
+      identifyTip.textContent = '该物流单号未匹配到物流公司，请仔细核对';
+      return { valid: true, recognized: false };
+    }
+
+    trackingInput.addEventListener('input', () => {
+      companyInput.value = '';
+      identifyTip.className = 'identify';
+      trackingWrap.classList.remove('error');
+    });
+
+    trackingInput.addEventListener('blur', () => validateTracking({ silent: true }));
+
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const result = validateTracking();
+      if (!result.valid) {
+        if (result.empty) showToast('请填写物流单号');
+        return;
+      }
+      if (!result.recognized) {
+        warningMask.classList.add('show');
+        return;
+      }
+      showToast('已提交退货物流信息');
+    });
+
+    document.getElementById('backEdit').addEventListener('click', () => {
+      warningMask.classList.remove('show');
+      trackingInput.focus();
+    });
+
+    document.getElementById('continueSubmit').addEventListener('click', () => {
+      warningMask.classList.remove('show');
+      showToast('已提交退货物流信息');
+    });
+
+    document.getElementById('cancelBtn').addEventListener('click', () => showToast('已取消填写'));
+  </script>
+</body>
+</html>
