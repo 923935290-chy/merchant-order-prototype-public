@@ -190,6 +190,24 @@
       padding: 16px;
     }
 
+    .field-group {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 2px 0 -2px;
+      color: oklch(0.38 0.014 74);
+      font-size: 13px;
+      font-weight: 720;
+    }
+
+    .field-group::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      background: var(--line);
+    }
+
     .detail-item {
       display: grid;
       grid-template-columns: 96px minmax(0, 1fr);
@@ -357,13 +375,22 @@
             <div class="section-title">基础信息</div>
           </div>
           <div class="details">
+            <div class="field-group">订单信息</div>
+            <div class="detail-item">
+              <div class="label">订单ID</div>
+              <div class="value summary-value mono-value">7478277395228148001</div>
+            </div>
             <div class="detail-item">
               <div class="label">下单时间</div>
-              <div class="value">2026/06/28 23:39:26</div>
+              <div class="value">2026-07-02 10:44:30</div>
             </div>
             <div class="detail-item">
               <div class="label">订单编号</div>
               <div class="value summary-value mono-value">7477022514414411719</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">订单状态</div>
+              <div class="value"><span class="tag pay">已支付</span></div>
             </div>
           </div>
         </section>
@@ -373,29 +400,31 @@
             <div class="section-title">商品信息</div>
           </div>
           <div class="details">
+            <div class="field-group">商品基础</div>
             <div class="detail-item">
               <div class="label">商品ID</div>
-              <div class="value">223520</div>
+              <div class="value">224734</div>
             </div>
             <div class="detail-item" style="grid-column: span 2;">
               <div class="label">商品名称</div>
-              <div class="value">夏季男鞋2026网面新款运动软底飞织镂空透气百搭休闲运动鞋</div>
+              <div class="value">示例男装长裤休闲商务高弹力夏季透气薄款空调裤</div>
             </div>
             <div class="detail-item">
               <div class="label">SKU ID</div>
-              <div class="value strong">248444</div>
+              <div class="value strong">263386</div>
             </div>
             <div class="detail-item">
               <div class="label">商品规格</div>
-              <div class="value">颜色-灰色_尺码-41</div>
+              <div class="value">颜色-2601黑色+灰色【两件装】_尺码-2XL【适合125到140斤】</div>
             </div>
             <div class="detail-item">
               <div class="label">商品品类</div>
-              <div class="value">无券类 无券类30%</div>
+              <div class="value">无券类--无券类10%</div>
             </div>
+            <div class="field-group">金额信息</div>
             <div class="detail-item">
               <div class="label">售卖价格</div>
-              <div class="value money">21.9元</div>
+              <div class="value money">66元</div>
             </div>
             <div class="detail-item">
               <div class="label">补贴金额</div>
@@ -419,15 +448,15 @@
             </div>
             <div class="detail-item">
               <div class="label">福利金</div>
-              <div class="value">0</div>
+              <div class="value money subtle">0元</div>
             </div>
             <div class="detail-item">
               <div class="label">总计支付</div>
-              <div class="value money">21.9元</div>
+              <div class="value money muted">-</div>
             </div>
             <div class="detail-item">
               <div class="label">服务费率</div>
-              <div class="value">30%</div>
+              <div class="value">10%</div>
             </div>
             <div class="detail-item" style="grid-column: span 2;">
               <div class="label">订单备注</div>
@@ -441,21 +470,23 @@
             <div class="section-title">用户信息</div>
           </div>
           <div class="details">
+            <div class="field-group">下单人信息</div>
             <div class="detail-item">
               <div class="label">下单人手机号</div>
-              <div class="value mono-value">188****5672</div>
+              <div class="value mono-value">131****6668</div>
             </div>
+            <div class="field-group">收货人信息</div>
             <div class="detail-item">
               <div class="label">收货人昵称</div>
-              <div class="value">代老三</div>
+              <div class="value">示例用户</div>
             </div>
             <div class="detail-item">
               <div class="label">收货人手机</div>
-              <div class="value mono-value">18821685672</div>
+              <div class="value mono-value">189****0752</div>
             </div>
             <div class="detail-item" style="grid-column: span 2;">
               <div class="label">收货地址</div>
-              <div class="value">陕西西安市高陵区</div>
+              <div class="value">四川省自贡市示例收货地址</div>
             </div>
           </div>
         </section>
@@ -465,13 +496,14 @@
             <div class="section-title">店铺信息</div>
           </div>
           <div class="details">
+            <div class="field-group">商户信息</div>
             <div class="detail-item">
               <div class="label">商户号</div>
-              <div class="value">68304</div>
+              <div class="value">68330</div>
             </div>
             <div class="detail-item">
               <div class="label">商户名称</div>
-              <div class="value">乐芙海亚</div>
+              <div class="value">示例男装商户</div>
             </div>
           </div>
         </section>
@@ -481,6 +513,7 @@
             <div class="section-title">物流信息</div>
           </div>
           <div class="details">
+            <div class="field-group">发货物流</div>
             <div class="detail-item">
               <div class="label">快递公司</div>
               <div class="value">圆通速递</div>
@@ -488,6 +521,23 @@
             <div class="detail-item">
               <div class="label">发货单号</div>
               <div class="value mono-value">YT8882272201348</div>
+            </div>
+            <div class="field-group">退货物流</div>
+            <div class="detail-item">
+              <div class="label">寄回物流单号</div>
+              <div class="value muted">暂无退货物流单号</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">寄回人昵称</div>
+              <div class="value muted">暂无</div>
+            </div>
+            <div class="detail-item">
+              <div class="label">寄回人手机号</div>
+              <div class="value muted">暂无</div>
+            </div>
+            <div class="detail-item" style="grid-column: span 2;">
+              <div class="label">寄回人地址</div>
+              <div class="value muted">暂无</div>
             </div>
           </div>
         </section>
@@ -497,21 +547,27 @@
             <div class="section-title">售后信息</div>
           </div>
           <div class="details">
+            <div class="field-group">退款状态</div>
             <div class="detail-item">
               <div class="label">订单状态</div>
-              <div class="value">退款失败</div>
+              <div class="value">已支付</div>
             </div>
             <div class="detail-item">
               <div class="label">退款状态</div>
-              <div class="value">退款失败</div>
+              <div class="value muted">暂无退款</div>
             </div>
+            <div class="detail-item">
+              <div class="label">退款原因</div>
+              <div class="value muted">暂无退款原因</div>
+            </div>
+            <div class="field-group">其他状态</div>
             <div class="detail-item">
               <div class="label">开票状态</div>
               <div class="value">初始化</div>
             </div>
             <div class="detail-item">
               <div class="label">拒绝退款理由</div>
-              <div class="value">商品已发货，暂不支持仅退款</div>
+              <div class="value muted">暂无</div>
             </div>
           </div>
           <div class="footer-actions">
