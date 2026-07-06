@@ -450,6 +450,8 @@
       padding: 10px 18px;
       border-radius: 4px;
       box-shadow: 0 10px 26px rgba(32, 35, 42, .2);
+      max-width: calc(100vw - 48px);
+      white-space: nowrap;
       opacity: 0;
       pointer-events: none;
       transition: opacity .18s ease, transform .18s ease;
@@ -673,7 +675,7 @@
     </div>
   </div>
 
-  <div class="toast" id="toast">已提交核销后退款申请</div>
+  <div class="toast" id="toast">已退款，款项将按原路返还至用户的付款账户</div>
 
   <script>
     const mask = document.getElementById('modalMask');
