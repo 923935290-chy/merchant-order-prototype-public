@@ -1,0 +1,715 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>车服商户平台 - 核销后退款原型</title>
+  <style>
+    :root {
+      --bg: #f7f8fa;
+      --surface: #fbfbfc;
+      --panel: #f2f3f5;
+      --line: #e5e6eb;
+      --line-strong: #d7d9de;
+      --text: #2f3137;
+      --muted: #858b97;
+      --faint: #b9bec8;
+      --brand: #ff8247;
+      --brand-hover: #ff7331;
+      --brand-soft: #fff2eb;
+      --danger: #f04438;
+      --topbar: #3a3c47;
+      --white: #fffffe;
+      --shadow: 0 18px 52px rgba(24, 26, 32, .18);
+      --radius: 4px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .topbar {
+      height: 82px;
+      background: var(--topbar);
+      color: #f7f7f8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 96px 0 126px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 25px;
+      letter-spacing: 0;
+    }
+
+    .brand-mark {
+      width: 38px;
+      height: 31px;
+      border: 8px solid #fffffe;
+      border-top: 0;
+      border-radius: 0 0 22px 22px;
+      position: relative;
+    }
+
+    .brand-mark::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      right: -8px;
+      top: -10px;
+      height: 8px;
+      background: #fffffe;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 58px;
+      font-size: 18px;
+    }
+
+    .user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .user-icon {
+      width: 16px;
+      height: 16px;
+      border: 2px solid currentColor;
+      border-radius: 50%;
+      position: relative;
+    }
+
+    .user-icon::after {
+      content: "";
+      position: absolute;
+      left: -5px;
+      top: 12px;
+      width: 22px;
+      height: 12px;
+      border: 2px solid currentColor;
+      border-bottom: 0;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 340px minmax(1180px, 1fr);
+      min-height: calc(100vh - 82px);
+      background: var(--white);
+    }
+
+    .sidebar {
+      border-right: 1px solid var(--line);
+      padding: 42px 0 0 62px;
+      color: #4d535d;
+      background: #fffffe;
+    }
+
+    .side-section {
+      margin-bottom: 28px;
+    }
+
+    .side-title {
+      color: #8b9099;
+      margin: 0 0 24px 52px;
+    }
+
+    .nav-item {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding-left: 52px;
+      margin-bottom: 4px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #4a4f58;
+    }
+
+    .nav-item.active {
+      background: #fff6f0;
+      color: var(--brand);
+      border-left: 4px solid var(--brand);
+      padding-left: 48px;
+    }
+
+    .content {
+      padding: 46px 76px 64px;
+      background: #fffffe;
+      overflow: hidden;
+    }
+
+    h1 {
+      margin: 0 0 54px;
+      font-size: 26px;
+      font-weight: 700;
+      color: #25282e;
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(300px, 1fr));
+      column-gap: 92px;
+      row-gap: 26px;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .field {
+      display: grid;
+      grid-template-columns: 126px minmax(220px, 1fr);
+      align-items: center;
+      gap: 16px;
+    }
+
+    .label {
+      color: #858b97;
+      text-align: right;
+      white-space: nowrap;
+      font-weight: 600;
+    }
+
+    .control {
+      height: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius);
+      background: #fffffe;
+      padding: 0 12px;
+      color: #343840;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .control.placeholder { color: var(--faint); }
+    .chevron { color: #a1a6b0; font-size: 18px; }
+
+    .date-range {
+      gap: 18px;
+      color: var(--faint);
+      justify-content: center;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin: 20px 0 38px;
+    }
+
+    .btn {
+      min-width: 126px;
+      height: 44px;
+      border: 0;
+      border-radius: var(--radius);
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color .16s ease, box-shadow .16s ease, color .16s ease;
+      font-size: 15px;
+    }
+
+    .btn-primary {
+      background: var(--brand);
+      color: #fffffe;
+    }
+
+    .btn-primary:hover { background: var(--brand-hover); }
+    .btn-muted { background: #f1f2f4; color: #5f6670; }
+    .btn-text { background: transparent; color: var(--brand); min-width: auto; height: auto; padding: 0; }
+
+    .table-wrap {
+      border: 1px solid #eef0f3;
+      overflow: hidden;
+      background: #fffffe;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+
+    thead th {
+      height: 70px;
+      background: #f4f5f7;
+      color: #30343b;
+      text-align: left;
+      font-weight: 700;
+      padding: 0 10px;
+      line-height: 1.15;
+    }
+
+    tbody td {
+      min-height: 98px;
+      border-top: 1px solid #edf0f3;
+      color: #5f646e;
+      padding: 24px 10px;
+      vertical-align: top;
+      line-height: 1.22;
+      word-break: break-all;
+    }
+
+    .checkbox {
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      display: inline-block;
+      background: #fffffe;
+    }
+
+    .amount { white-space: nowrap; }
+    .status { color: #4d535d; font-weight: 500; }
+
+    .ops {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+      color: var(--brand);
+      font-weight: 600;
+    }
+
+    .ops a {
+      color: var(--brand);
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .ops .refund {
+      color: #f24f5d;
+      font-weight: 700;
+    }
+
+    .ops .disabled {
+      color: #c1c5cc;
+      cursor: not-allowed;
+    }
+
+    .demo-note {
+      margin: -20px 0 22px;
+      color: #838995;
+      font-size: 13px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 9px;
+      border-radius: 12px;
+      background: var(--brand-soft);
+      color: #d85f2b;
+      font-weight: 600;
+    }
+
+    .mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(25, 27, 35, .46);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+
+    .modal {
+      width: 520px;
+      background: #fffffe;
+      border-radius: 6px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .modal-head {
+      height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #262a31;
+    }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: #9aa0aa;
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 22px 28px 4px;
+    }
+
+    .summary {
+      background: #f7f8fa;
+      border: 1px solid #edeff2;
+      border-radius: 4px;
+      padding: 14px 16px;
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      row-gap: 8px;
+      color: #5c626d;
+      margin-bottom: 22px;
+    }
+
+    .summary b {
+      color: #30343b;
+      font-weight: 600;
+    }
+
+    .required-label {
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: #30343b;
+    }
+
+    .required-label::before {
+      content: "*";
+      color: var(--danger);
+      margin-right: 4px;
+    }
+
+    .reasons {
+      display: grid;
+      gap: 10px;
+    }
+
+    .reason {
+      height: 42px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      gap: 10px;
+      cursor: pointer;
+      transition: border-color .16s ease, background-color .16s ease;
+    }
+
+    .reason input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--brand);
+      margin: 0;
+    }
+
+    .reason:has(input:checked) {
+      border-color: var(--brand);
+      background: #fff8f4;
+    }
+
+    .hint {
+      min-height: 24px;
+      margin-top: 8px;
+      color: var(--danger);
+      font-size: 13px;
+    }
+
+    .modal-foot {
+      padding: 18px 28px 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      top: 104px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #30343b;
+      color: #fffffe;
+      padding: 10px 18px;
+      border-radius: 4px;
+      box-shadow: 0 10px 26px rgba(32, 35, 42, .2);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(4px);
+    }
+
+    @media (max-width: 1300px) {
+      .shell { grid-template-columns: 260px minmax(960px, 1fr); }
+      .sidebar { padding-left: 30px; }
+      .content { padding: 36px 38px 54px; overflow-x: auto; }
+      .filters { column-gap: 36px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <span>车服｜商户平台</span>
+    </div>
+    <div class="top-actions">
+      <div class="user"><span class="user-icon" aria-hidden="true"></span><span>138****6208</span></div>
+      <div>回到首页</div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <aside class="sidebar">
+      <div class="side-section">
+        <p class="side-title">商户</p>
+        <div class="nav-item">商户管理</div>
+        <div class="nav-item">门店管理</div>
+        <div class="nav-item">商品管理</div>
+        <div class="nav-item active">订单管理</div>
+      </div>
+      <div class="side-section">
+        <p class="side-title">商户券</p>
+        <div class="nav-item">创建商户券</div>
+        <div class="nav-item">商户券管理</div>
+        <div class="nav-item">核销商户券</div>
+      </div>
+    </aside>
+
+    <section class="content">
+      <h1>订单管理</h1>
+
+      <div class="filters">
+        <div class="field"><div class="label">发布渠道</div><div class="control">车服检测商城 <span class="chevron">⌄</span></div></div>
+        <div class="field"><div class="label">商户名称</div><div class="control">澄安汽车服务中心 <span class="chevron">⌄</span></div></div>
+        <div class="field"><div class="label">订单ID</div><div class="control placeholder"></div></div>
+
+        <div class="field"><div class="label">购买人手机号</div><div class="control placeholder"></div></div>
+        <div class="field"><div class="label">订单状态</div><div class="control placeholder">请选择... <span class="chevron">⌄</span></div></div>
+        <div class="field"><div class="label">门店名称</div><div class="control placeholder">请选择... <span class="chevron">⌄</span></div></div>
+
+        <div class="field"><div class="label">门店id</div><div class="control placeholder"></div></div>
+        <div class="field"><div class="label">核销车牌号</div><div class="control placeholder"></div></div>
+        <div class="field"><div class="label">订单创建时间</div><div class="control date-range">开始日期 <span>~</span> 结束日期 <span>▦</span></div></div>
+
+        <div class="field"><div class="label">付款时间</div><div class="control date-range">开始日期 <span>~</span> 结束日期 <span>▦</span></div></div>
+        <div class="field"><div class="label">核销时间</div><div class="control placeholder">请选择日期 <span>▦</span></div></div>
+        <div class="field"><div class="label">支付状态</div><div class="control placeholder">请选择... <span class="chevron">⌄</span></div></div>
+
+        <div class="field"><div class="label">发票状态</div><div class="control placeholder">请选择... <span class="chevron">⌄</span></div></div>
+        <div class="field"><div class="label">分账状态</div><div class="control placeholder">请选择... <span class="chevron">⌄</span></div></div>
+        <div class="field"><div class="label">商品ID</div><div class="control placeholder">请输入查询的商品ID</div></div>
+      </div>
+
+      <div class="toolbar">
+        <button class="btn btn-primary">订单上传</button>
+        <button class="btn btn-primary">订单下载</button>
+        <button class="btn btn-primary">搜 索</button>
+        <button class="btn btn-primary">重 置</button>
+      </div>
+
+      <div class="demo-note">
+        <span class="pill">新增操作项</span>
+        <span>符合核销后退款条件的已使用订单，在操作列展示“核销后退款”。</span>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:44px;"><span class="checkbox"></span></th>
+              <th style="width:46px;">序号</th>
+              <th style="width:132px;">订单ID</th>
+              <th style="width:76px;">门店名称</th>
+              <th style="width:58px;">门店id</th>
+              <th style="width:62px;">商品id</th>
+              <th style="width:82px;">核销车牌号</th>
+              <th style="width:122px;">核销时间</th>
+              <th style="width:82px;">核销手机号</th>
+              <th style="width:70px;">商品类型</th>
+              <th style="width:170px;">商品名称</th>
+              <th style="width:70px;">商品金额</th>
+              <th style="width:92px;">购买人手机号</th>
+              <th style="width:126px;">下单时间</th>
+              <th style="width:126px;">付款时间</th>
+              <th style="width:64px;">订单状态</th>
+              <th style="width:64px;">分账状态</th>
+              <th style="width:84px;">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>1</td>
+              <td>940128573624<br>0193582</td>
+              <td>星程车检中心</td>
+              <td>27522</td>
+              <td></td>
+              <td>示A7K920</td>
+              <td>2025-10-28<br>08:46:01</td>
+              <td>1382301<br>6208</td>
+              <td>服务<br>商品</td>
+              <td>【通用】小型新能源<br>车辆检测服务</td>
+              <td class="amount">187.50<br>元</td>
+              <td>1384516<br>9032</td>
+              <td>2025-10-27<br>14:43:04</td>
+              <td>2025-10-27<br>14:43:08</td>
+              <td class="status">已使用</td>
+              <td>未分账</td>
+              <td>
+                <div class="ops">
+                  <a>查看</a>
+                  <a>核销订单</a>
+                  <a class="refund" id="openRefund">核销后退款</a>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>2</td>
+              <td>940127985214<br>3617200</td>
+              <td>云桥检测站</td>
+              <td>27520</td>
+              <td></td>
+              <td>示C2M419</td>
+              <td>2025-09-30<br>08:57:22</td>
+              <td>1387812<br>4509</td>
+              <td>服务<br>商品</td>
+              <td>【通用】小型新能源<br>车辆检测服务</td>
+              <td class="amount">187.50<br>元</td>
+              <td>1396208<br>5174</td>
+              <td>2025-09-30<br>08:14:47</td>
+              <td>2025-09-30<br>08:15:01</td>
+              <td class="status">已使用</td>
+              <td>已分账</td>
+              <td>
+                <div class="ops">
+                  <a>查看</a>
+                  <a>核销订单</a>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="checkbox"></span></td>
+              <td>3</td>
+              <td>940126748903<br>8310007</td>
+              <td>衡安车检广场</td>
+              <td>27506</td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td></td>
+              <td>服务<br>商品</td>
+              <td>【通用】小型新能源<br>车辆检测服务</td>
+              <td class="amount">187.50<br>元</td>
+              <td>1379054<br>2816</td>
+              <td>2025-09-22<br>09:13:23</td>
+              <td>2025-09-22<br>09:13:38</td>
+              <td class="status">退款<br>完成</td>
+              <td>未分账</td>
+              <td>
+                <div class="ops">
+                  <a>查看</a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div class="mask" id="modalMask" aria-modal="true" role="dialog">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="modal-title">核销后退款</div>
+        <button class="close" id="closeModal" aria-label="关闭">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="summary">
+          <span>订单ID</span><b>示例订单 100001</b>
+          <span>核销车牌号</span><b>示A7K920</b>
+          <span>门店名称</span><b>星程车检中心</b>
+          <span>退款金额</span><b>187.50 元</b>
+        </div>
+
+        <div class="required-label">退款原因</div>
+        <div class="reasons" id="reasonGroup">
+          <label class="reason"><input type="radio" name="reason"> 司机等待时间过长</label>
+          <label class="reason"><input type="radio" name="reason"> 司机对年检服务不满意</label>
+          <label class="reason"><input type="radio" name="reason"> 司机临时有事</label>
+          <label class="reason"><input type="radio" name="reason"> 车辆未到年检时间</label>
+          <label class="reason"><input type="radio" name="reason"> 车辆存在问题</label>
+          <label class="reason"><input type="radio" name="reason"> 年检站设备故障</label>
+          <label class="reason"><input type="radio" name="reason"> 其他原因</label>
+        </div>
+        <div class="hint" id="hint"></div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-muted" id="cancelModal">取消</button>
+        <button class="btn btn-primary" id="confirmRefund">确认退款</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">已提交核销后退款申请</div>
+
+  <script>
+    const mask = document.getElementById('modalMask');
+    const openRefund = document.getElementById('openRefund');
+    const closeModal = document.getElementById('closeModal');
+    const cancelModal = document.getElementById('cancelModal');
+    const confirmRefund = document.getElementById('confirmRefund');
+    const hint = document.getElementById('hint');
+    const toast = document.getElementById('toast');
+
+    function openDialog() {
+      mask.style.display = 'flex';
+      hint.textContent = '';
+      document.querySelectorAll('input[name="reason"]').forEach(input => input.checked = false);
+    }
+
+    function closeDialog() {
+      mask.style.display = 'none';
+    }
+
+    openRefund.addEventListener('click', openDialog);
+    closeModal.addEventListener('click', closeDialog);
+    cancelModal.addEventListener('click', closeDialog);
+    document.querySelectorAll('input[name="reason"]').forEach(input => {
+      input.addEventListener('change', () => hint.textContent = '');
+    });
+    confirmRefund.addEventListener('click', () => {
+      const checked = document.querySelector('input[name="reason"]:checked');
+      if (!checked) {
+        hint.textContent = '请选择退款原因';
+        return;
+      }
+      closeDialog();
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    });
+  </script>
+</body>
+</html>
