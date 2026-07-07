@@ -936,7 +936,7 @@
       failCount.textContent = failed.length;
       successList.innerHTML = succeeded.length
         ? succeeded.map(row => `${row.dataset.name}（门店ID ${row.dataset.id}）`).join("<br>")
-        : "无成功门店";
+        : "无";
       failList.innerHTML = failed.length
         ? failed.map(row => `${row.dataset.name}（门店ID ${row.dataset.id}）：门店状态已变化，请刷新后重试`).join("<br>")
         : "无";
