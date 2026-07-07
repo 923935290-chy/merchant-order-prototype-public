@@ -1342,6 +1342,7 @@
       if (store.latestMerchant !== store.merchant) {
         return `归属商户已由「${store.merchant}」变更为「${store.latestMerchant}」，请刷新后重试`;
       }
+      if (selectedMerchant?.label === store.latestMerchant) return '商户未变化，请确认要更换的商户';
       if (store.status === '审核中') return '门店审核中，暂不支持更换商户';
       if (store.status !== '启用') return `门店状态为「${store.status}」，暂不支持更换商户`;
       return '';
@@ -1356,12 +1357,12 @@
         ? successRows.map(result => `
           <div class="result-row">${result.store.name}（门店ID ${result.store.id}）</div>
         `).join('')
-        : '<div class="result-empty">本次无成功门店</div>';
+        : '<div class="result-empty">无</div>';
       failureList.innerHTML = failureRows.length
         ? failureRows.map(result => `
           <div class="result-row reason">${result.store.name}（门店ID ${result.store.id}）：${result.reason}</div>
         `).join('')
-        : '<div class="result-empty">本次无失败门店</div>';
+        : '<div class="result-empty">无</div>';
       resultMask.style.display = 'flex';
     }
 
