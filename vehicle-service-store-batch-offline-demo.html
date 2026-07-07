@@ -85,7 +85,7 @@
 
     .shell {
       display: grid;
-      grid-template-columns: 238px 1fr;
+      grid-template-columns: 210px 1fr;
       min-height: calc(100vh - 62px);
     }
 
@@ -97,7 +97,7 @@
 
     .side-caption {
       margin-bottom: 18px;
-      padding-left: 78px;
+      padding-left: 58px;
       color: var(--muted);
       font-size: 14px;
     }
@@ -106,7 +106,7 @@
       height: 44px;
       display: flex;
       align-items: center;
-      padding-left: 78px;
+      padding-left: 58px;
       font-weight: 560;
       color: var(--text);
     }
@@ -118,12 +118,13 @@
     }
 
     .content {
-      padding: 36px 54px 52px;
+      padding: 36px 40px 52px;
       background: var(--surface);
     }
 
     h1 {
-      margin: 0 0 42px;
+      width: min(100%, 1320px);
+      margin: 0 auto 42px;
       color: var(--heading);
       font-size: 22px;
       line-height: 1.2;
@@ -131,10 +132,10 @@
     }
 
     .filters {
-      width: 1090px;
+      width: min(100%, 1320px);
       display: grid;
-      grid-template-columns: 320px 330px 330px;
-      gap: 18px 64px;
+      grid-template-columns: repeat(3, minmax(300px, 1fr));
+      gap: 18px 40px;
       align-items: center;
       margin: 0 auto 18px;
     }
@@ -189,7 +190,7 @@
     }
 
     .toolbar {
-      width: 1090px;
+      width: min(100%, 1320px);
       display: flex;
       justify-content: flex-end;
       align-items: center;
@@ -224,7 +225,7 @@
     }
 
     .table-wrap {
-      width: 1090px;
+      width: min(100%, 1320px);
       margin: 0 auto;
       overflow: hidden;
       border-radius: 4px;
@@ -754,13 +755,12 @@
   <div class="mask" id="confirmMask">
     <section class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
       <div class="modal-head">
-        <span id="confirmTitle">确认批量下线</span>
+        <span id="confirmTitle">确认下线</span>
         <button class="close" type="button" data-close="confirmMask">×</button>
       </div>
       <div class="modal-body">
-        <div id="confirmText">确认批量下线 0 家门店？</div>
+        <div id="confirmText">确认下线一家门店？</div>
         <div class="store-list" id="confirmStores"></div>
-        <div class="hint">点击确认后，系统将执行下线；失败门店状态保持不变。</div>
       </div>
       <div class="modal-foot">
         <button class="btn secondary" type="button" data-close="confirmMask">取消</button>
@@ -883,7 +883,9 @@
       if (!selected.length) {
         return;
       }
-      confirmText.textContent = `确认批量下线 ${selected.length} 家门店？`;
+      confirmText.textContent = selected.length === 1
+        ? "确认下线一家门店？"
+        : `确认批量下线 ${selected.length} 家门店？`;
       confirmStores.innerHTML = selected.map(storeLine).join("");
       confirmMask.classList.add("show");
     }
