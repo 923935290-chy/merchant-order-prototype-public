@@ -939,7 +939,7 @@
         : "无成功门店";
       failList.innerHTML = failed.length
         ? failed.map(row => `${row.dataset.name}（门店ID ${row.dataset.id}）：门店状态已变化，请刷新后重试`).join("<br>")
-        : "无失败门店";
+        : "无";
 
       confirmMask.classList.remove("show");
       resultMask.classList.add("show");
