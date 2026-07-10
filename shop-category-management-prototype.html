@@ -1309,7 +1309,7 @@
                 <td>二级</td>
                 <td>数码</td>
                 <td><div class="map-tags"><span class="map-tag">数码商品 / 手机及配件</span><span class="map-tag">数码商品 / 手机及配件 / 手机</span></div></td>
-                <td><span class="thumb">OPPO</span></td>
+                <td>-</td>
                 <td>10</td>
                 <td><span class="status on">启用</span></td>
                 <td>2026-07-09 11:18</td>
@@ -1321,7 +1321,7 @@
                 <td>二级</td>
                 <td>数码</td>
                 <td><div class="map-tags"><span class="map-tag">数码商品 / 手机及配件</span></div></td>
-                <td><span class="thumb">MI</span></td>
+                <td>-</td>
                 <td>20</td>
                 <td><span class="status on">启用</span></td>
                 <td>2026-07-09 10:55</td>
@@ -1345,7 +1345,7 @@
                 <td>二级</td>
                 <td>服饰</td>
                 <td><div class="map-tags"><span class="map-tag">服饰商品 / 鞋服</span></div></td>
-                <td><span class="thumb shoes">鞋</span></td>
+                <td>-</td>
                 <td>20</td>
                 <td><span class="status on">启用</span></td>
                 <td>2026-07-09 10:38</td>
@@ -1357,7 +1357,7 @@
                 <td>二级</td>
                 <td>服饰</td>
                 <td><div class="map-tags"><span class="map-tag">服饰商品 / 鞋服</span></div></td>
-                <td><span class="thumb shoes">T</span></td>
+                <td>-</td>
                 <td>30</td>
                 <td><span class="status off">禁用</span></td>
                 <td>2026-07-08 18:06</td>
@@ -2139,6 +2139,21 @@
       return names.join(" / ");
     }
 
+    function ancestorRows(row) {
+      const ancestors = [];
+      let targetLevel = Number(row.dataset.level) - 1;
+      let prev = row.previousElementSibling;
+      while (prev && targetLevel > 0) {
+        const prevLevel = Number(prev.dataset.level);
+        if (prevLevel === targetLevel) {
+          ancestors.unshift(prev);
+          targetLevel -= 1;
+        }
+        prev = prev.previousElementSibling;
+      }
+      return ancestors;
+    }
+
     function syncParentFilterOptions() {
       const currentValue = parentFilter.value;
       const parentNames = [];
@@ -2159,7 +2174,8 @@
       const table = activeTable();
       normalizeTreeState(table);
 
-      let visibleCount = 0;
+      const matchedRows = [];
+      const visibleRows = new Set();
       table.querySelectorAll("tbody tr").forEach(row => {
         const nameMatch = !keyword || rowPathText(row).includes(keyword);
         const idMatch = !categoryId || row.children[1].textContent.trim() === categoryId;
@@ -2168,12 +2184,20 @@
         const statusText = row.querySelector(".status")?.textContent.trim() || "";
         const statusMatch = status === "全部" || statusText === status;
         const matched = nameMatch && idMatch && levelMatch && parentMatch && statusMatch;
-        row.classList.toggle("filtered-out", !matched);
-        if (matched) visibleCount += 1;
+        if (matched) matchedRows.push(row);
+      });
+
+      matchedRows.forEach(row => {
+        visibleRows.add(row);
+        ancestorRows(row).forEach(parentRow => visibleRows.add(parentRow));
+      });
+
+      table.querySelectorAll("tbody tr").forEach(row => {
+        row.classList.toggle("filtered-out", !visibleRows.has(row));
       });
 
       applyPagination(1);
-      showToast(`查询完成，共 ${visibleCount} 条`);
+      showToast(`查询完成，共 ${matchedRows.length} 条`);
     }
 
     function resetFilters(show = true) {
@@ -2208,15 +2232,15 @@
       syncImageField();
     }
 
-    function syncBackendMapOptions(selected = selectedBackendMaps()) {
+    function syncBackendMapOptions(selected = []) {
       const normalizedSelected = selected.map(value => value.replace(/\s*\/\s*/g, " / "));
       const options = tableRows(backTable).map(row => ({
         path: rowPathText(row),
         level: row.children[2].textContent.trim()
       }));
-      backendMapOptions.innerHTML = options.map((option, index) => `
+      backendMapOptions.innerHTML = options.map(option => `
         <label class="map-option" data-level="${option.level}" data-keyword="${escapeHtml(option.path)}">
-          <input type="checkbox" value="${escapeHtml(option.path)}"${normalizedSelected.includes(option.path) || (!normalizedSelected.length && index === 0) ? " checked" : ""}>
+          <input type="checkbox" value="${escapeHtml(option.path)}"${normalizedSelected.includes(option.path) ? " checked" : ""}>
           <span>${escapeHtml(option.path)}</span>
         </label>
       `).join("");
@@ -2415,15 +2439,18 @@
       return values.every(value => !existingValues.has(String(value)));
     }
 
-    function thumbnailFor(name) {
-      const text = name.replace(/\s+/g, "").slice(0, 4) || "图";
-      return `<span class="thumb">${text}</span>`;
+    function duplicateCategoryNames(names) {
+      const level = modalLevel.value;
+      const parentName = level === "一级" ? "-" : parentSelect.value;
+      const ignoreRow = formType === "edit" ? modalContext.row : null;
+      const existingNames = new Set(siblingRowsForSort(level, parentName, ignoreRow).map(row => rowText(row)));
+      return names.filter(name => existingNames.has(name));
     }
 
     function imageHtmlFor(name, src = "") {
       return src
         ? `<img class="thumb zoomable-image" src="${escapeHtml(src)}" alt="${escapeHtml(name)}类目图片" title="点击查看大图" role="button" tabindex="0" data-preview-src="${escapeHtml(src)}" data-preview-title="${escapeHtml(name)}类目图片">`
-        : thumbnailFor(name);
+        : "-";
     }
 
     function openImagePreview(src, title = "图片预览") {
@@ -2445,7 +2472,15 @@
     }
 
     function rowHasImage(row) {
-      return !!row.querySelector(".thumb");
+      return Boolean(row.dataset.imageSrc && row.querySelector("img.zoomable-image"));
+    }
+
+    function frontRowsMappedToBackend(backendRow) {
+      const backendPath = rowPathText(backendRow);
+      return tableRows(frontTable).filter(row => {
+        const maps = (row.dataset.backendMaps || "").split("|").map(item => item.trim()).filter(Boolean);
+        return maps.includes(backendPath);
+      });
     }
 
     function setImageState(hasImage, previewUrl = "") {
@@ -2825,6 +2860,7 @@
       const level = row.children[2].textContent.trim();
       const hasChildren = !!row.querySelector(".twisty");
       const productCount = mode === "back" ? Number(row.children[col("productCount", "back")].textContent.trim()) : 0;
+      const mappedFrontRows = mode === "back" ? frontRowsMappedToBackend(row) : [];
       pendingAction = { action, row, actionLabel };
       confirmTitle.textContent = action === "delete" ? "确认删除" : actionLabel === "禁用" ? "确认禁用" : "确认启用";
       confirmText.textContent = `${confirmTitle.textContent}「${name}」？`;
@@ -2833,6 +2869,9 @@
         confirmAction.textContent = "我知道了";
       } else if (action === "delete" && productCount > 0) {
         confirmDesc.textContent = `该后台类目关联 ${productCount} 个商品，不允许删除。`;
+        confirmAction.textContent = "我知道了";
+      } else if (action === "delete" && mappedFrontRows.length > 0) {
+        confirmDesc.textContent = `该后台类目已被前台类目「${mappedFrontRows.map(rowText).join("、")}」映射引用，不允许删除。`;
         confirmAction.textContent = "我知道了";
       } else if (action === "delete") {
         confirmDesc.textContent = "删除后不可恢复，确认后该类目将从列表移除。";
@@ -2899,7 +2938,10 @@
       const nameOk = modalName.value.trim().length > 0;
       const batchList = batchNames.value.split(/\n/).map(item => item.trim()).filter(Boolean);
       const batchUnique = new Set(batchList).size === batchList.length;
-      const batchOk = batchList.length > 0 && batchUnique;
+      const singleDuplicateNames = !isBatch && nameOk ? duplicateCategoryNames([modalName.value.trim()]) : [];
+      const batchDuplicateNames = isBatch && batchUnique ? duplicateCategoryNames(batchList) : [];
+      const nameUniqueOk = isBatch ? batchDuplicateNames.length === 0 : singleDuplicateNames.length === 0;
+      const batchOk = batchList.length > 0 && batchUnique && nameUniqueOk;
       const sortOk = /^\d{1,4}$/.test(sortInput.value.trim());
       const stepOk = /^[1-9]\d{0,3}$/.test(sortStepInput.value.trim());
       const canCheckGeneratedSort = sortOk && (!isBatch || (stepOk && batchList.length > 0));
@@ -2908,19 +2950,33 @@
       const sortUniqueOk = !canCheckGeneratedSort || (generatedSortOk && sortValuesUniqueInScope(proposedSortValues));
       const imageOk = true;
       const backendMapOk = mode !== "front" || selectedBackendMaps().length > 0;
+      const nameError = modalName.closest(".field").querySelector(".error");
+      const batchError = batchNames.closest(".field").querySelector(".error");
       const sortError = sortInput.closest(".field").querySelector(".error");
+      if (!nameOk) {
+        nameError.textContent = "请输入类目名称";
+      } else if (!nameUniqueOk) {
+        nameError.textContent = "同一父级下类目名称重复，请调整后保存";
+      }
+      if (batchList.length === 0) {
+        batchError.textContent = "请输入至少一个类目名称";
+      } else if (!batchUnique) {
+        batchError.textContent = "批量输入中存在重复类目名称，请调整后保存";
+      } else if (!nameUniqueOk) {
+        batchError.textContent = `同一父级下已存在「${batchDuplicateNames.join("、")}」，请调整后保存`;
+      }
       if (!sortOk || !generatedSortOk) {
         sortError.textContent = isBatch ? "批量新增生成的排序值需全部为 0-9999 的整数" : "请输入 0-9999 的整数";
       } else if (!sortUniqueOk) {
         sortError.textContent = "同一父级、同一层级下排序值不能重复，请调整后保存";
       }
-      modalName.closest(".field").classList.toggle("invalid", !isBatch && !nameOk);
+      modalName.closest(".field").classList.toggle("invalid", !isBatch && (!nameOk || !nameUniqueOk));
       batchNames.closest(".field").classList.toggle("invalid", isBatch && !batchOk);
       backendMapField.classList.toggle("invalid", !backendMapOk);
       sortInput.closest(".field").classList.toggle("invalid", !sortOk || !generatedSortOk || !sortUniqueOk);
       sortStepInput.closest(".field").classList.toggle("invalid", isBatch && !stepOk);
       imageField.classList.toggle("invalid-image", !imageOk);
-      return (isBatch ? batchOk && stepOk : nameOk) && sortOk && generatedSortOk && sortUniqueOk && imageOk && backendMapOk;
+      return (isBatch ? batchOk && stepOk : nameOk && nameUniqueOk) && sortOk && generatedSortOk && sortUniqueOk && imageOk && backendMapOk;
     }
 
     function toggleCategoryRow(row, twisty) {
