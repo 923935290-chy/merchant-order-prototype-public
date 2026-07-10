@@ -2971,10 +2971,14 @@
         confirmDesc.textContent = "删除后不可恢复，确认后该类目将从列表移除。";
         confirmAction.textContent = "确认删除";
       } else if (level === "一级" && actionLabel === "禁用") {
-        confirmDesc.textContent = "禁用一级类目后，其下子类目不会在前台展示。";
+        confirmDesc.textContent = mode === "front"
+          ? "禁用一级类目后，其下二级类目不会在前台展示。"
+          : "禁用一级类目后，其下子类目在新增商品选择中均不生效。";
         confirmAction.textContent = "确认禁用";
       } else if (level === "二级" && actionLabel === "禁用") {
-        confirmDesc.textContent = "禁用二级类目后，其下子类目不会在前台展示。";
+        confirmDesc.textContent = mode === "front"
+          ? "禁用二级类目后，该二级入口不会在前台展示。"
+          : "禁用二级类目后，其下子类目在新增商品选择中均不生效。";
         confirmAction.textContent = "确认禁用";
       } else {
         confirmDesc.textContent = "状态变更后立即生效。";
