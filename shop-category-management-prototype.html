@@ -575,6 +575,19 @@
       border-color: var(--line);
     }
 
+    tr.row-highlight td {
+      animation: rowHighlight 1800ms ease-out;
+    }
+
+    @keyframes rowHighlight {
+      0% {
+        background: oklch(0.93 0.055 92);
+      }
+      100% {
+        background: transparent;
+      }
+    }
+
     .mask {
       position: fixed;
       inset: 0;
@@ -2548,9 +2561,9 @@
       tableRows().forEach(row => row.classList.remove("filtered-out"));
       sortActiveCategoryTree();
       if (mode === "front") syncParentFilterOptions();
-      const targetIndex = filteredRows().indexOf(rows[rows.length - 1]);
-      const targetPage = targetIndex >= 0 ? Math.ceil((targetIndex + 1) / pageSize()) : currentPage;
-      refreshCurrentPage(targetPage);
+      const targetRow = [...rows].sort(compareCategoryRows)[0] || rows[0];
+      refreshCurrentPage(pageForRow(targetRow));
+      highlightRows(rows.filter(row => !row.classList.contains("paged-out")));
       return rows;
     }
 
@@ -2591,7 +2604,8 @@
       }
       sortActiveCategoryTree();
       if (mode === "front") syncParentFilterOptions();
-      refreshCurrentPage(currentPage);
+      refreshCurrentPage(pageForRow(row));
+      highlightRows([row]);
     }
 
     function updateDirectChildParentNames(row, oldName, newName) {
@@ -2657,6 +2671,19 @@
         next = next.nextElementSibling;
       }
       return block;
+    }
+
+    function pageForRow(row) {
+      const index = filteredRows().indexOf(row);
+      return index >= 0 ? Math.ceil((index + 1) / pageSize()) : currentPage;
+    }
+
+    function highlightRows(rows = []) {
+      rows.forEach(row => {
+        row.classList.remove("row-highlight");
+        void row.offsetWidth;
+        row.classList.add("row-highlight");
+      });
     }
 
     function directChildRows(parentRow) {
@@ -3033,7 +3060,7 @@
           : `修改后台类目名称、排序值或状态，保存后状态为${statusSelect.value}`;
         updateEditedCategory();
         appendOperationLog("编辑", object, detail);
-        showToast("类目修改成功");
+        showToast("类目修改成功，已按排序值更新展示位置");
       } else if (createType === "batch") {
         const names = batchNames.value.split(/\n/).map(item => item.trim()).filter(Boolean);
         const count = names.length;
