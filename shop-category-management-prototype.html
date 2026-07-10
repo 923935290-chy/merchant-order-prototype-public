@@ -519,6 +519,35 @@
       color: var(--orange);
     }
 
+    .display-state {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .display-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .display-state.blocked .display-dot {
+      background: var(--weak);
+    }
+
+    .display-state .state-main {
+      color: var(--heading);
+      font-weight: 650;
+    }
+
+    .display-state .state-reason {
+      color: var(--muted);
+    }
+
     .link {
       margin-right: 12px;
       border: 0;
@@ -1273,6 +1302,7 @@
               <col style="width: 110px">
               <col style="width: 80px">
               <col style="width: 80px">
+              <col style="width: 132px">
               <col style="width: 150px">
               <col style="width: 180px">
             </colgroup>
@@ -1285,7 +1315,8 @@
                 <th>映射后台类目</th>
                 <th>类目图片</th>
                 <th>排序值</th>
-                <th>状态</th>
+                <th>配置状态</th>
+                <th>展示状态</th>
                 <th>更新时间</th>
                 <th>操作</th>
               </tr>
@@ -1300,6 +1331,7 @@
                 <td>-</td>
                 <td>20</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span></td>
                 <td>2026-07-09 11:20</td>
                 <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1312,6 +1344,7 @@
                 <td>-</td>
                 <td>10</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span></td>
                 <td>2026-07-09 11:18</td>
                 <td><button class="link edit-second">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1324,6 +1357,7 @@
                 <td>-</td>
                 <td>20</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span></td>
                 <td>2026-07-09 10:55</td>
                 <td><button class="link edit-second">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1335,9 +1369,10 @@
                 <td><div class="map-tags"><span class="map-tag">服饰商品</span></div></td>
                 <td>-</td>
                 <td>30</td>
-                <td><span class="status on">启用</span></td>
+                <td><span class="status off">禁用</span></td>
+                <td><span class="display-state blocked"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">当前已禁用</span></span></td>
                 <td>2026-07-09 10:40</td>
-                <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+                <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link">启用</button><button class="link danger">删除</button></td>
               </tr>
               <tr data-level="2" data-backend-maps="服饰商品 / 鞋服">
                 <td><div class="name-cell indent-1"><span class="tree-space"></span>运动鞋</div></td>
@@ -1348,6 +1383,7 @@
                 <td>-</td>
                 <td>20</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state blocked" title="上级类目已禁用，当前类目暂不在前台展示；上级启用后，将按当前类目状态恢复展示。"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">上级已禁用</span></span></td>
                 <td>2026-07-09 10:38</td>
                 <td><button class="link edit-second">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1360,6 +1396,7 @@
                 <td>-</td>
                 <td>30</td>
                 <td><span class="status off">禁用</span></td>
+                <td><span class="display-state blocked"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">当前已禁用</span></span></td>
                 <td>2026-07-08 18:06</td>
                 <td><button class="link edit-second">编辑</button><button class="link">启用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1375,6 +1412,7 @@
               <col style="width: 110px">
               <col style="width: 80px">
               <col style="width: 80px">
+              <col style="width: 132px">
               <col style="width: 150px">
               <col style="width: 220px">
             </colgroup>
@@ -1386,7 +1424,8 @@
                 <th>上级类目</th>
                 <th>关联商品数</th>
                 <th>排序值</th>
-                <th>状态</th>
+                <th>配置状态</th>
+                <th>展示状态</th>
                 <th>更新时间</th>
                 <th>操作</th>
               </tr>
@@ -1400,6 +1439,7 @@
                 <td>238</td>
                 <td>10</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span></td>
                 <td>2026-07-09 09:42</td>
                 <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1411,6 +1451,7 @@
                 <td>86</td>
                 <td>10</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span></td>
                 <td>2026-07-09 09:35</td>
                 <td><button class="link">新增子类</button><button class="link edit-second">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1422,6 +1463,7 @@
                 <td>42</td>
                 <td>10</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span></td>
                 <td>2026-07-09 09:32</td>
                 <td><button class="link edit-third">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1433,6 +1475,7 @@
                 <td>27</td>
                 <td>20</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span></td>
                 <td>2026-07-09 09:18</td>
                 <td><button class="link edit-third">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1444,6 +1487,7 @@
                 <td>164</td>
                 <td>20</td>
                 <td><span class="status on">启用</span></td>
+                <td><span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span></td>
                 <td>2026-07-08 17:12</td>
                 <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
               </tr>
@@ -1455,6 +1499,7 @@
                 <td>93</td>
                 <td>10</td>
                 <td><span class="status off">禁用</span></td>
+                <td><span class="display-state blocked"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">当前已禁用</span></span></td>
                 <td>2026-07-08 16:44</td>
                 <td><button class="link">新增子类</button><button class="link edit-second">编辑</button><button class="link">启用</button><button class="link danger">删除</button></td>
               </tr>
@@ -2046,16 +2091,18 @@
         image: 5,
         sort: 6,
         status: 7,
-        updated: 8,
-        actions: 9
+        display: 8,
+        updated: 9,
+        actions: 10
       };
       const back = {
         parent: 3,
         productCount: 4,
         sort: 5,
         status: 6,
-        updated: 7,
-        actions: 8
+        display: 7,
+        updated: 8,
+        actions: 9
       };
       return (targetMode === "front" ? front : back)[name];
     }
@@ -2471,6 +2518,24 @@
       return row.querySelector(".status")?.textContent.trim() || "启用";
     }
 
+    function displayStateHtml(row) {
+      const ownDisabled = rowStatus(row) === "禁用";
+      const parentDisabled = ancestorRows(row).some(parentRow => rowStatus(parentRow) === "禁用");
+      if (ownDisabled) {
+        return '<span class="display-state blocked"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">当前已禁用</span></span>';
+      }
+      if (parentDisabled) {
+        return '<span class="display-state blocked" title="上级类目已禁用，当前类目暂不在前台展示；上级启用后，将按当前类目状态恢复展示。"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">上级已禁用</span></span>';
+      }
+      return '<span class="display-state"><span class="display-dot"></span><span class="state-main">展示中</span></span>';
+    }
+
+    function refreshDisplayStates(table = activeTable()) {
+      tableRows(table).forEach(row => {
+        row.children[col("display", rowMode(row))].innerHTML = displayStateHtml(row);
+      });
+    }
+
     function rowHasImage(row) {
       return Boolean(row.dataset.imageSrc && row.querySelector("img.zoomable-image"));
     }
@@ -2526,6 +2591,7 @@
           <td>${image}</td>
           <td>${sortValue}</td>
           <td><span class="status ${status === "启用" ? "on" : "off"}">${status}</span></td>
+          <td></td>
           <td>${nowText()}</td>
           <td>${operationHtml(level, status)}</td>
         `;
@@ -2538,10 +2604,12 @@
           <td>0</td>
           <td>${sortValue}</td>
           <td><span class="status ${status === "启用" ? "on" : "off"}">${status}</span></td>
+          <td></td>
           <td>${nowText()}</td>
           <td>${operationHtml(level, status)}</td>
         `;
       }
+      tr.children[col("display", mode)].innerHTML = displayStateHtml(tr);
       attachRowActions(tr);
       return tr;
     }
@@ -2638,6 +2706,7 @@
         }
       }
       sortActiveCategoryTree();
+      refreshDisplayStates(activeTable());
       if (mode === "front") syncParentFilterOptions();
       refreshCurrentPage(pageForRow(row));
       highlightRows([row]);
@@ -2687,6 +2756,7 @@
         statusAction.textContent = nextStatus === "启用" ? "禁用" : "启用";
         statusAction.classList.toggle("danger", nextStatus === "启用");
       }
+      refreshDisplayStates(row.closest("table"));
       refreshCurrentPage(currentPage);
     }
 
@@ -2762,6 +2832,7 @@
     function sortActiveCategoryTree() {
       sortRowsWithinParent(null);
       refreshTreeIndicators();
+      refreshDisplayStates(activeTable());
     }
 
     function childLevelLabel(parentRow) {
