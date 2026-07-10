@@ -1970,6 +1970,7 @@
       syncLevelFilterOptions();
       document.querySelector("#openCreate").textContent = "新增一级类目";
       if (next === "front") syncParentFilterOptions();
+      sortActiveCategoryTree();
       resetFilters(false);
     }
 
@@ -2545,6 +2546,7 @@
       }));
       rows.forEach(row => insertAfterParentBlock(row, parentName));
       tableRows().forEach(row => row.classList.remove("filtered-out"));
+      sortActiveCategoryTree();
       if (mode === "front") syncParentFilterOptions();
       const targetIndex = filteredRows().indexOf(rows[rows.length - 1]);
       const targetPage = targetIndex >= 0 ? Math.ceil((targetIndex + 1) / pageSize()) : currentPage;
@@ -2587,6 +2589,7 @@
           row.children[col("image", "front")].innerHTML = "-";
         }
       }
+      sortActiveCategoryTree();
       if (mode === "front") syncParentFilterOptions();
       refreshCurrentPage(currentPage);
     }
@@ -2666,6 +2669,37 @@
         next = next.nextElementSibling;
       }
       return rows;
+    }
+
+    function compareCategoryRows(a, b) {
+      const sortA = Number(a.children[col("sort", rowMode(a))].textContent.trim());
+      const sortB = Number(b.children[col("sort", rowMode(b))].textContent.trim());
+      if (sortA !== sortB) return sortA - sortB;
+      return a.children[1].textContent.trim().localeCompare(b.children[1].textContent.trim(), "zh-Hans-CN", { numeric: true });
+    }
+
+    function sortRowsWithinParent(parentRow = null) {
+      const rows = directChildRows(parentRow);
+      if (!rows.length) return;
+      const sortedRows = [...rows].sort(compareCategoryRows);
+      const tbody = activeTable().querySelector("tbody");
+      const anchor = document.createComment("sort-anchor");
+      if (parentRow) {
+        const parentLevel = Number(parentRow.dataset.level);
+        let end = parentRow.nextElementSibling;
+        while (end && Number(end.dataset.level) > parentLevel) end = end.nextElementSibling;
+        tbody.insertBefore(anchor, end);
+      } else {
+        tbody.appendChild(anchor);
+      }
+      sortedRows.forEach(row => rowBlock(row).forEach(blockRow => tbody.insertBefore(blockRow, anchor)));
+      anchor.remove();
+      sortedRows.forEach(row => sortRowsWithinParent(row));
+    }
+
+    function sortActiveCategoryTree() {
+      sortRowsWithinParent(null);
+      refreshTreeIndicators();
     }
 
     function childLevelLabel(parentRow) {
@@ -3151,6 +3185,7 @@
       if (event.target.id === "logPageSizeSelect") renderOperationLogs(1);
     });
     renderOperationLogs(1);
+    sortActiveCategoryTree();
     refreshCurrentPage(1);
   </script>
 </body>
