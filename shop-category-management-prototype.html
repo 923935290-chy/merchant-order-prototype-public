@@ -1,0 +1,3113 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>示例商城 - 类目管理后台原型</title>
+  <style>
+    :root {
+      --bg: oklch(0.965 0.006 255);
+      --surface: oklch(0.995 0.002 255);
+      --panel: oklch(0.985 0.004 255);
+      --line: oklch(0.905 0.008 255);
+      --line-strong: oklch(0.845 0.012 255);
+      --text: oklch(0.38 0.018 260);
+      --heading: oklch(0.26 0.024 260);
+      --muted: oklch(0.57 0.018 260);
+      --weak: oklch(0.70 0.015 260);
+      --blue: oklch(0.61 0.19 257);
+      --blue-soft: oklch(0.965 0.028 257);
+      --green: oklch(0.60 0.14 153);
+      --green-soft: oklch(0.965 0.032 153);
+      --orange: oklch(0.70 0.16 52);
+      --orange-soft: oklch(0.975 0.035 52);
+      --red: oklch(0.62 0.18 25);
+      --red-soft: oklch(0.965 0.032 25);
+      --shadow: 0 10px 26px oklch(0.35 0.018 260 / 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 1440px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    .topbar {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      box-shadow: 0 2px 8px oklch(0.35 0.018 260 / 0.04);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 250px;
+      color: var(--heading);
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .mark {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      background:
+        linear-gradient(135deg, oklch(0.70 0.16 257), oklch(0.64 0.19 257) 48%, transparent 49%),
+        linear-gradient(315deg, oklch(0.75 0.16 52), oklch(0.68 0.17 42));
+    }
+
+    .brand small {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .topnav {
+      display: flex;
+      align-items: center;
+      gap: 34px;
+      height: 100%;
+      color: oklch(0.41 0.02 260);
+      font-weight: 650;
+    }
+
+    .topnav span {
+      height: 48px;
+      display: inline-flex;
+      align-items: center;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+
+    .topnav .active {
+      color: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .top-actions {
+      width: 330px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+    }
+
+    .search {
+      width: 92px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 10px;
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--weak);
+      font-size: 12px;
+    }
+
+    .circle {
+      width: 28px;
+      height: 28px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .avatar {
+      background: linear-gradient(135deg, oklch(0.74 0.13 52), oklch(0.45 0.08 260));
+      color: oklch(0.98 0.004 260);
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      min-height: calc(100vh - 48px);
+    }
+
+    .sidebar {
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      overflow: hidden;
+    }
+
+    .side-section {
+      padding: 14px 0 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .side-title {
+      padding: 0 14px 10px;
+      color: var(--weak);
+      font-size: 13px;
+    }
+
+    .side-item {
+      height: 36px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      color: oklch(0.42 0.016 260);
+      font-weight: 620;
+    }
+
+    .side-item.sub {
+      padding-left: 32px;
+      font-weight: 560;
+    }
+
+    .side-item.active {
+      color: var(--blue);
+      background: var(--blue-soft);
+      box-shadow: inset 2px 0 0 var(--blue);
+    }
+
+    .hamb {
+      width: 12px;
+      height: 10px;
+      display: inline-grid;
+      gap: 2px;
+    }
+
+    .hamb i {
+      display: block;
+      height: 2px;
+      border-radius: 2px;
+      background: currentColor;
+      opacity: 0.68;
+    }
+
+    .main {
+      padding: 14px 16px 32px;
+      background: var(--bg);
+    }
+
+    .page-head {
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--heading);
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .page-title::before {
+      content: "";
+      width: 4px;
+      height: 18px;
+      border-radius: 2px;
+      background: oklch(0.40 0.035 260);
+    }
+
+    .crumb {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 560;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .filters {
+      padding: 18px 20px 16px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(210px, 1fr));
+      gap: 14px 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+
+    .control,
+    .select {
+      width: 100%;
+      height: 34px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: var(--surface);
+      color: var(--text);
+      padding: 0 12px;
+      outline: none;
+    }
+
+    .control:disabled,
+    .select:disabled {
+      cursor: not-allowed;
+      border-color: var(--line);
+      background: var(--panel);
+      color: var(--muted);
+    }
+
+    .select {
+      appearance: none;
+      background-image:
+        linear-gradient(45deg, transparent 50%, var(--weak) 50%),
+        linear-gradient(135deg, var(--weak) 50%, transparent 50%);
+      background-position: calc(100% - 15px) 14px, calc(100% - 10px) 14px;
+      background-size: 5px 5px;
+      background-repeat: no-repeat;
+    }
+
+    .control::placeholder {
+      color: oklch(0.74 0.012 260);
+    }
+
+    .actions {
+      display: flex;
+      grid-column: 1 / -1;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 10px;
+    }
+
+    .btn {
+      min-width: 78px;
+      height: 34px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      padding: 0 18px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: background 160ms ease, border-color 160ms ease, color 160ms ease;
+    }
+
+    .btn.primary {
+      background: var(--blue);
+      color: oklch(0.99 0.004 260);
+    }
+
+    .btn.primary:hover {
+      background: oklch(0.55 0.20 257);
+    }
+
+    .btn.secondary {
+      border-color: var(--line-strong);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .btn.ghost {
+      border-color: transparent;
+      background: transparent;
+      color: var(--blue);
+      padding: 0 8px;
+      min-width: 0;
+    }
+
+    .result {
+      margin-top: 12px;
+      overflow: hidden;
+    }
+
+    .result-head {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .result-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--heading);
+      font-weight: 750;
+    }
+
+    .result-title::before {
+      content: "";
+      width: 4px;
+      height: 16px;
+      border-radius: 2px;
+      background: oklch(0.42 0.04 260);
+    }
+
+    .table-wrap {
+      padding: 0 16px 16px;
+      overflow: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 4px;
+      table-layout: fixed;
+    }
+
+    #frontTable {
+      min-width: 1360px;
+    }
+
+    #backTable {
+      min-width: 1160px;
+    }
+
+    th {
+      height: 34px;
+      padding: 0 10px;
+      background: var(--panel);
+      color: var(--muted);
+      text-align: left;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    td {
+      height: 58px;
+      padding: 8px 10px;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      color: oklch(0.45 0.016 260);
+      vertical-align: middle;
+      word-break: break-all;
+    }
+
+    td:first-child {
+      border-left: 1px solid var(--line);
+      border-radius: 4px 0 0 4px;
+    }
+
+    td:last-child {
+      border-right: 1px solid var(--line);
+      border-radius: 0 4px 4px 0;
+      white-space: nowrap;
+    }
+
+    .name-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--heading);
+      font-weight: 700;
+    }
+
+    .indent-1 {
+      padding-left: 18px;
+    }
+
+    .indent-2 {
+      padding-left: 42px;
+    }
+
+    .twisty {
+      width: 16px;
+      min-width: 16px;
+      color: var(--weak);
+      text-align: center;
+      font-size: 12px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .tree-space {
+      width: 16px;
+      min-width: 16px;
+      display: inline-block;
+    }
+
+    .twisty:empty {
+      cursor: default;
+    }
+
+    .thumb {
+      width: 42px;
+      height: 42px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: linear-gradient(145deg, oklch(0.98 0.012 52), oklch(0.93 0.025 257));
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    img.thumb {
+      object-fit: cover;
+      padding: 0;
+    }
+
+    img.thumb.zoomable-image {
+      cursor: zoom-in;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    img.thumb.zoomable-image:hover,
+    img.thumb.zoomable-image:focus-visible {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px oklch(0.63 0.16 258 / 0.14);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .thumb.shoes {
+      background: linear-gradient(145deg, oklch(0.96 0.018 52), oklch(0.86 0.026 260));
+      color: oklch(0.36 0.02 260);
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .status.on {
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .status.off {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .status.warn {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .link {
+      margin-right: 12px;
+      border: 0;
+      background: transparent;
+      color: var(--blue);
+      cursor: pointer;
+      font-weight: 650;
+      padding: 0;
+    }
+
+    .link.danger {
+      color: var(--red);
+    }
+
+    .pager {
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .pages {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .page {
+      min-width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .page.active {
+      color: var(--blue);
+      border-color: var(--blue);
+      font-weight: 800;
+    }
+
+    .page.disabled {
+      cursor: not-allowed;
+      color: var(--weak);
+      background: var(--panel);
+      border-color: var(--line);
+    }
+
+    .mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      background: oklch(0.25 0.015 260 / 0.32);
+    }
+
+    .mask.show {
+      display: flex;
+    }
+
+    .modal {
+      width: 780px;
+      overflow: visible;
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: 0 18px 50px oklch(0.25 0.018 260 / 0.20);
+    }
+
+    .modal.confirm {
+      width: 480px;
+    }
+
+    .modal.sort-modal {
+      width: 720px;
+    }
+
+    .modal.log-modal {
+      width: 980px;
+    }
+
+    .modal-head {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      color: var(--heading);
+      font-size: 16px;
+      font-weight: 750;
+    }
+
+    .close {
+      border: 0;
+      background: transparent;
+      color: var(--weak);
+      cursor: pointer;
+      font-size: 22px;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 18px 20px 8px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .image-field {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 12px;
+      align-items: center;
+      grid-column: 1 / -1;
+      padding: 12px;
+      border: 1px dashed var(--line-strong);
+      border-radius: 6px;
+      background: oklch(0.988 0.006 257);
+    }
+
+    .image-field.invalid-image {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .image-field.invalid-image .tips {
+      color: var(--red);
+    }
+
+    .upload {
+      width: 72px;
+      height: 72px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: var(--surface);
+      color: var(--blue);
+      font-size: 24px;
+      font-weight: 400;
+      cursor: pointer;
+    }
+
+    .upload.has-image {
+      cursor: default;
+    }
+
+    .tips {
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 13px;
+    }
+
+    .help {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      margin-left: 5px;
+      border-radius: 50%;
+      background: var(--panel);
+      color: var(--weak);
+      font-size: 12px;
+      font-weight: 800;
+      cursor: help;
+    }
+
+    .help::after {
+      content: attr(data-tip);
+      position: absolute;
+      left: 0;
+      top: 22px;
+      width: 360px;
+      max-width: calc(100vw - 40px);
+      display: none;
+      padding: 8px 10px;
+      border-radius: 4px;
+      background: oklch(0.28 0.018 260);
+      color: oklch(0.96 0.006 260);
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.6;
+      box-shadow: var(--shadow);
+      z-index: 35;
+      white-space: normal;
+      word-break: normal;
+    }
+
+    .help:hover::after {
+      display: block;
+    }
+
+    .modal-foot {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 0 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .error {
+      display: none;
+      margin-top: 6px;
+      color: var(--red);
+      font-size: 12px;
+    }
+
+    .field.invalid .control,
+    .field.invalid .select {
+      border-color: var(--red);
+      background: var(--red-soft);
+    }
+
+    .field.invalid .error {
+      display: block;
+    }
+
+    .segmented {
+      grid-column: 1 / -1;
+      display: inline-flex;
+      width: fit-content;
+      padding: 2px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: var(--panel);
+    }
+
+    .segmented button {
+      min-width: 86px;
+      height: 30px;
+      border: 0;
+      border-radius: 3px;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-weight: 700;
+    }
+
+    .segmented button.active {
+      background: var(--surface);
+      color: var(--blue);
+      box-shadow: 0 1px 4px oklch(0.35 0.018 260 / 0.10);
+    }
+
+    textarea.control {
+      min-height: 108px;
+      resize: vertical;
+      padding-top: 9px;
+      line-height: 1.6;
+    }
+
+    .upload.has-image {
+      background: linear-gradient(145deg, oklch(0.96 0.018 52), oklch(0.90 0.026 257));
+      color: var(--heading);
+      font-size: 13px;
+      font-weight: 800;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .upload.has-preview {
+      color: transparent;
+      cursor: zoom-in;
+      transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+    }
+
+    .upload.has-preview:hover,
+    .upload.has-preview:focus-visible {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px oklch(0.63 0.16 258 / 0.14);
+      outline: none;
+      transform: translateY(-1px);
+    }
+
+    .image-actions {
+      display: none;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .image-field.has-image .image-actions {
+      display: flex;
+    }
+
+    .image-preview-mask {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 60;
+      padding: 28px;
+      background: oklch(0.18 0.014 260 / 0.72);
+    }
+
+    .image-preview-mask.show {
+      display: flex;
+    }
+
+    .image-preview-panel {
+      width: min(680px, calc(100vw - 56px));
+      max-height: calc(100vh - 56px);
+      display: flex;
+      flex-direction: column;
+      border-radius: 8px;
+      background: var(--surface);
+      box-shadow: 0 24px 68px oklch(0.16 0.018 260 / 0.32);
+      overflow: hidden;
+    }
+
+    .image-preview-head {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      border-bottom: 1px solid var(--line);
+      color: var(--heading);
+      font-weight: 750;
+    }
+
+    .image-preview-body {
+      min-height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: oklch(0.965 0.008 257);
+    }
+
+    .image-preview-body img {
+      display: block;
+      max-width: 100%;
+      max-height: calc(100vh - 156px);
+      object-fit: contain;
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: 0 8px 22px oklch(0.3 0.018 260 / 0.16);
+    }
+
+    .sort-toolbar {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      padding-bottom: 4px;
+    }
+
+    .sort-list {
+      grid-column: 1 / -1;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .sort-row {
+      min-height: 48px;
+      display: grid;
+      grid-template-columns: 48px 28px 1fr 90px;
+      align-items: center;
+      gap: 10px;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      cursor: grab;
+      transition: background 160ms ease, opacity 160ms ease, transform 160ms ease;
+    }
+
+    .sort-row:active {
+      cursor: grabbing;
+    }
+
+    .sort-row.dragging {
+      opacity: 0.48;
+      background: var(--blue-soft);
+    }
+
+    .drag-handle {
+      color: var(--weak);
+      font-size: 16px;
+      line-height: 1;
+      text-align: center;
+      user-select: none;
+    }
+
+    .sort-row:last-child {
+      border-bottom: 0;
+    }
+
+    .sort-index {
+      width: 24px;
+      height: 24px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .sort-name {
+      color: var(--heading);
+      font-weight: 700;
+    }
+
+    .sort-value {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .log-filters {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) 180px 180px;
+      gap: 14px 16px;
+      align-items: end;
+    }
+
+    .log-page-body {
+      padding: 18px 20px 16px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .log-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .log-table-wrap {
+      max-height: 520px;
+      overflow: auto;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .log-table {
+      border-spacing: 0;
+    }
+
+    .log-table th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      height: 38px;
+    }
+
+    .log-table td {
+      height: 52px;
+      border-left: 0;
+      border-right: 0;
+      border-radius: 0;
+    }
+
+    .log-pager {
+      padding-top: 2px;
+    }
+
+    .log-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 54px;
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 3px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .log-tag.risk {
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    .log-tag.sort {
+      background: var(--orange-soft);
+      color: var(--orange);
+    }
+
+    .map-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .map-tag {
+      display: inline-flex;
+      align-items: center;
+      max-width: 100%;
+      min-height: 24px;
+      padding: 3px 8px;
+      border-radius: 3px;
+      background: var(--blue-soft);
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .backend-map-options {
+      min-height: 104px;
+      max-height: 210px;
+      overflow: auto;
+      padding: 8px;
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    .backend-map-picker {
+      display: grid;
+      gap: 8px;
+    }
+
+    #backendMapField {
+      grid-column: 1 / -1;
+    }
+
+    .backend-map-tools {
+      display: grid;
+      grid-template-columns: 1fr 132px;
+      gap: 8px;
+    }
+
+    .map-option {
+      min-height: 30px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .map-option input {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--blue);
+    }
+
+    .map-option.hidden {
+      display: none;
+    }
+
+    .selected-map-summary {
+      min-height: 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      padding: 6px 8px;
+      border-radius: 4px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .toast {
+      position: fixed;
+      top: 62px;
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 280px;
+      min-height: 38px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 18px;
+      border: 1px solid oklch(0.88 0.045 153);
+      border-radius: 4px;
+      background: var(--green-soft);
+      color: var(--green);
+      box-shadow: var(--shadow);
+      z-index: 30;
+      font-weight: 700;
+    }
+
+    .toast.show {
+      display: flex;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .filtered-out,
+    .paged-out,
+    .collapsed {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"></span>
+      <span>运营工作台 <small>• Demo⌄</small></span>
+    </div>
+    <nav class="topnav" aria-label="顶部业务导航">
+      <span>数据分析</span>
+      <span>智能触达</span>
+      <span>端内投放</span>
+      <span>端外投放</span>
+      <span class="active">商品运营</span>
+      <span>位置服务</span>
+      <span>营销增长</span>
+      <span>常用工具</span>
+      <span>平台促活</span>
+    </nav>
+    <div class="top-actions">
+      <div class="search">⌕ 搜索</div>
+      <span class="circle">盒</span>
+      <span class="circle">?</span>
+      <span class="circle">信</span>
+      <span class="circle avatar">D</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="side-section">
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>门店管理</div>
+      </div>
+      <div class="side-section">
+        <div class="side-title">业务线 A</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>订单管理</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>门店管理</div>
+      </div>
+      <div class="side-section">
+        <div class="side-title">业务线 B</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>商品管理</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>门店管理</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>订单管理</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>活动保障</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>优惠活动标签管理</div>
+      </div>
+      <div class="side-section">
+        <div class="side-title">商品中心</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>商品管理</div>
+        <div class="side-item sub">商品管理</div>
+        <div class="side-item sub">商品组管理</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>商品展示管理</div>
+        <div class="side-item sub side-category active" data-mode="back">后台类目管理</div>
+        <div class="side-item sub side-category" data-mode="front">前台类目管理</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>订单管理</div>
+        <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>商品活动管理</div>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <div class="page-title" id="pageTitle">后台类目管理</div>
+          <div class="crumb" id="breadcrumb">商品运营 / 商品中心 / 商品管理 / 后台类目管理</div>
+        </div>
+      </div>
+
+      <div id="categoryPage">
+      <section class="panel">
+        <div class="filters">
+          <div class="field">
+            <label>类目名称</label>
+            <input class="control" id="nameFilter" placeholder="请输入查询的类目名称">
+          </div>
+          <div class="field">
+            <label>类目ID</label>
+            <input class="control" id="idFilter" placeholder="请输入查询的类目ID">
+          </div>
+          <div class="field">
+            <label>类目层级</label>
+            <select class="select" id="levelFilter">
+              <option>全部</option>
+              <option>一级</option>
+              <option>二级</option>
+              <option>三级</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>类目状态</label>
+            <select class="select" id="statusFilter">
+              <option>全部</option>
+              <option>启用</option>
+              <option>禁用</option>
+            </select>
+          </div>
+          <div class="field front-only hidden">
+            <label>所属父级</label>
+            <select class="select" id="parentFilter">
+              <option>全部</option>
+              <option>数码</option>
+              <option>服饰</option>
+            </select>
+          </div>
+          <div class="actions">
+            <button class="btn primary" id="queryBtn" type="button">查询</button>
+            <button class="btn secondary" id="resetBtn" type="button">重置</button>
+            <button class="btn secondary" id="openLog" type="button">操作日志</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel result">
+        <div class="result-head">
+          <div class="result-title" id="resultTitle">后台类目列表</div>
+          <div>
+            <button class="btn secondary" id="openExport" type="button">导出</button>
+            <button class="btn secondary" id="openSort" type="button">批量排序</button>
+            <button class="btn primary" id="openCreate" type="button">新增一级类目</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table id="frontTable" class="hidden">
+            <colgroup>
+              <col style="width: 210px">
+              <col style="width: 110px">
+              <col style="width: 92px">
+              <col style="width: 120px">
+              <col style="width: 230px">
+              <col style="width: 110px">
+              <col style="width: 80px">
+              <col style="width: 80px">
+              <col style="width: 150px">
+              <col style="width: 180px">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>类目名称</th>
+                <th>类目ID</th>
+                <th>类目层级</th>
+                <th>上级类目</th>
+                <th>映射后台类目</th>
+                <th>类目图片</th>
+                <th>排序值</th>
+                <th>状态</th>
+                <th>更新时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-level="1" data-backend-maps="数码商品">
+                <td><div class="name-cell"><span class="twisty">▾</span>数码</div></td>
+                <td>FC10001</td>
+                <td>一级</td>
+                <td>-</td>
+                <td><div class="map-tags"><span class="map-tag">数码商品</span></div></td>
+                <td>-</td>
+                <td>20</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 11:20</td>
+                <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="2" data-backend-maps="数码商品 / 手机及配件|数码商品 / 手机及配件 / 手机">
+                <td><div class="name-cell indent-1"><span class="tree-space"></span>OPPO</div></td>
+                <td>FC10011</td>
+                <td>二级</td>
+                <td>数码</td>
+                <td><div class="map-tags"><span class="map-tag">数码商品 / 手机及配件</span><span class="map-tag">数码商品 / 手机及配件 / 手机</span></div></td>
+                <td><span class="thumb">OPPO</span></td>
+                <td>10</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 11:18</td>
+                <td><button class="link edit-second">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="2" data-backend-maps="数码商品 / 手机及配件">
+                <td><div class="name-cell indent-1"><span class="tree-space"></span>小米</div></td>
+                <td>FC10012</td>
+                <td>二级</td>
+                <td>数码</td>
+                <td><div class="map-tags"><span class="map-tag">数码商品 / 手机及配件</span></div></td>
+                <td><span class="thumb">MI</span></td>
+                <td>20</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 10:55</td>
+                <td><button class="link edit-second">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="1" data-backend-maps="服饰商品">
+                <td><div class="name-cell"><span class="twisty">▾</span>服饰</div></td>
+                <td>FC10002</td>
+                <td>一级</td>
+                <td>-</td>
+                <td><div class="map-tags"><span class="map-tag">服饰商品</span></div></td>
+                <td>-</td>
+                <td>30</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 10:40</td>
+                <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="2" data-backend-maps="服饰商品 / 鞋服">
+                <td><div class="name-cell indent-1"><span class="tree-space"></span>运动鞋</div></td>
+                <td>FC10021</td>
+                <td>二级</td>
+                <td>服饰</td>
+                <td><div class="map-tags"><span class="map-tag">服饰商品 / 鞋服</span></div></td>
+                <td><span class="thumb shoes">鞋</span></td>
+                <td>20</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 10:38</td>
+                <td><button class="link edit-second">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="2" data-backend-maps="服饰商品 / 鞋服">
+                <td><div class="name-cell indent-1"><span class="tree-space"></span>短袖</div></td>
+                <td>FC10022</td>
+                <td>二级</td>
+                <td>服饰</td>
+                <td><div class="map-tags"><span class="map-tag">服饰商品 / 鞋服</span></div></td>
+                <td><span class="thumb shoes">T</span></td>
+                <td>30</td>
+                <td><span class="status off">禁用</span></td>
+                <td>2026-07-08 18:06</td>
+                <td><button class="link edit-second">编辑</button><button class="link">启用</button><button class="link danger">删除</button></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table id="backTable">
+            <colgroup>
+              <col style="width: 260px">
+              <col style="width: 110px">
+              <col style="width: 92px">
+              <col style="width: 150px">
+              <col style="width: 110px">
+              <col style="width: 80px">
+              <col style="width: 80px">
+              <col style="width: 150px">
+              <col style="width: 220px">
+            </colgroup>
+            <thead>
+              <tr>
+                <th>类目名称</th>
+                <th>类目ID</th>
+                <th>类目层级</th>
+                <th>上级类目</th>
+                <th>关联商品数</th>
+                <th>排序值</th>
+                <th>状态</th>
+                <th>更新时间</th>
+                <th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-level="1">
+                <td><div class="name-cell"><span class="twisty">▾</span>数码商品</div></td>
+                <td>BC20001</td>
+                <td>一级</td>
+                <td>-</td>
+                <td>238</td>
+                <td>10</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 09:42</td>
+                <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="2">
+                <td><div class="name-cell indent-1"><span class="twisty">▾</span>手机及配件</div></td>
+                <td>BC20011</td>
+                <td>二级</td>
+                <td>数码商品</td>
+                <td>86</td>
+                <td>10</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 09:35</td>
+                <td><button class="link">新增子类</button><button class="link edit-second">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="3">
+                <td><div class="name-cell indent-2"><span class="tree-space"></span>手机</div></td>
+                <td>BC20101</td>
+                <td>三级</td>
+                <td>手机及配件</td>
+                <td>42</td>
+                <td>10</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 09:32</td>
+                <td><button class="link edit-third">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="3">
+                <td><div class="name-cell indent-2"><span class="tree-space"></span>蓝牙耳机</div></td>
+                <td>BC20102</td>
+                <td>三级</td>
+                <td>手机及配件</td>
+                <td>27</td>
+                <td>20</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-09 09:18</td>
+                <td><button class="link edit-third">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="1">
+                <td><div class="name-cell"><span class="twisty">▾</span>服饰商品</div></td>
+                <td>BC20002</td>
+                <td>一级</td>
+                <td>-</td>
+                <td>164</td>
+                <td>20</td>
+                <td><span class="status on">启用</span></td>
+                <td>2026-07-08 17:12</td>
+                <td><button class="link">新增子类</button><button class="link edit-first">编辑</button><button class="link danger">禁用</button><button class="link danger">删除</button></td>
+              </tr>
+              <tr data-level="2">
+                <td><div class="name-cell indent-1"><span class="tree-space"></span>鞋服</div></td>
+                <td>BC20021</td>
+                <td>二级</td>
+                <td>服饰商品</td>
+                <td>93</td>
+                <td>10</td>
+                <td><span class="status off">禁用</span></td>
+                <td>2026-07-08 16:44</td>
+                <td><button class="link">新增子类</button><button class="link edit-second">编辑</button><button class="link">启用</button><button class="link danger">删除</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="pager">
+            <span id="pagerSummary">共 36 条，当前展示 1-10 条</span>
+            <div class="pages" id="pagerControls">
+              <button class="page" type="button" data-page-action="prev">‹</button>
+              <button class="page active" type="button" data-page="1">1</button>
+              <button class="page" type="button" data-page-action="next">›</button>
+              <select class="select" id="pageSizeSelect" style="width: 96px; height: 28px">
+                <option value="20" selected>20条/页</option>
+                <option value="50">50条/页</option>
+                <option value="100">100条/页</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+
+      <div class="hidden" id="logPage">
+        <section class="panel">
+          <div class="result-head">
+            <div class="result-title" id="logTitle">后台类目操作日志</div>
+            <button class="btn secondary" id="backToCategory" type="button">返回后台类目管理</button>
+          </div>
+          <div class="log-page-body">
+            <div class="log-filters">
+              <div class="field">
+                <label>操作对象</label>
+                <input class="control" id="logObjectFilter" placeholder="请输入类目名称或类目ID">
+              </div>
+              <div class="field">
+                <label>操作类型</label>
+                <select class="select" id="logTypeFilter">
+                  <option>全部</option>
+                  <option>新增</option>
+                  <option>编辑</option>
+                  <option>删除</option>
+                  <option>启用</option>
+                  <option>禁用</option>
+                  <option>排序</option>
+                  <option>导出</option>
+                </select>
+              </div>
+              <div class="field">
+                <label>操作人</label>
+                <select class="select" id="logOperatorFilter">
+                  <option>全部</option>
+                  <option>张运营</option>
+                  <option>李运营</option>
+                  <option>当前账号</option>
+                </select>
+              </div>
+            </div>
+            <div class="log-actions">
+              <button class="btn primary" id="queryLog" type="button">查询</button>
+              <button class="btn secondary" id="resetLog" type="button">重置</button>
+            </div>
+            <div class="log-table-wrap">
+              <table class="log-table">
+                <colgroup>
+                  <col style="width: 150px">
+                  <col style="width: 90px">
+                  <col style="width: 110px">
+                  <col style="width: 170px">
+                  <col>
+                  <col style="width: 120px">
+                </colgroup>
+                <thead>
+                  <tr>
+                    <th>操作时间</th>
+                    <th>操作类型</th>
+                    <th>操作人</th>
+                    <th>操作对象</th>
+                    <th>变更内容</th>
+                    <th>操作结果</th>
+                  </tr>
+                </thead>
+                <tbody id="logTableBody"></tbody>
+              </table>
+            </div>
+            <div class="pager log-pager">
+              <span id="logPagerSummary">共 0 条，当前展示 0-0 条</span>
+              <div class="pages" id="logPagerControls">
+                <button class="page disabled" type="button" data-log-page-action="prev">‹</button>
+                <button class="page active" type="button" data-log-page="1">1</button>
+                <button class="page disabled" type="button" data-log-page-action="next">›</button>
+                <select class="select" id="logPageSizeSelect" style="width: 96px; height: 28px">
+                  <option value="10" selected>10条/页</option>
+                  <option value="20">20条/页</option>
+                  <option value="50">50条/页</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="image-preview-mask" id="imagePreviewMask">
+    <section class="image-preview-panel" role="dialog" aria-modal="true" aria-labelledby="imagePreviewTitle">
+      <div class="image-preview-head">
+        <span id="imagePreviewTitle">图片预览</span>
+        <button class="close" type="button" id="closeImagePreview">×</button>
+      </div>
+      <div class="image-preview-body">
+        <img id="imagePreviewImg" alt="">
+      </div>
+    </section>
+  </div>
+
+  <div class="mask" id="modalMask">
+    <section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <span id="modalTitle">新增前台二级类目</span>
+        <button class="close" type="button" id="closeModal">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="segmented" id="createTypeSwitch">
+          <button class="active" type="button" data-create-type="single">单个新增</button>
+          <button type="button" data-create-type="batch">批量新增</button>
+        </div>
+        <div class="field single-field">
+          <label>类目名称</label>
+          <input class="control" id="modalName" value="行车记录仪" placeholder="请输入类目名称">
+          <div class="error">请输入类目名称</div>
+        </div>
+        <div class="field batch-field hidden" style="grid-column: 1 / -1;">
+          <label>批量类目名称</label>
+          <textarea class="control" id="batchNames" placeholder="一行一个类目名称&#10;例如：&#10;精选&#10;运动鞋&#10;短袖"></textarea>
+          <div class="error">请输入至少一个类目名称，且同一父级下不能重名</div>
+        </div>
+        <div class="field">
+          <label>上级类目</label>
+          <select class="select" id="parentSelect">
+            <option>-</option>
+            <option>数码</option>
+            <option>服饰</option>
+            <option>养护</option>
+            <option>OPPO</option>
+            <option>手机及配件</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>类目层级</label>
+          <select class="select" id="modalLevel">
+            <option>一级</option>
+            <option selected>二级</option>
+            <option>三级</option>
+          </select>
+        </div>
+        <div class="field" id="backendMapField">
+          <label>映射后台类目</label>
+          <div class="backend-map-picker">
+            <div class="backend-map-tools">
+              <input class="control" id="backendMapSearch" placeholder="搜索后台类目名称">
+              <select class="select" id="backendMapLevel">
+                <option>全部层级</option>
+                <option>一级</option>
+                <option>二级</option>
+                <option>三级</option>
+              </select>
+            </div>
+            <div class="backend-map-options" id="backendMapOptions"></div>
+            <div class="selected-map-summary" id="selectedMapSummary">已选 0 个后台类目</div>
+          </div>
+          <div class="error">请至少选择一个后台类目</div>
+        </div>
+        <div class="field">
+          <label>排序值<span class="help" data-tip="数字越小排序越靠前；同一父级、同一层级内生效；建议按 10 递增，方便后续插入调整。">?</span></label>
+          <input class="control" id="sortInput" value="40" placeholder="数字越小越靠前">
+          <div class="error">请输入 0-9999 的整数</div>
+        </div>
+        <div class="field batch-field hidden">
+          <label>排序间隔</label>
+          <input class="control" id="sortStepInput" value="10" placeholder="请输入排序间隔">
+          <div class="error">请输入 1-9999 的整数</div>
+        </div>
+        <div class="field">
+          <label>状态</label>
+          <select class="select" id="statusSelect">
+            <option>启用</option>
+            <option>禁用</option>
+          </select>
+        </div>
+        <div class="batch-field hidden tips" style="grid-column: 1 / -1;">
+          批量新增仅支持当前父级下的同级类目。前台二级类目批量新增后可先保存为禁用，再逐个补充图片并启用展示。
+        </div>
+        <div class="image-field" id="imageField">
+          <span class="upload" id="uploadBox">+</span>
+          <input id="imageFileInput" type="file" accept="image/png,image/jpeg" hidden>
+          <div>
+            <div class="tips">
+              二级前台类目可上传展示图片，用于 C 端一级 Tab 下方入口。建议尺寸 160 × 160，支持 PNG/JPG。
+            </div>
+            <div class="image-actions" id="imageActions">
+              <button class="btn secondary" type="button" id="replaceImage">更新图片</button>
+              <button class="btn secondary" type="button" id="deleteImage">删除图片</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" type="button" id="cancelModal">取消</button>
+        <button class="btn primary" type="button" id="saveCategory">保存</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="mask" id="confirmMask">
+    <section class="modal confirm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <div class="modal-head">
+        <span id="confirmTitle">确认删除</span>
+        <button class="close" type="button" id="closeConfirm">×</button>
+      </div>
+      <div class="modal-body" style="display:block">
+        <div id="confirmText" style="color: var(--heading); font-weight: 700; margin-bottom: 10px;">确认删除该类目？</div>
+        <div class="tips" id="confirmDesc">删除后不可恢复。</div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" type="button" id="cancelConfirm">取消</button>
+        <button class="btn primary" type="button" id="confirmAction">确认</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="mask" id="sortMask">
+    <section class="modal sort-modal" role="dialog" aria-modal="true" aria-labelledby="sortTitle">
+      <div class="modal-head">
+        <span id="sortTitle">前台类目批量排序</span>
+        <button class="close" type="button" id="closeSort">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="sort-toolbar">
+          <div class="field">
+            <label>排序范围</label>
+            <select class="select" id="sortScope">
+              <option>一级类目</option>
+              <option>数码下的二级类目</option>
+              <option>服饰下的二级类目</option>
+              <option>手机及配件下的三级类目</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>生效说明</label>
+            <input class="control" value="仅调整当前范围内的类目顺序" disabled>
+          </div>
+        </div>
+        <div class="sort-list" id="sortList"></div>
+        <div class="tips" style="grid-column: 1 / -1;">
+          <div>排序只支持同一父级下调整；弹窗打开时带出当前列表中的原始排序值。</div>
+          <div>拖拽调整后，系统按 10 为间隔重新生成排序值；保存后刷新列表顺序。</div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" type="button" id="cancelSort">取消</button>
+        <button class="btn primary" type="button" id="saveSort">保存排序</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="mask" id="exportMask">
+    <section class="modal confirm" role="dialog" aria-modal="true" aria-labelledby="exportTitle">
+      <div class="modal-head">
+        <span id="exportTitle">确认导出类目</span>
+        <button class="close" type="button" id="closeExport">×</button>
+      </div>
+      <div class="modal-body" style="display:block">
+        <div id="exportText" style="color: var(--heading); font-weight: 700;">按当前筛选条件导出类目？</div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn secondary" type="button" id="cancelExport">取消</button>
+        <button class="btn primary" type="button" id="confirmExport">确认导出</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const categoryMenus = Array.from(document.querySelectorAll(".side-category"));
+    const frontTable = document.querySelector("#frontTable");
+    const backTable = document.querySelector("#backTable");
+    const resultTitle = document.querySelector("#resultTitle");
+    const pageTitle = document.querySelector("#pageTitle");
+    const breadcrumb = document.querySelector("#breadcrumb");
+    const categoryPage = document.querySelector("#categoryPage");
+    const logPage = document.querySelector("#logPage");
+    const nameFilter = document.querySelector("#nameFilter");
+    const idFilter = document.querySelector("#idFilter");
+    const levelFilter = document.querySelector("#levelFilter");
+    const statusFilter = document.querySelector("#statusFilter");
+    const parentFilter = document.querySelector("#parentFilter");
+    const pagerSummary = document.querySelector("#pagerSummary");
+    const pagerControls = document.querySelector("#pagerControls");
+    const pageSizeSelect = document.querySelector("#pageSizeSelect");
+    const frontOnly = Array.from(document.querySelectorAll(".front-only"));
+    const backOnly = Array.from(document.querySelectorAll(".back-only"));
+    const modalMask = document.querySelector("#modalMask");
+    const modalTitle = document.querySelector("#modalTitle");
+    const modalLevel = document.querySelector("#modalLevel");
+    const modalName = document.querySelector("#modalName");
+    const batchNames = document.querySelector("#batchNames");
+    const createTypeSwitch = document.querySelector("#createTypeSwitch");
+    const singleFields = Array.from(document.querySelectorAll(".single-field"));
+    const batchFields = Array.from(document.querySelectorAll(".batch-field"));
+    const parentSelect = document.querySelector("#parentSelect");
+    const backendMapField = document.querySelector("#backendMapField");
+    const backendMapOptions = document.querySelector("#backendMapOptions");
+    const backendMapSearch = document.querySelector("#backendMapSearch");
+    const backendMapLevel = document.querySelector("#backendMapLevel");
+    const selectedMapSummary = document.querySelector("#selectedMapSummary");
+    const sortInput = document.querySelector("#sortInput");
+    const sortStepInput = document.querySelector("#sortStepInput");
+    const statusSelect = document.querySelector("#statusSelect");
+    const imageField = document.querySelector("#imageField");
+    const uploadBox = document.querySelector("#uploadBox");
+    const imageFileInput = document.querySelector("#imageFileInput");
+    const imagePreviewMask = document.querySelector("#imagePreviewMask");
+    const imagePreviewImg = document.querySelector("#imagePreviewImg");
+    const imagePreviewTitle = document.querySelector("#imagePreviewTitle");
+    const toast = document.querySelector("#toast");
+    const confirmMask = document.querySelector("#confirmMask");
+    const confirmTitle = document.querySelector("#confirmTitle");
+    const confirmText = document.querySelector("#confirmText");
+    const confirmDesc = document.querySelector("#confirmDesc");
+    const confirmAction = document.querySelector("#confirmAction");
+    const sortMask = document.querySelector("#sortMask");
+    const sortTitle = document.querySelector("#sortTitle");
+    const sortScope = document.querySelector("#sortScope");
+    const sortList = document.querySelector("#sortList");
+    const exportMask = document.querySelector("#exportMask");
+    const exportTitle = document.querySelector("#exportTitle");
+    const exportText = document.querySelector("#exportText");
+    const logTitle = document.querySelector("#logTitle");
+    const logObjectFilter = document.querySelector("#logObjectFilter");
+    const logTypeFilter = document.querySelector("#logTypeFilter");
+    const logOperatorFilter = document.querySelector("#logOperatorFilter");
+    const logTableBody = document.querySelector("#logTableBody");
+    const logPagerSummary = document.querySelector("#logPagerSummary");
+    const logPagerControls = document.querySelector("#logPagerControls");
+    let mode = "back";
+    let formType = "create";
+    let createType = "single";
+    let pendingAction = null;
+    let currentPage = 1;
+    let modalContext = {};
+    let categorySeq = 30000;
+    let sortScopeEntries = [];
+    let sortModalRows = [];
+    let sortHasChanged = false;
+    let logMode = "back";
+    let logCurrentPage = 1;
+    let imageFileAction = "upload";
+    let imageObjectUrl = "";
+    const operationLogs = [
+      {
+        time: "2026-07-09 09:42",
+        type: "编辑",
+        operator: "张运营",
+        object: "数码商品（BC20001）",
+        detail: "排序值由 20 调整为 10",
+        result: "成功"
+      },
+      {
+        time: "2026-07-09 09:40",
+        type: "导出",
+        operator: "张运营",
+        object: "后台类目",
+        detail: "按当前筛选条件导出启用状态的后台类目",
+        result: "成功"
+      },
+      {
+        time: "2026-07-09 09:35",
+        type: "新增",
+        operator: "李运营",
+        object: "手机及配件（BC20011）",
+        detail: "在数码商品下新增二级类目",
+        result: "成功"
+      },
+      {
+        time: "2026-07-09 09:32",
+        type: "新增",
+        operator: "李运营",
+        object: "手机（BC20101）",
+        detail: "在手机及配件下新增三级类目，状态为启用",
+        result: "成功"
+      },
+      {
+        time: "2026-07-09 09:18",
+        type: "编辑",
+        operator: "张运营",
+        object: "蓝牙耳机（BC20102）",
+        detail: "类目名称由无线耳机修改为蓝牙耳机",
+        result: "成功"
+      },
+      {
+        time: "2026-07-08 17:12",
+        type: "启用",
+        operator: "李运营",
+        object: "服饰商品（BC20002）",
+        detail: "状态由禁用变更为启用",
+        result: "成功"
+      },
+      {
+        time: "2026-07-08 16:44",
+        type: "禁用",
+        operator: "张运营",
+        object: "鞋服（BC20021）",
+        detail: "状态由启用变更为禁用",
+        result: "成功"
+      },
+      {
+        time: "2026-07-08 16:10",
+        type: "删除",
+        operator: "张运营",
+        object: "过期配件（BC20991）",
+        detail: "删除无子类目且无关联商品的三级类目",
+        result: "成功"
+      },
+      {
+        time: "2026-07-08 15:20",
+        type: "排序",
+        operator: "李运营",
+        object: "一级类目",
+        detail: "批量调整后台一级类目排序",
+        result: "成功"
+      },
+      {
+        time: "2026-07-08 14:56",
+        type: "排序",
+        operator: "张运营",
+        object: "数码商品下的二级类目",
+        detail: "将手机及配件排序调整到该父级下第 1 位",
+        result: "成功"
+      },
+      {
+        time: "2026-07-08 14:22",
+        type: "编辑",
+        operator: "李运营",
+        object: "车载充电器（BC20121）",
+        detail: "排序值由 40 调整为 30，状态保持启用",
+        result: "成功"
+      },
+      {
+        time: "2026-07-08 13:48",
+        type: "新增",
+        operator: "张运营",
+        object: "车载清洁（BC20031）",
+        detail: "在一级类目下新增二级类目，状态为禁用",
+        result: "成功"
+      },
+      {
+        time: "2026-07-08 11:05",
+        type: "导出",
+        operator: "李运营",
+        object: "后台类目",
+        detail: "按类目层级为三级的筛选条件导出后台类目",
+        result: "成功"
+      },
+      {
+        module: "front",
+        time: "2026-07-09 11:20",
+        type: "编辑",
+        operator: "张运营",
+        object: "数码（FC10001）",
+        detail: "调整前台一级类目映射后台类目和排序值",
+        result: "成功"
+      },
+      {
+        module: "front",
+        time: "2026-07-09 11:18",
+        type: "新增",
+        operator: "李运营",
+        object: "OPPO（FC10011）",
+        detail: "在数码下新增二级前台类目，并配置类目图片",
+        result: "成功"
+      },
+      {
+        module: "front",
+        time: "2026-07-09 10:38",
+        type: "排序",
+        operator: "张运营",
+        object: "数码下的二级类目",
+        detail: "批量调整前台二级图片入口顺序",
+        result: "成功"
+      },
+      {
+        module: "front",
+        time: "2026-07-08 18:06",
+        type: "禁用",
+        operator: "李运营",
+        object: "短袖（FC10022）",
+        detail: "状态由启用变更为禁用，C 端不再展示该二级入口",
+        result: "成功"
+      },
+      {
+        module: "front",
+        time: "2026-07-08 17:40",
+        type: "导出",
+        operator: "张运营",
+        object: "前台类目",
+        detail: "按当前筛选条件导出启用状态的前台类目",
+        result: "成功"
+      }
+    ];
+
+    function switchMode(next) {
+      mode = next;
+      categoryPage.classList.remove("hidden");
+      logPage.classList.add("hidden");
+      categoryMenus.forEach(item => item.classList.toggle("active", item.dataset.mode === next));
+      frontTable.classList.toggle("hidden", next !== "front");
+      backTable.classList.toggle("hidden", next !== "back");
+      frontOnly.forEach(el => el.classList.toggle("hidden", next !== "front"));
+      backOnly.forEach(el => el.classList.toggle("hidden", next !== "back"));
+      pageTitle.textContent = next === "front" ? "前台类目管理" : "后台类目管理";
+      breadcrumb.textContent = `商品运营 / 商品中心 / 商品管理 / ${pageTitle.textContent}`;
+      resultTitle.textContent = next === "front" ? "前台类目列表" : "后台类目列表";
+      syncLevelFilterOptions();
+      document.querySelector("#openCreate").textContent = "新增一级类目";
+      if (next === "front") syncParentFilterOptions();
+      resetFilters(false);
+    }
+
+    function syncLevelFilterOptions() {
+      const levels = mode === "front" ? ["全部", "一级", "二级"] : ["全部", "一级", "二级", "三级"];
+      levelFilter.innerHTML = levels.map(level => `<option>${level}</option>`).join("");
+      if (!levels.includes(levelFilter.value)) levelFilter.value = "全部";
+    }
+
+    function syncModalLevelOptions(level) {
+      const levels = mode === "front" ? ["一级", "二级"] : ["一级", "二级", "三级"];
+      modalLevel.innerHTML = levels.map(item => `<option${item === level ? " selected" : ""}>${item}</option>`).join("");
+    }
+
+    function openLogPage() {
+      logMode = mode;
+      categoryPage.classList.add("hidden");
+      logPage.classList.remove("hidden");
+      frontTable.classList.add("hidden");
+      backTable.classList.add("hidden");
+      categoryMenus.forEach(item => item.classList.toggle("active", item.dataset.mode === logMode));
+      frontOnly.forEach(el => el.classList.add("hidden"));
+      backOnly.forEach(el => el.classList.add("hidden"));
+      const moduleName = logMode === "front" ? "前台类目" : "后台类目";
+      pageTitle.textContent = `${moduleName}操作日志`;
+      logTitle.textContent = `${moduleName}操作日志`;
+      document.querySelector("#backToCategory").textContent = `返回${moduleName}管理`;
+      breadcrumb.textContent = `商品运营 / 商品中心 / 商品管理 / ${moduleName}管理 / 操作日志`;
+      syncLogTypeOptions();
+      renderOperationLogs(1);
+    }
+
+    function closeLogPage() {
+      switchMode(logMode);
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      window.clearTimeout(showToast.timer);
+      showToast.timer = window.setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function activeTable() {
+      return mode === "front" ? frontTable : backTable;
+    }
+
+    function tableRows(table = activeTable()) {
+      return Array.from(table.querySelectorAll("tbody tr"));
+    }
+
+    function rowMode(row) {
+      return row.closest("table")?.id === "frontTable" ? "front" : "back";
+    }
+
+    function col(name, targetMode = mode) {
+      const front = {
+        parent: 3,
+        backendMap: 4,
+        image: 5,
+        sort: 6,
+        status: 7,
+        updated: 8,
+        actions: 9
+      };
+      const back = {
+        parent: 3,
+        productCount: 4,
+        sort: 5,
+        status: 6,
+        updated: 7,
+        actions: 8
+      };
+      return (targetMode === "front" ? front : back)[name];
+    }
+
+    function pageSize() {
+      return Number(document.querySelector("#pageSizeSelect")?.value || 20);
+    }
+
+    function logPageSize() {
+      return Number(document.querySelector("#logPageSizeSelect")?.value || 10);
+    }
+
+    function filteredRows(table = activeTable()) {
+      return tableRows(table).filter(row => !row.classList.contains("filtered-out"));
+    }
+
+    function renderPager(totalRows = filteredRows().length, targetPage = currentPage) {
+      const totalPages = Math.max(1, Math.ceil(totalRows / pageSize()));
+      currentPage = Math.min(Math.max(1, targetPage), totalPages);
+      const start = totalRows === 0 ? 0 : (currentPage - 1) * pageSize() + 1;
+      const end = totalRows === 0 ? 0 : Math.min(totalRows, currentPage * pageSize());
+      pagerSummary.textContent = `共 ${totalRows} 条，当前展示 ${start}-${end} 条`;
+
+      const pageButtons = Array.from({ length: totalPages }, (_, index) => {
+        const page = index + 1;
+        return `<button class="page${page === currentPage ? " active" : ""}" type="button" data-page="${page}">${page}</button>`;
+      }).join("");
+
+      pagerControls.innerHTML = `
+        <button class="page${currentPage === 1 ? " disabled" : ""}" type="button" data-page-action="prev">‹</button>
+        ${pageButtons}
+        <button class="page${currentPage === totalPages ? " disabled" : ""}" type="button" data-page-action="next">›</button>
+        <select class="select" id="pageSizeSelect" style="width: 96px; height: 28px">
+          <option value="20"${pageSize() === 20 ? " selected" : ""}>20条/页</option>
+          <option value="50"${pageSize() === 50 ? " selected" : ""}>50条/页</option>
+          <option value="100"${pageSize() === 100 ? " selected" : ""}>100条/页</option>
+        </select>
+      `;
+    }
+
+    function applyPagination(targetPage = currentPage) {
+      const rows = filteredRows();
+      renderPager(rows.length, targetPage);
+      const startIndex = (currentPage - 1) * pageSize();
+      const endIndex = startIndex + pageSize();
+      tableRows().forEach(row => row.classList.add("paged-out"));
+      rows.forEach((row, index) => {
+        row.classList.toggle("paged-out", index < startIndex || index >= endIndex);
+      });
+    }
+
+    function refreshCurrentPage(targetPage = currentPage) {
+      normalizeTreeState(activeTable());
+      applyPagination(targetPage);
+    }
+
+    function normalizeTreeState(table = activeTable()) {
+      table.querySelectorAll("tbody tr").forEach(row => row.classList.remove("hidden", "collapsed", "paged-out"));
+      table.querySelectorAll(".twisty").forEach(twisty => {
+        if (twisty.textContent.trim()) twisty.textContent = "▾";
+      });
+    }
+
+    function rowText(row) {
+      return row.querySelector(".name-cell").textContent.replace(/[▾▸]/g, "").trim();
+    }
+
+    function rowPathText(row) {
+      const names = [rowText(row)];
+      const currentLevel = Number(row.dataset.level);
+      let targetLevel = currentLevel - 1;
+      let prev = row.previousElementSibling;
+      while (prev && targetLevel > 0) {
+        const prevLevel = Number(prev.dataset.level);
+        if (prevLevel === targetLevel) {
+          names.unshift(rowText(prev));
+          targetLevel -= 1;
+        }
+        prev = prev.previousElementSibling;
+      }
+      return names.join(" / ");
+    }
+
+    function syncParentFilterOptions() {
+      const currentValue = parentFilter.value;
+      const parentNames = [];
+      tableRows(frontTable).forEach(row => {
+        const parentName = row.children[col("parent", "front")].textContent.trim();
+        if (parentName && parentName !== "-" && !parentNames.includes(parentName)) parentNames.push(parentName);
+      });
+      parentFilter.innerHTML = ["全部", ...parentNames].map(name => `<option>${name}</option>`).join("");
+      parentFilter.value = parentNames.includes(currentValue) ? currentValue : "全部";
+    }
+
+    function applyQuery() {
+      const keyword = nameFilter.value.trim();
+      const categoryId = idFilter.value.trim();
+      const level = levelFilter.value;
+      const status = statusFilter.value;
+      const parent = parentFilter.value;
+      const table = activeTable();
+      normalizeTreeState(table);
+
+      let visibleCount = 0;
+      table.querySelectorAll("tbody tr").forEach(row => {
+        const nameMatch = !keyword || rowPathText(row).includes(keyword);
+        const idMatch = !categoryId || row.children[1].textContent.trim() === categoryId;
+        const levelMatch = level === "全部" || row.children[2].textContent.trim() === level;
+        const parentMatch = mode !== "front" || parent === "全部" || row.children[col("parent", "front")].textContent.trim() === parent;
+        const statusText = row.querySelector(".status")?.textContent.trim() || "";
+        const statusMatch = status === "全部" || statusText === status;
+        const matched = nameMatch && idMatch && levelMatch && parentMatch && statusMatch;
+        row.classList.toggle("filtered-out", !matched);
+        if (matched) visibleCount += 1;
+      });
+
+      applyPagination(1);
+      showToast(`查询完成，共 ${visibleCount} 条`);
+    }
+
+    function resetFilters(show = true) {
+      nameFilter.value = "";
+      idFilter.value = "";
+      levelFilter.value = "全部";
+      statusFilter.value = "全部";
+      parentFilter.value = "全部";
+      tableRows().forEach(row => row.classList.remove("filtered-out"));
+      refreshCurrentPage(1);
+      if (show) showToast("筛选条件已重置");
+    }
+
+    function syncImageField() {
+      const shouldShow = mode === "front" && modalLevel.value === "二级" && createType === "single";
+      imageField.classList.toggle("hidden", !shouldShow);
+      parentSelect.closest(".field").classList.toggle("hidden", modalLevel.value === "一级");
+      backendMapField.classList.toggle("hidden", mode !== "front");
+    }
+
+    function syncCreateType() {
+      const isBatch = createType === "batch";
+      createTypeSwitch.classList.toggle("hidden", formType !== "create");
+      singleFields.forEach(el => el.classList.toggle("hidden", isBatch));
+      batchFields.forEach(el => el.classList.toggle("hidden", !isBatch));
+      if (mode === "front" && modalLevel.value === "二级" && formType === "create") {
+        statusSelect.value = isBatch ? "禁用" : "启用";
+      }
+      createTypeSwitch.querySelectorAll("button").forEach(button => {
+        button.classList.toggle("active", button.dataset.createType === createType);
+      });
+      syncImageField();
+    }
+
+    function syncBackendMapOptions(selected = selectedBackendMaps()) {
+      const normalizedSelected = selected.map(value => value.replace(/\s*\/\s*/g, " / "));
+      const options = tableRows(backTable).map(row => ({
+        path: rowPathText(row),
+        level: row.children[2].textContent.trim()
+      }));
+      backendMapOptions.innerHTML = options.map((option, index) => `
+        <label class="map-option" data-level="${option.level}" data-keyword="${escapeHtml(option.path)}">
+          <input type="checkbox" value="${escapeHtml(option.path)}"${normalizedSelected.includes(option.path) || (!normalizedSelected.length && index === 0) ? " checked" : ""}>
+          <span>${escapeHtml(option.path)}</span>
+        </label>
+      `).join("");
+      applyBackendMapFilter();
+      renderSelectedMapSummary();
+    }
+
+    function selectedBackendMaps() {
+      return Array.from(backendMapOptions.querySelectorAll("input:checked")).map(input => input.value);
+    }
+
+    function setSelectedBackendMaps(values = []) {
+      backendMapOptions.querySelectorAll("input").forEach(input => {
+        input.checked = values.includes(input.value);
+      });
+      renderSelectedMapSummary();
+    }
+
+    function mapTagsHtml(values = []) {
+      return `<div class="map-tags">${values.map(value => `<span class="map-tag">${escapeHtml(value)}</span>`).join("")}</div>`;
+    }
+
+    function applyBackendMapFilter() {
+      const keyword = backendMapSearch.value.trim();
+      const level = backendMapLevel.value;
+      backendMapOptions.querySelectorAll(".map-option").forEach(option => {
+        const keywordMatch = !keyword || option.dataset.keyword.includes(keyword);
+        const levelMatch = level === "全部层级" || option.dataset.level === level;
+        option.classList.toggle("hidden", !keywordMatch || !levelMatch);
+      });
+    }
+
+    function renderSelectedMapSummary() {
+      const values = selectedBackendMaps();
+      selectedMapSummary.innerHTML = values.length
+        ? `已选 ${values.length} 个后台类目：${values.map(value => `<span class="map-tag">${escapeHtml(value)}</span>`).join("")}`
+        : "已选 0 个后台类目";
+    }
+
+    function ensureSelectOption(select, value) {
+      if (!value || Array.from(select.options).some(option => option.value === value || option.textContent === value)) return;
+      select.add(new Option(value, value));
+    }
+
+    function cleanCategoryName(row) {
+      return row.querySelector(".name-cell").textContent.replace(/[▾▸]/g, "").trim();
+    }
+
+    function categoryIdPrefix() {
+      return mode === "front" ? "FC" : "BC";
+    }
+
+    function nextCategoryId() {
+      categorySeq += 1;
+      return `${categoryIdPrefix()}${categorySeq}`;
+    }
+
+    function nowText() {
+      const date = new Date();
+      const pad = value => String(value).padStart(2, "0");
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function logTagClass(type) {
+      if (["删除", "禁用"].includes(type)) return " risk";
+      if (["排序", "导出"].includes(type)) return " sort";
+      return "";
+    }
+
+    function syncLogTypeOptions() {
+      const types = ["全部", "新增", "编辑", "删除", "启用", "禁用", "排序", "导出"];
+      logTypeFilter.innerHTML = types.map(type => `<option>${type}</option>`).join("");
+      logTypeFilter.value = "全部";
+    }
+
+    function filteredOperationLogs() {
+      const objectKeyword = logObjectFilter.value.trim();
+      const type = logTypeFilter.value;
+      const operator = logOperatorFilter.value;
+      return operationLogs.filter(log => {
+        const moduleMatch = (log.module || "back") === logMode;
+        const objectMatch = !objectKeyword || log.object.includes(objectKeyword);
+        const typeMatch = type === "全部" || log.type === type;
+        const operatorMatch = operator === "全部" || log.operator === operator;
+        return moduleMatch && objectMatch && typeMatch && operatorMatch;
+      });
+    }
+
+    function renderLogPager(totalRows, targetPage = logCurrentPage) {
+      const totalPages = Math.max(1, Math.ceil(totalRows / logPageSize()));
+      logCurrentPage = Math.min(Math.max(1, targetPage), totalPages);
+      const start = totalRows === 0 ? 0 : (logCurrentPage - 1) * logPageSize() + 1;
+      const end = totalRows === 0 ? 0 : Math.min(totalRows, logCurrentPage * logPageSize());
+      logPagerSummary.textContent = `共 ${totalRows} 条，当前展示 ${start}-${end} 条`;
+
+      const pageButtons = Array.from({ length: totalPages }, (_, index) => {
+        const page = index + 1;
+        return `<button class="page${page === logCurrentPage ? " active" : ""}" type="button" data-log-page="${page}">${page}</button>`;
+      }).join("");
+
+      logPagerControls.innerHTML = `
+        <button class="page${logCurrentPage === 1 ? " disabled" : ""}" type="button" data-log-page-action="prev">‹</button>
+        ${pageButtons}
+        <button class="page${logCurrentPage === totalPages ? " disabled" : ""}" type="button" data-log-page-action="next">›</button>
+        <select class="select" id="logPageSizeSelect" style="width: 96px; height: 28px">
+          <option value="10"${logPageSize() === 10 ? " selected" : ""}>10条/页</option>
+          <option value="20"${logPageSize() === 20 ? " selected" : ""}>20条/页</option>
+          <option value="50"${logPageSize() === 50 ? " selected" : ""}>50条/页</option>
+        </select>
+      `;
+    }
+
+    function renderOperationLogs(targetPage = logCurrentPage) {
+      const rows = filteredOperationLogs();
+      renderLogPager(rows.length, targetPage);
+      const startIndex = (logCurrentPage - 1) * logPageSize();
+      const pageRows = rows.slice(startIndex, startIndex + logPageSize());
+      logTableBody.innerHTML = pageRows.map(log => `
+        <tr>
+          <td>${escapeHtml(log.time)}</td>
+          <td><span class="log-tag${logTagClass(log.type)}">${escapeHtml(log.type)}</span></td>
+          <td>${escapeHtml(log.operator)}</td>
+          <td>${escapeHtml(log.object)}</td>
+          <td>${escapeHtml(log.detail)}</td>
+          <td><span class="status on">${escapeHtml(log.result)}</span></td>
+        </tr>
+      `).join("") || `
+        <tr>
+          <td colspan="6" style="text-align:center; color: var(--muted);">暂无匹配日志</td>
+        </tr>
+      `;
+    }
+
+    function appendOperationLog(type, object, detail, operator = "当前账号") {
+      operationLogs.unshift({
+        module: mode,
+        time: nowText(),
+        type,
+        operator,
+        object,
+        detail,
+        result: "成功"
+      });
+      renderOperationLogs();
+    }
+
+    function rowLogObject(row) {
+      return `${cleanCategoryName(row)}（${row.children[1].textContent.trim()}）`;
+    }
+
+    function levelNumber(level) {
+      return level === "一级" ? 1 : level === "二级" ? 2 : 3;
+    }
+
+    function thumbnailFor(name) {
+      const text = name.replace(/\s+/g, "").slice(0, 4) || "图";
+      return `<span class="thumb">${text}</span>`;
+    }
+
+    function imageHtmlFor(name, src = "") {
+      return src
+        ? `<img class="thumb zoomable-image" src="${escapeHtml(src)}" alt="${escapeHtml(name)}类目图片" title="点击查看大图" role="button" tabindex="0" data-preview-src="${escapeHtml(src)}" data-preview-title="${escapeHtml(name)}类目图片">`
+        : thumbnailFor(name);
+    }
+
+    function openImagePreview(src, title = "图片预览") {
+      if (!src) return;
+      imagePreviewImg.src = src;
+      imagePreviewImg.alt = title;
+      imagePreviewTitle.textContent = title;
+      imagePreviewMask.classList.add("show");
+    }
+
+    function closeImagePreview() {
+      imagePreviewMask.classList.remove("show");
+      imagePreviewImg.removeAttribute("src");
+      imagePreviewImg.alt = "";
+    }
+
+    function rowStatus(row) {
+      return row.querySelector(".status")?.textContent.trim() || "启用";
+    }
+
+    function rowHasImage(row) {
+      return !!row.querySelector(".thumb");
+    }
+
+    function setImageState(hasImage, previewUrl = "") {
+      imageObjectUrl = previewUrl;
+      uploadBox.textContent = hasImage ? "已上传" : "+";
+      uploadBox.classList.toggle("has-image", hasImage);
+      uploadBox.classList.toggle("has-preview", Boolean(previewUrl));
+      uploadBox.style.backgroundImage = previewUrl ? `url("${previewUrl}")` : "";
+      imageField.classList.toggle("has-image", hasImage);
+      uploadBox.setAttribute("aria-disabled", hasImage && !previewUrl ? "true" : "false");
+      uploadBox.setAttribute("role", "button");
+      uploadBox.setAttribute("tabindex", "0");
+      uploadBox.setAttribute("title", previewUrl ? "点击查看大图" : hasImage ? "图片已上传，可通过下方按钮更新或删除" : "点击选择图片");
+    }
+
+    function operationHtml(level, status) {
+      const stateAction = status === "启用" ? "禁用" : "启用";
+      const editClass = level === "一级" ? "edit-first" : level === "二级" ? "edit-second" : "edit-third";
+      const childAction = level === "三级" || (mode === "front" && level === "二级") ? "" : `<button class="link" type="button">新增子类</button>`;
+      const stateActionHtml = `<button class="link${stateAction === "禁用" ? " danger" : ""}" type="button">${stateAction}</button>`;
+      const deleteAction = `<button class="link danger" type="button">删除</button>`;
+      return `${childAction}<button class="link ${editClass}" type="button">编辑</button>${stateActionHtml}${deleteAction}`;
+    }
+
+    function createCategoryRow({ name, level, parentName, sortValue, status }) {
+      const tr = document.createElement("tr");
+      const numericLevel = levelNumber(level);
+      tr.dataset.level = String(numericLevel);
+      const indentClass = numericLevel === 1 ? "" : numericLevel === 2 ? " indent-1" : " indent-2";
+      const levelIcon = numericLevel === 3 ? '<span class="tree-space"></span>' : '<span class="tree-space"></span>';
+      if (mode === "front") {
+        const imageSrc = level === "二级" && uploadBox.classList.contains("has-image") ? imageObjectUrl : "";
+        const image = level === "二级" && uploadBox.classList.contains("has-image") ? imageHtmlFor(name, imageSrc) : "-";
+        const maps = selectedBackendMaps();
+        tr.dataset.backendMaps = maps.join("|");
+        if (imageSrc) tr.dataset.imageSrc = imageSrc;
+        tr.innerHTML = `
+          <td><div class="name-cell${indentClass}">${levelIcon}${name}</div></td>
+          <td>${nextCategoryId()}</td>
+          <td>${level}</td>
+          <td>${parentName}</td>
+          <td>${mapTagsHtml(maps)}</td>
+          <td>${image}</td>
+          <td>${sortValue}</td>
+          <td><span class="status ${status === "启用" ? "on" : "off"}">${status}</span></td>
+          <td>${nowText()}</td>
+          <td>${operationHtml(level, status)}</td>
+        `;
+      } else {
+        tr.innerHTML = `
+          <td><div class="name-cell${indentClass}">${levelIcon}${name}</div></td>
+          <td>${nextCategoryId()}</td>
+          <td>${level}</td>
+          <td>${parentName}</td>
+          <td>0</td>
+          <td>${sortValue}</td>
+          <td><span class="status ${status === "启用" ? "on" : "off"}">${status}</span></td>
+          <td>${nowText()}</td>
+          <td>${operationHtml(level, status)}</td>
+        `;
+      }
+      attachRowActions(tr);
+      return tr;
+    }
+
+    function findParentRow(parentName) {
+      if (!parentName || parentName === "-") return null;
+      return tableRows().find(row => rowText(row) === parentName) || null;
+    }
+
+    function insertAfterParentBlock(row, parentName) {
+      const tbody = activeTable().querySelector("tbody");
+      const parentRow = findParentRow(parentName);
+      if (!parentRow) {
+        tbody.appendChild(row);
+        return;
+      }
+      const placeholder = parentRow.querySelector(".tree-space");
+      if (placeholder) {
+        const twisty = document.createElement("span");
+        twisty.className = "twisty";
+        twisty.textContent = "▾";
+        placeholder.replaceWith(twisty);
+      }
+      const parentLevel = Number(parentRow.dataset.level);
+      let anchor = parentRow;
+      let next = parentRow.nextElementSibling;
+      while (next && Number(next.dataset.level) > parentLevel) {
+        anchor = next;
+        next = next.nextElementSibling;
+      }
+      anchor.insertAdjacentElement("afterend", row);
+    }
+
+    function createdNames() {
+      if (createType !== "batch") return [modalName.value.trim()];
+      return batchNames.value.split(/\n/).map(item => item.trim()).filter(Boolean);
+    }
+
+    function addCreatedCategories() {
+      const level = modalLevel.value;
+      const parentName = level === "一级" ? "-" : parentSelect.value;
+      const baseSort = Number(sortInput.value.trim());
+      const step = createType === "batch" ? Number(sortStepInput.value.trim()) : 0;
+      const rows = createdNames().map((name, index) => createCategoryRow({
+        name,
+        level,
+        parentName,
+        sortValue: baseSort + (step * index),
+        status: statusSelect.value
+      }));
+      rows.forEach(row => insertAfterParentBlock(row, parentName));
+      tableRows().forEach(row => row.classList.remove("filtered-out"));
+      if (mode === "front") syncParentFilterOptions();
+      const targetIndex = filteredRows().indexOf(rows[rows.length - 1]);
+      const targetPage = targetIndex >= 0 ? Math.ceil((targetIndex + 1) / pageSize()) : currentPage;
+      refreshCurrentPage(targetPage);
+      return rows;
+    }
+
+    function updateEditedCategory() {
+      const row = modalContext.row;
+      if (!row) return;
+      const level = modalLevel.value;
+      const status = statusSelect.value;
+      const nameCell = row.querySelector(".name-cell");
+      const oldName = cleanCategoryName(row);
+      const newName = modalName.value.trim();
+      const currentTwisty = nameCell.querySelector(".twisty");
+      const prefix = currentTwisty ? `<span class="twisty">${currentTwisty.textContent.trim() || "▾"}</span>` : '<span class="tree-space"></span>';
+      nameCell.innerHTML = `${prefix}${newName}`;
+      updateDirectChildParentNames(row, oldName, newName);
+      const modeForRow = rowMode(row);
+      if (modeForRow === "front") {
+        const maps = selectedBackendMaps();
+        row.dataset.backendMaps = maps.join("|");
+        row.children[col("backendMap", "front")].innerHTML = mapTagsHtml(maps);
+      }
+      row.children[col("sort", modeForRow)].textContent = sortInput.value.trim();
+      row.children[col("status", modeForRow)].innerHTML = `<span class="status ${status === "启用" ? "on" : "off"}">${status}</span>`;
+      row.children[col("updated", modeForRow)].textContent = nowText();
+      const statusAction = Array.from(row.children[col("actions", modeForRow)].querySelectorAll(".link")).find(button => ["启用", "禁用"].includes(button.textContent.trim()));
+      if (statusAction) {
+        statusAction.textContent = status === "启用" ? "禁用" : "启用";
+        statusAction.classList.toggle("danger", status === "启用");
+      }
+      if (modeForRow === "front" && level === "二级") {
+        if (uploadBox.classList.contains("has-image")) {
+          row.dataset.imageSrc = imageObjectUrl || row.dataset.imageSrc || "";
+          row.children[col("image", "front")].innerHTML = imageHtmlFor(newName, row.dataset.imageSrc);
+        } else {
+          delete row.dataset.imageSrc;
+          row.children[col("image", "front")].innerHTML = "-";
+        }
+      }
+      if (mode === "front") syncParentFilterOptions();
+      refreshCurrentPage(currentPage);
+    }
+
+    function updateDirectChildParentNames(row, oldName, newName) {
+      if (!oldName || oldName === newName) return;
+      const parentLevel = Number(row.dataset.level);
+      let next = row.nextElementSibling;
+      while (next && Number(next.dataset.level) > parentLevel) {
+        if (Number(next.dataset.level) === parentLevel + 1 && next.children[col("parent", rowMode(next))].textContent.trim() === oldName) {
+          next.children[col("parent", rowMode(next))].textContent = newName;
+        }
+        next = next.nextElementSibling;
+      }
+    }
+
+    function refreshTreeIndicators(table = activeTable()) {
+      tableRows(table).forEach(row => {
+        const level = Number(row.dataset.level);
+        if (!level || level >= 3) return;
+        const nameCell = row.querySelector(".name-cell");
+        const marker = nameCell.querySelector(".twisty, .tree-space");
+        const next = row.nextElementSibling;
+        const hasChildren = !!next && Number(next.dataset.level) > level;
+        if (hasChildren && !marker?.classList.contains("twisty")) {
+          const twisty = document.createElement("span");
+          twisty.className = "twisty";
+          twisty.textContent = "▾";
+          marker?.replaceWith(twisty);
+        }
+        if (!hasChildren && marker?.classList.contains("twisty")) {
+          const spacer = document.createElement("span");
+          spacer.className = "tree-space";
+          marker.replaceWith(spacer);
+        }
+      });
+    }
+
+    function applyStatusChange(row, actionLabel) {
+      const nextStatus = actionLabel === "禁用" ? "禁用" : "启用";
+      const modeForRow = rowMode(row);
+      row.children[col("status", modeForRow)].innerHTML = `<span class="status ${nextStatus === "启用" ? "on" : "off"}">${nextStatus}</span>`;
+      row.children[col("updated", modeForRow)].textContent = nowText();
+      const statusAction = Array.from(row.children[col("actions", modeForRow)].querySelectorAll(".link")).find(button => ["启用", "禁用"].includes(button.textContent.trim()));
+      if (statusAction) {
+        statusAction.textContent = nextStatus === "启用" ? "禁用" : "启用";
+        statusAction.classList.toggle("danger", nextStatus === "启用");
+      }
+      refreshCurrentPage(currentPage);
+    }
+
+    function deleteCategoryRow(row) {
+      row.remove();
+      refreshTreeIndicators();
+      if (mode === "front") syncParentFilterOptions();
+      refreshCurrentPage(currentPage);
+    }
+
+    function rowBlock(row) {
+      const level = Number(row.dataset.level);
+      const block = [row];
+      let next = row.nextElementSibling;
+      while (next && Number(next.dataset.level) > level) {
+        block.push(next);
+        next = next.nextElementSibling;
+      }
+      return block;
+    }
+
+    function directChildRows(parentRow) {
+      if (!parentRow) return tableRows().filter(row => Number(row.dataset.level) === 1);
+      const parentLevel = Number(parentRow.dataset.level);
+      const rows = [];
+      let next = parentRow.nextElementSibling;
+      while (next && Number(next.dataset.level) > parentLevel) {
+        if (Number(next.dataset.level) === parentLevel + 1) rows.push(next);
+        next = next.nextElementSibling;
+      }
+      return rows;
+    }
+
+    function childLevelLabel(parentRow) {
+      if (!parentRow) return "一级";
+      return Number(parentRow.dataset.level) === 1 ? "二级" : "三级";
+    }
+
+    function buildSortScopes() {
+      const entries = [{ label: "一级类目", parentRow: null, rows: directChildRows(null) }];
+      tableRows().forEach(row => {
+        const level = Number(row.dataset.level);
+        if (!level || level >= 3) return;
+        const rows = directChildRows(row);
+        if (rows.length < 2) return;
+        entries.push({
+          label: `${rowText(row)}下的${childLevelLabel(row)}类目`,
+          parentRow: row,
+          rows
+        });
+      });
+      sortScopeEntries = entries.filter(entry => entry.rows.length > 0);
+      sortScope.innerHTML = sortScopeEntries.map((entry, index) => `<option value="${index}">${entry.label}</option>`).join("");
+    }
+
+    function selectedSortScope() {
+      return sortScopeEntries[Number(sortScope.value)] || sortScopeEntries[0] || { rows: [] };
+    }
+
+    function sortRowsByModalOrder() {
+      const blocks = sortModalRows.filter(row => row.isConnected).map(rowBlock);
+      if (!blocks.length) return;
+      const firstBlockRow = blocks[0][0];
+      const parent = firstBlockRow.parentElement;
+      const anchor = document.createComment("sort-anchor");
+      parent.insertBefore(anchor, firstBlockRow);
+      blocks.flat().forEach(row => row.remove());
+      blocks.forEach((block, blockIndex) => {
+        const modeForRow = rowMode(block[0]);
+        block[0].children[col("sort", modeForRow)].textContent = String((blockIndex + 1) * 10);
+        block[0].children[col("updated", modeForRow)].textContent = nowText();
+        block.forEach(row => parent.insertBefore(row, anchor));
+      });
+      anchor.remove();
+      refreshTreeIndicators();
+      refreshCurrentPage(currentPage);
+    }
+
+    function resetForm(level, type = "create", context = {}) {
+      backendMapSearch.value = "";
+      backendMapLevel.value = "全部层级";
+      syncBackendMapOptions(context.backendMaps || []);
+      syncModalLevelOptions(level);
+      modalLevel.value = level;
+      modalName.value = context.sourceName || (level === "一级" ? "" : level === "二级" ? "行车记录仪" : "手机");
+      batchNames.value = level === "一级" ? "数码\n服饰\n养护" : "精选\n运动鞋\n短袖";
+      const parentName = context.parentName || (level === "三级" ? "手机及配件" : level === "一级" ? "-" : "数码");
+      ensureSelectOption(parentSelect, parentName);
+      parentSelect.value = parentName;
+      sortInput.value = context.sortValue || (level === "一级" ? "50" : "40");
+      sortStepInput.value = "10";
+      statusSelect.value = context.status || "启用";
+      modalLevel.disabled = true;
+      parentSelect.disabled = true;
+      const hasExistingImage = type === "edit" && level === "二级" && mode === "front" && context.hasImage;
+      setImageState(hasExistingImage, context.imageSrc || "");
+      imageField.classList.remove("invalid-image");
+      modalName.closest(".field").classList.remove("invalid");
+      batchNames.closest(".field").classList.remove("invalid");
+      backendMapField.classList.remove("invalid");
+      sortInput.closest(".field").classList.remove("invalid");
+      sortStepInput.closest(".field").classList.remove("invalid");
+    }
+
+    function openModal(level = "二级", type = "create", context = {}) {
+      formType = type;
+      createType = "single";
+      modalContext = context;
+      resetForm(level, type, context);
+      modalTitle.textContent = `${type === "edit" ? "编辑" : "新增"}${mode === "front" ? "前台" : "后台"}${level}类目`;
+      syncCreateType();
+      syncImageField();
+      modalMask.classList.add("show");
+    }
+
+    function openConfirm(action, row, actionLabel = "") {
+      if (action === "image-delete") {
+        pendingAction = { action };
+        confirmTitle.textContent = "确认删除图片";
+        confirmText.textContent = "确认删除当前类目图片？";
+        confirmDesc.textContent = "删除后，保存类目时该图片将从类目展示中移除。";
+        confirmAction.textContent = "确认删除";
+        confirmMask.classList.add("show");
+        return;
+      }
+      const name = cleanCategoryName(row);
+      const level = row.children[2].textContent.trim();
+      const hasChildren = !!row.querySelector(".twisty");
+      const productCount = mode === "back" ? Number(row.children[col("productCount", "back")].textContent.trim()) : 0;
+      pendingAction = { action, row, actionLabel };
+      confirmTitle.textContent = action === "delete" ? "确认删除" : actionLabel === "禁用" ? "确认禁用" : "确认启用";
+      confirmText.textContent = `${confirmTitle.textContent}「${name}」？`;
+      if (action === "delete" && hasChildren) {
+        confirmDesc.textContent = "该类目下存在子类目，不允许删除。请先处理子类目。";
+        confirmAction.textContent = "我知道了";
+      } else if (action === "delete" && productCount > 0) {
+        confirmDesc.textContent = `该后台类目关联 ${productCount} 个商品，不允许删除。`;
+        confirmAction.textContent = "我知道了";
+      } else if (action === "delete") {
+        confirmDesc.textContent = "删除后不可恢复，确认后该类目将从列表移除。";
+        confirmAction.textContent = "确认删除";
+      } else if (level === "一级" && actionLabel === "禁用") {
+        confirmDesc.textContent = "禁用一级类目后，其下子类目不会在前台展示。";
+        confirmAction.textContent = "确认禁用";
+      } else if (level === "二级" && actionLabel === "禁用") {
+        confirmDesc.textContent = "禁用二级类目后，其下子类目不会在前台展示。";
+        confirmAction.textContent = "确认禁用";
+      } else {
+        confirmDesc.textContent = "状态变更后立即生效。";
+        confirmAction.textContent = actionLabel === "禁用" ? "确认禁用" : "确认启用";
+      }
+      confirmMask.classList.add("show");
+    }
+
+    function renderSortList() {
+      sortModalRows = [...selectedSortScope().rows];
+      sortHasChanged = false;
+      renderSortRows();
+    }
+
+    function renderSortRows() {
+      sortList.innerHTML = sortModalRows.map((row, index) => `
+        <div class="sort-row" data-index="${index}" draggable="true">
+          <span class="sort-index">${index + 1}</span>
+          <span class="drag-handle" aria-hidden="true">⋮⋮</span>
+          <span class="sort-name">${rowText(row)}</span>
+          <span class="sort-value">排序值 ${sortHasChanged ? (index + 1) * 10 : row.children[col("sort", rowMode(row))].textContent.trim()}</span>
+        </div>
+      `).join("");
+    }
+
+    function openSortModal() {
+      sortTitle.textContent = mode === "front" ? "前台类目批量排序" : "后台类目批量排序";
+      buildSortScopes();
+      renderSortList();
+      sortMask.classList.add("show");
+    }
+
+    function openExportModal() {
+      const moduleName = mode === "front" ? "前台类目" : "后台类目";
+      exportTitle.textContent = `确认导出${moduleName}`;
+      exportText.textContent = `按当前筛选条件导出${moduleName}？`;
+      exportMask.classList.add("show");
+    }
+
+    function currentModuleName() {
+      return mode === "front" ? "前台类目" : "后台类目";
+    }
+
+    function reorderSortRows(fromIndex, toIndex) {
+      if (fromIndex === toIndex || fromIndex < 0 || toIndex < 0) return;
+      if (fromIndex >= sortModalRows.length || toIndex >= sortModalRows.length) return;
+      const [item] = sortModalRows.splice(fromIndex, 1);
+      sortModalRows.splice(toIndex, 0, item);
+      sortHasChanged = true;
+      renderSortRows();
+    }
+
+    function validateForm() {
+      const isBatch = createType === "batch" && formType === "create";
+      const nameOk = modalName.value.trim().length > 0;
+      const batchList = batchNames.value.split(/\n/).map(item => item.trim()).filter(Boolean);
+      const batchUnique = new Set(batchList).size === batchList.length;
+      const batchOk = batchList.length > 0 && batchUnique;
+      const sortOk = /^\d{1,4}$/.test(sortInput.value.trim());
+      const stepOk = /^[1-9]\d{0,3}$/.test(sortStepInput.value.trim());
+      const imageOk = true;
+      const backendMapOk = mode !== "front" || selectedBackendMaps().length > 0;
+      modalName.closest(".field").classList.toggle("invalid", !isBatch && !nameOk);
+      batchNames.closest(".field").classList.toggle("invalid", isBatch && !batchOk);
+      backendMapField.classList.toggle("invalid", !backendMapOk);
+      sortInput.closest(".field").classList.toggle("invalid", !sortOk);
+      sortStepInput.closest(".field").classList.toggle("invalid", isBatch && !stepOk);
+      imageField.classList.toggle("invalid-image", !imageOk);
+      return (isBatch ? batchOk && stepOk : nameOk) && sortOk && imageOk && backendMapOk;
+    }
+
+    function toggleCategoryRow(row, twisty) {
+      const currentLevel = Number(row.dataset.level);
+      if (!currentLevel || currentLevel >= 3 || !twisty.textContent.trim()) return;
+      const shouldCollapse = twisty.textContent.trim() === "▾";
+      twisty.textContent = shouldCollapse ? "▸" : "▾";
+
+      let next = row.nextElementSibling;
+      while (next && Number(next.dataset.level) > currentLevel) {
+        const nextLevel = Number(next.dataset.level);
+        if (shouldCollapse) {
+          next.classList.add("collapsed");
+          const childTwisty = next.querySelector(".twisty");
+          if (childTwisty && childTwisty.textContent.trim()) childTwisty.textContent = "▸";
+        } else if (nextLevel === currentLevel + 1) {
+          next.classList.remove("collapsed");
+        }
+        next = next.nextElementSibling;
+      }
+    }
+
+    categoryMenus.forEach(item => item.addEventListener("click", () => switchMode(item.dataset.mode)));
+    document.querySelector("#queryBtn").addEventListener("click", applyQuery);
+    document.querySelector("#resetBtn").addEventListener("click", () => resetFilters(true));
+    pagerControls.addEventListener("click", event => {
+      const button = event.target.closest(".page");
+      if (!button || button.classList.contains("disabled")) return;
+      if (button.dataset.page) {
+        applyPagination(Number(button.dataset.page));
+      } else if (button.dataset.pageAction === "prev") {
+        applyPagination(currentPage - 1);
+      } else if (button.dataset.pageAction === "next") {
+        applyPagination(currentPage + 1);
+      }
+    });
+    pagerControls.addEventListener("change", event => {
+      if (event.target.id === "pageSizeSelect") applyPagination(1);
+    });
+    createTypeSwitch.addEventListener("click", event => {
+      const button = event.target.closest("button[data-create-type]");
+      if (!button) return;
+      createType = button.dataset.createType;
+      syncCreateType();
+    });
+    document.querySelector("#openSort").addEventListener("click", openSortModal);
+    document.querySelector("#openExport").addEventListener("click", openExportModal);
+    document.querySelector("#openLog").addEventListener("click", openLogPage);
+    document.querySelector("#backToCategory").addEventListener("click", closeLogPage);
+    document.querySelector("#openCreate").addEventListener("click", () => openModal("一级", "create"));
+    function attachRowActions(scope = document) {
+      scope.querySelectorAll(".edit-second").forEach(btn => btn.addEventListener("click", event => {
+      const row = event.target.closest("tr");
+      const modeForRow = rowMode(row);
+      openModal("二级", "edit", {
+        row,
+        sourceName: cleanCategoryName(row),
+        parentName: row.children[col("parent", modeForRow)].textContent.trim(),
+        backendMaps: modeForRow === "front" ? (row.dataset.backendMaps || "").split("|").filter(Boolean) : [],
+        sortValue: row.children[col("sort", modeForRow)].textContent.trim(),
+        status: rowStatus(row),
+        hasImage: rowHasImage(row),
+        imageSrc: row.dataset.imageSrc || ""
+      });
+      }));
+      scope.querySelectorAll(".edit-first").forEach(btn => btn.addEventListener("click", event => {
+      const row = event.target.closest("tr");
+      const modeForRow = rowMode(row);
+      openModal("一级", "edit", {
+        row,
+        sourceName: cleanCategoryName(row),
+        parentName: "-",
+        backendMaps: modeForRow === "front" ? (row.dataset.backendMaps || "").split("|").filter(Boolean) : [],
+        sortValue: row.children[col("sort", modeForRow)].textContent.trim(),
+        status: rowStatus(row)
+      });
+      }));
+      scope.querySelectorAll(".edit-third").forEach(btn => btn.addEventListener("click", event => {
+      const row = event.target.closest("tr");
+      const modeForRow = rowMode(row);
+      openModal("三级", "edit", {
+        row,
+        sourceName: cleanCategoryName(row),
+        parentName: row.children[col("parent", modeForRow)].textContent.trim(),
+        sortValue: row.children[col("sort", modeForRow)].textContent.trim(),
+        status: rowStatus(row)
+      });
+      }));
+      scope.querySelectorAll(".link").forEach(btn => {
+        if (btn.dataset.bound === "true") return;
+        btn.dataset.bound = "true";
+        btn.addEventListener("click", event => {
+        const text = event.target.textContent.trim();
+        const row = event.target.closest("tr");
+        const currentLevel = row?.children[2]?.textContent.trim();
+        if (text === "新增子类") {
+          if (mode === "front" && currentLevel === "二级") return;
+          openModal(currentLevel === "一级" ? "二级" : "三级", "create", { parentName: cleanCategoryName(row) });
+        }
+        if (text === "删除") openConfirm("delete", row, text);
+        if (text === "禁用" || text === "启用") openConfirm("status", row, text);
+        });
+      });
+    }
+
+    document.querySelectorAll("#frontTable tbody, #backTable tbody").forEach(tbody => {
+      tbody.addEventListener("click", event => {
+        const previewImage = event.target.closest(".zoomable-image");
+        if (previewImage?.dataset.previewSrc) {
+          openImagePreview(previewImage.dataset.previewSrc, previewImage.dataset.previewTitle || previewImage.alt || "图片预览");
+          return;
+        }
+        const twisty = event.target.closest(".twisty");
+        if (!twisty) return;
+        toggleCategoryRow(twisty.closest("tr"), twisty);
+      });
+      tbody.addEventListener("keydown", event => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        const previewImage = event.target.closest(".zoomable-image");
+        if (!previewImage?.dataset.previewSrc) return;
+        event.preventDefault();
+        openImagePreview(previewImage.dataset.previewSrc, previewImage.dataset.previewTitle || previewImage.alt || "图片预览");
+      });
+    });
+    attachRowActions();
+    modalLevel.addEventListener("change", syncImageField);
+    document.querySelector("#closeModal").addEventListener("click", () => modalMask.classList.remove("show"));
+    document.querySelector("#cancelModal").addEventListener("click", () => modalMask.classList.remove("show"));
+    document.querySelector("#saveCategory").addEventListener("click", () => {
+      if (!validateForm()) return;
+      modalMask.classList.remove("show");
+      if (formType === "edit") {
+        const row = modalContext.row;
+        const object = row ? rowLogObject(row) : modalName.value.trim();
+        const detail = mode === "front"
+          ? `修改前台类目名称、映射后台类目、类目图片、排序值或状态，保存后状态为${statusSelect.value}`
+          : `修改后台类目名称、排序值或状态，保存后状态为${statusSelect.value}`;
+        updateEditedCategory();
+        appendOperationLog("编辑", object, detail);
+        showToast("类目修改成功");
+      } else if (createType === "batch") {
+        const names = batchNames.value.split(/\n/).map(item => item.trim()).filter(Boolean);
+        const count = names.length;
+        const level = modalLevel.value;
+        const parentName = level === "一级" ? "-" : parentSelect.value;
+        const createdRows = addCreatedCategories();
+        appendOperationLog("新增", `${parentName}下${level}类目`, `批量新增 ${count} 个${mode === "front" ? "前台" : "后台"}${level}类目：${createdRows.map(rowLogObject).join("、")}`);
+        showToast(`成功创建 ${count} 个类目`);
+      } else {
+        const level = modalLevel.value;
+        const parentName = level === "一级" ? "-" : parentSelect.value;
+        const createdRows = addCreatedCategories();
+        appendOperationLog("新增", rowLogObject(createdRows[0]), `在${parentName}下新增${mode === "front" ? "前台" : "后台"}${level}类目，状态为${statusSelect.value}`);
+        showToast("类目新增成功");
+      }
+    });
+    uploadBox.addEventListener("click", () => {
+      if (uploadBox.classList.contains("has-preview") && imageObjectUrl) {
+        openImagePreview(imageObjectUrl, `${modalName.value.trim() || "当前类目"}类目图片`);
+        return;
+      }
+      if (uploadBox.classList.contains("has-image")) {
+        return;
+      }
+      imageFileAction = "upload";
+      imageFileInput.value = "";
+      imageFileInput.click();
+    });
+    uploadBox.addEventListener("keydown", event => {
+      if (event.key !== "Enter" && event.key !== " ") return;
+      event.preventDefault();
+      uploadBox.click();
+    });
+    imageFileInput.addEventListener("change", () => {
+      if (!imageFileInput.files || imageFileInput.files.length === 0) return;
+      const previewUrl = URL.createObjectURL(imageFileInput.files[0]);
+      setImageState(true, previewUrl);
+      showToast(imageFileAction === "replace" ? "图片更新成功" : "图片上传成功");
+    });
+    document.querySelector("#replaceImage").addEventListener("click", () => {
+      imageFileAction = "replace";
+      imageFileInput.value = "";
+      imageFileInput.click();
+    });
+    document.querySelector("#deleteImage").addEventListener("click", () => {
+      openConfirm("image-delete");
+    });
+    backendMapSearch.addEventListener("input", applyBackendMapFilter);
+    backendMapLevel.addEventListener("change", applyBackendMapFilter);
+    backendMapOptions.addEventListener("change", event => {
+      if (event.target.matches("input[type='checkbox']")) renderSelectedMapSummary();
+    });
+    modalMask.addEventListener("click", event => {
+      if (event.target === modalMask) modalMask.classList.remove("show");
+    });
+    document.querySelector("#closeImagePreview").addEventListener("click", closeImagePreview);
+    imagePreviewMask.addEventListener("click", event => {
+      if (event.target === imagePreviewMask) closeImagePreview();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && imagePreviewMask.classList.contains("show")) closeImagePreview();
+    });
+    document.querySelector("#closeConfirm").addEventListener("click", () => confirmMask.classList.remove("show"));
+    document.querySelector("#cancelConfirm").addEventListener("click", () => confirmMask.classList.remove("show"));
+    document.querySelector("#confirmAction").addEventListener("click", () => {
+      confirmMask.classList.remove("show");
+      if (confirmAction.textContent === "我知道了") return;
+      if (pendingAction?.action === "delete") {
+        appendOperationLog("删除", rowLogObject(pendingAction.row), `删除${mode === "front" ? "前台" : "后台"}类目`);
+        deleteCategoryRow(pendingAction.row);
+        showToast("类目删除成功");
+      } else if (pendingAction?.action === "status") {
+        appendOperationLog(pendingAction.actionLabel, rowLogObject(pendingAction.row), `状态变更为${pendingAction.actionLabel === "禁用" ? "禁用" : "启用"}`);
+        applyStatusChange(pendingAction.row, pendingAction.actionLabel);
+        showToast("状态更新成功");
+      } else if (pendingAction?.action === "image-delete") {
+        setImageState(false);
+        imageFileInput.value = "";
+        showToast("图片已删除");
+      }
+      pendingAction = null;
+    });
+    confirmMask.addEventListener("click", event => {
+      if (event.target === confirmMask) confirmMask.classList.remove("show");
+    });
+    sortScope.addEventListener("change", renderSortList);
+    sortList.addEventListener("dragstart", event => {
+      const row = event.target.closest(".sort-row");
+      if (!row) return;
+      row.classList.add("dragging");
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData("text/plain", row.dataset.index);
+    });
+    sortList.addEventListener("dragend", event => {
+      event.target.closest(".sort-row")?.classList.remove("dragging");
+    });
+    sortList.addEventListener("dragover", event => {
+      if (event.target.closest(".sort-row")) event.preventDefault();
+    });
+    sortList.addEventListener("drop", event => {
+      const row = event.target.closest(".sort-row");
+      if (!row) return;
+      event.preventDefault();
+      const fromIndex = Number(event.dataTransfer.getData("text/plain"));
+      const toIndex = Number(row.dataset.index);
+      reorderSortRows(fromIndex, toIndex);
+    });
+    document.querySelector("#closeSort").addEventListener("click", () => sortMask.classList.remove("show"));
+    document.querySelector("#cancelSort").addEventListener("click", () => sortMask.classList.remove("show"));
+    document.querySelector("#saveSort").addEventListener("click", () => {
+      const scopeLabel = selectedSortScope().label || "后台类目";
+      sortMask.classList.remove("show");
+      sortRowsByModalOrder();
+      appendOperationLog("排序", scopeLabel, `批量调整${mode === "front" ? "前台" : "后台"}类目排序值`);
+      showToast("排序保存成功");
+    });
+    sortMask.addEventListener("click", event => {
+      if (event.target === sortMask) sortMask.classList.remove("show");
+    });
+    document.querySelector("#closeExport").addEventListener("click", () => exportMask.classList.remove("show"));
+    document.querySelector("#cancelExport").addEventListener("click", () => exportMask.classList.remove("show"));
+    document.querySelector("#confirmExport").addEventListener("click", () => {
+      exportMask.classList.remove("show");
+      appendOperationLog("导出", currentModuleName(), `按当前筛选条件导出${currentModuleName()}`);
+      showToast("导出任务已生成，最多导出 1000 条");
+    });
+    exportMask.addEventListener("click", event => {
+      if (event.target === exportMask) exportMask.classList.remove("show");
+    });
+    document.querySelector("#queryLog").addEventListener("click", () => renderOperationLogs(1));
+    document.querySelector("#resetLog").addEventListener("click", () => {
+      logObjectFilter.value = "";
+      logTypeFilter.value = "全部";
+      logOperatorFilter.value = "全部";
+      renderOperationLogs(1);
+    });
+    logPagerControls.addEventListener("click", event => {
+      const button = event.target.closest(".page");
+      if (!button || button.classList.contains("disabled")) return;
+      if (button.dataset.logPage) {
+        renderOperationLogs(Number(button.dataset.logPage));
+      } else if (button.dataset.logPageAction === "prev") {
+        renderOperationLogs(logCurrentPage - 1);
+      } else if (button.dataset.logPageAction === "next") {
+        renderOperationLogs(logCurrentPage + 1);
+      }
+    });
+    logPagerControls.addEventListener("change", event => {
+      if (event.target.id === "logPageSizeSelect") renderOperationLogs(1);
+    });
+    renderOperationLogs(1);
+    refreshCurrentPage(1);
+  </script>
+</body>
+</html>
