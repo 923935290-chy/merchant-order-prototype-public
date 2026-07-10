@@ -2367,6 +2367,40 @@
       return level === "一级" ? 1 : level === "二级" ? 2 : 3;
     }
 
+    function siblingRowsForSort(level, parentName, ignoreRow = null) {
+      const numericLevel = levelNumber(level);
+      const normalizedParent = numericLevel === 1 ? "-" : parentName;
+      return tableRows().filter(row => {
+        if (row === ignoreRow) return false;
+        if (Number(row.dataset.level) !== numericLevel) return false;
+        const modeForRow = rowMode(row);
+        const rowParent = numericLevel === 1 ? "-" : row.children[col("parent", modeForRow)].textContent.trim();
+        return rowParent === normalizedParent;
+      });
+    }
+
+    function generatedSortValues() {
+      const baseSort = Number(sortInput.value.trim());
+      if (createType !== "batch" || formType !== "create") return [baseSort];
+      const step = Number(sortStepInput.value.trim());
+      return createdNames().map((_, index) => baseSort + (step * index));
+    }
+
+    function sortValuesInRange(values) {
+      return values.every(value => Number.isInteger(value) && value >= 0 && value <= 9999);
+    }
+
+    function sortValuesUniqueInScope(values) {
+      const level = modalLevel.value;
+      const parentName = level === "一级" ? "-" : parentSelect.value;
+      const ignoreRow = formType === "edit" ? modalContext.row : null;
+      const existingValues = new Set(siblingRowsForSort(level, parentName, ignoreRow).map(row => {
+        const modeForRow = rowMode(row);
+        return row.children[col("sort", modeForRow)].textContent.trim();
+      }));
+      return values.every(value => !existingValues.has(String(value)));
+    }
+
     function thumbnailFor(name) {
       const text = name.replace(/\s+/g, "").slice(0, 4) || "图";
       return `<span class="thumb">${text}</span>`;
@@ -2807,15 +2841,25 @@
       const batchOk = batchList.length > 0 && batchUnique;
       const sortOk = /^\d{1,4}$/.test(sortInput.value.trim());
       const stepOk = /^[1-9]\d{0,3}$/.test(sortStepInput.value.trim());
+      const canCheckGeneratedSort = sortOk && (!isBatch || (stepOk && batchList.length > 0));
+      const proposedSortValues = canCheckGeneratedSort ? generatedSortValues() : [];
+      const generatedSortOk = !canCheckGeneratedSort || sortValuesInRange(proposedSortValues);
+      const sortUniqueOk = !canCheckGeneratedSort || (generatedSortOk && sortValuesUniqueInScope(proposedSortValues));
       const imageOk = true;
       const backendMapOk = mode !== "front" || selectedBackendMaps().length > 0;
+      const sortError = sortInput.closest(".field").querySelector(".error");
+      if (!sortOk || !generatedSortOk) {
+        sortError.textContent = isBatch ? "批量新增生成的排序值需全部为 0-9999 的整数" : "请输入 0-9999 的整数";
+      } else if (!sortUniqueOk) {
+        sortError.textContent = "同一父级、同一层级下排序值不能重复，请调整后保存";
+      }
       modalName.closest(".field").classList.toggle("invalid", !isBatch && !nameOk);
       batchNames.closest(".field").classList.toggle("invalid", isBatch && !batchOk);
       backendMapField.classList.toggle("invalid", !backendMapOk);
-      sortInput.closest(".field").classList.toggle("invalid", !sortOk);
+      sortInput.closest(".field").classList.toggle("invalid", !sortOk || !generatedSortOk || !sortUniqueOk);
       sortStepInput.closest(".field").classList.toggle("invalid", isBatch && !stepOk);
       imageField.classList.toggle("invalid-image", !imageOk);
-      return (isBatch ? batchOk && stepOk : nameOk) && sortOk && imageOk && backendMapOk;
+      return (isBatch ? batchOk && stepOk : nameOk) && sortOk && generatedSortOk && sortUniqueOk && imageOk && backendMapOk;
     }
 
     function toggleCategoryRow(row, twisty) {
