@@ -300,7 +300,8 @@
       grid-column: 1 / -1;
       align-items: center;
       justify-content: flex-start;
-      gap: 10px;
+      gap: 8px;
+      padding-top: 2px;
     }
 
     .btn {
@@ -335,6 +336,14 @@
       color: var(--blue);
       padding: 0 8px;
       min-width: 0;
+    }
+
+    .btn.subtle {
+      min-width: 0;
+      border-color: var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      font-weight: 650;
     }
 
     .result {
@@ -380,11 +389,11 @@
     }
 
     #frontTable {
-      min-width: 1360px;
+      min-width: 1380px;
     }
 
     #backTable {
-      min-width: 1160px;
+      min-width: 1180px;
     }
 
     th {
@@ -520,12 +529,14 @@
     }
 
     .display-state {
-      display: inline-flex;
+      display: inline-grid;
+      grid-template-columns: 6px auto;
       align-items: center;
-      gap: 5px;
+      column-gap: 5px;
+      row-gap: 2px;
       color: var(--muted);
       font-size: 12px;
-      white-space: nowrap;
+      line-height: 1.25;
     }
 
     .display-dot {
@@ -540,16 +551,18 @@
     }
 
     .display-state .state-main {
+      grid-column: 2;
       color: var(--heading);
-      font-weight: 650;
+      font-weight: 560;
     }
 
     .display-state .state-reason {
-      color: var(--muted);
+      grid-column: 2;
+      color: var(--weak);
     }
 
     .link {
-      margin-right: 12px;
+      margin-right: 8px;
       border: 0;
       background: transparent;
       color: var(--blue);
@@ -990,9 +1003,10 @@
 
     .log-filters {
       display: grid;
-      grid-template-columns: minmax(280px, 1fr) 180px 180px;
+      grid-template-columns: 260px 160px 160px;
       gap: 14px 16px;
       align-items: end;
+      justify-content: start;
     }
 
     .log-page-body {
@@ -1003,8 +1017,8 @@
 
     .log-actions {
       display: flex;
-      justify-content: flex-end;
-      gap: 10px;
+      justify-content: flex-start;
+      gap: 8px;
     }
 
     .log-table-wrap {
@@ -1243,11 +1257,11 @@
         <div class="filters">
           <div class="field">
             <label>类目名称</label>
-            <input class="control" id="nameFilter" placeholder="请输入查询的类目名称">
+            <input class="control" id="nameFilter" placeholder="请输入类目名称">
           </div>
           <div class="field">
             <label>类目ID</label>
-            <input class="control" id="idFilter" placeholder="请输入查询的类目ID">
+            <input class="control" id="idFilter" placeholder="请输入类目ID">
           </div>
           <div class="field">
             <label>类目层级</label>
@@ -1259,7 +1273,7 @@
             </select>
           </div>
           <div class="field">
-            <label>类目状态</label>
+            <label>配置状态</label>
             <select class="select" id="statusFilter">
               <option>全部</option>
               <option>启用</option>
@@ -1298,13 +1312,13 @@
               <col style="width: 110px">
               <col style="width: 92px">
               <col style="width: 120px">
-              <col style="width: 230px">
+              <col style="width: 210px">
               <col style="width: 110px">
               <col style="width: 80px">
               <col style="width: 80px">
-              <col style="width: 132px">
+              <col style="width: 140px">
               <col style="width: 150px">
-              <col style="width: 180px">
+              <col style="width: 200px">
             </colgroup>
             <thead>
               <tr>
@@ -1412,9 +1426,9 @@
               <col style="width: 110px">
               <col style="width: 80px">
               <col style="width: 80px">
-              <col style="width: 132px">
+              <col style="width: 140px">
               <col style="width: 150px">
-              <col style="width: 220px">
+              <col style="width: 210px">
             </colgroup>
             <thead>
               <tr>
@@ -1527,11 +1541,11 @@
         <section class="panel">
           <div class="result-head">
             <div class="result-title" id="logTitle">后台类目操作日志</div>
-            <button class="btn secondary" id="backToCategory" type="button">返回后台类目管理</button>
+            <button class="btn subtle" id="backToCategory" type="button">返回后台类目管理</button>
           </div>
           <div class="log-page-body">
             <div class="log-filters">
-              <div class="field">
+              <div class="field log-object-field">
                 <label>操作对象</label>
                 <input class="control" id="logObjectFilter" placeholder="请输入类目名称或类目ID">
               </div>
@@ -1568,9 +1582,9 @@
                   <col style="width: 150px">
                   <col style="width: 90px">
                   <col style="width: 110px">
-                  <col style="width: 170px">
+                  <col style="width: 190px">
                   <col>
-                  <col style="width: 120px">
+                  <col style="width: 96px">
                 </colgroup>
                 <thead>
                   <tr>
@@ -1632,7 +1646,7 @@
         </div>
         <div class="field single-field">
           <label>类目名称</label>
-          <input class="control" id="modalName" value="行车记录仪" placeholder="请输入类目名称">
+          <input class="control" id="modalName" placeholder="请输入类目名称">
           <div class="error">请输入类目名称</div>
         </div>
         <div class="field batch-field hidden" style="grid-column: 1 / -1;">
@@ -2486,6 +2500,15 @@
       return values.every(value => !existingValues.has(String(value)));
     }
 
+    function nextSortValue(level, parentName) {
+      const values = siblingRowsForSort(level, parentName).map(row => {
+        const modeForRow = rowMode(row);
+        return Number(row.children[col("sort", modeForRow)].textContent.trim());
+      }).filter(Number.isFinite);
+      if (!values.length) return 10;
+      return Math.min(Math.max(...values) + 10, 9999);
+    }
+
     function duplicateCategoryNames(names) {
       const level = modalLevel.value;
       const parentName = level === "一级" ? "-" : parentSelect.value;
@@ -2886,12 +2909,12 @@
       syncBackendMapOptions(context.backendMaps || []);
       syncModalLevelOptions(level);
       modalLevel.value = level;
-      modalName.value = context.sourceName || (level === "一级" ? "" : level === "二级" ? "行车记录仪" : "手机");
-      batchNames.value = level === "一级" ? "数码\n服饰\n养护" : "精选\n运动鞋\n短袖";
+      modalName.value = context.sourceName || "";
+      batchNames.value = "";
       const parentName = context.parentName || (level === "三级" ? "手机及配件" : level === "一级" ? "-" : "数码");
       ensureSelectOption(parentSelect, parentName);
       parentSelect.value = parentName;
-      sortInput.value = context.sortValue || (level === "一级" ? "50" : "40");
+      sortInput.value = context.sortValue || String(nextSortValue(level, parentName));
       sortStepInput.value = "10";
       statusSelect.value = context.status || "启用";
       modalLevel.disabled = true;
