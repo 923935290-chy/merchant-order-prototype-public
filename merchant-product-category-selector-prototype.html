@@ -1,0 +1,1187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>商家创建商品 - 商品类目选择原型</title>
+  <style>
+    :root {
+      --bg: oklch(0.972 0.004 250);
+      --surface: oklch(0.995 0.002 250);
+      --panel: oklch(0.982 0.004 250);
+      --panel-strong: oklch(0.956 0.006 250);
+      --line: oklch(0.905 0.008 250);
+      --line-strong: oklch(0.825 0.012 250);
+      --text: oklch(0.36 0.015 255);
+      --heading: oklch(0.24 0.018 255);
+      --muted: oklch(0.56 0.014 255);
+      --weak: oklch(0.71 0.012 255);
+      --brand: oklch(0.69 0.16 48);
+      --brand-hover: oklch(0.64 0.17 48);
+      --brand-soft: oklch(0.965 0.036 48);
+      --focus: oklch(0.61 0.18 254);
+      --blue-soft: oklch(0.965 0.028 254);
+      --red: oklch(0.60 0.17 24);
+      --green: oklch(0.59 0.14 150);
+      --shadow: 0 18px 42px oklch(0.28 0.018 255 / 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 1360px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .shell {
+      min-height: 100vh;
+      background:
+        linear-gradient(180deg, oklch(0.985 0.003 250), oklch(0.972 0.004 250) 56%),
+        var(--bg);
+    }
+
+    .topbar {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 56px 0 68px;
+      background: oklch(0.27 0.011 255);
+      color: oklch(0.96 0.004 255);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .logo {
+      width: 27px;
+      height: 27px;
+      border-radius: 8px;
+      background: oklch(0.98 0.004 255);
+      position: relative;
+    }
+
+    .logo::after {
+      content: "";
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      border: 4px solid oklch(0.27 0.011 255);
+      border-top-color: transparent;
+      position: absolute;
+      left: 5px;
+      top: 5px;
+    }
+
+    .account {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+      color: oklch(0.86 0.004 255);
+      font-size: 14px;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      min-height: calc(100vh - 56px);
+      background: var(--surface);
+    }
+
+    .sidebar {
+      padding-top: 20px;
+      border-right: 1px solid var(--line);
+      background: oklch(0.992 0.002 250);
+    }
+
+    .side-group {
+      margin-bottom: 18px;
+    }
+
+    .side-title {
+      height: 30px;
+      display: flex;
+      align-items: center;
+      padding-left: 62px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .side-item {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      padding-left: 62px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .side-item.active {
+      color: var(--heading);
+      font-weight: 650;
+      background: var(--panel);
+    }
+
+    .content {
+      padding: 24px 56px 64px 40px;
+      background: var(--surface);
+    }
+
+    .page-title {
+      margin: 0 0 28px;
+      color: var(--heading);
+      font-size: 20px;
+      font-weight: 650;
+    }
+
+    .form {
+      max-width: 1040px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 118px 1fr;
+      align-items: start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .label {
+      min-height: 34px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .required::before {
+      content: "*";
+      color: var(--red);
+      margin-right: 4px;
+    }
+
+    .control,
+    .textarea,
+    .richtext {
+      width: 100%;
+      min-height: 34px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: oklch(0.998 0.001 250);
+      color: var(--text);
+      transition: border-color 160ms ease, box-shadow 160ms ease;
+    }
+
+    .control {
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+    }
+
+    .control.placeholder {
+      color: var(--weak);
+    }
+
+    .control:focus-within,
+    .category-trigger.open {
+      border-color: var(--focus);
+      box-shadow: 0 0 0 2px oklch(0.61 0.18 254 / 0.12);
+    }
+
+    .radio-line {
+      min-height: 34px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .radio {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 1px solid var(--line-strong);
+      background: var(--surface);
+      position: relative;
+    }
+
+    .radio.active .dot {
+      border-color: var(--focus);
+    }
+
+    .radio.active .dot::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: var(--focus);
+    }
+
+    .select-like {
+      justify-content: space-between;
+    }
+
+    .chev {
+      width: 8px;
+      height: 8px;
+      border-right: 1px solid var(--weak);
+      border-bottom: 1px solid var(--weak);
+      transform: rotate(45deg);
+      margin-top: -3px;
+      flex: 0 0 auto;
+    }
+
+    .category-field {
+      position: relative;
+    }
+
+    .category-trigger {
+      width: 100%;
+      min-height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 0 10px;
+      border: 1px solid var(--focus);
+      border-radius: 3px;
+      background: oklch(0.998 0.001 250);
+      box-shadow: 0 0 0 2px oklch(0.61 0.18 254 / 0.08);
+    }
+
+    .selected-path {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--heading);
+      min-width: 0;
+    }
+
+    .selected-path.placeholder {
+      color: var(--weak);
+    }
+
+    .path-node {
+      white-space: nowrap;
+    }
+
+    .path-sep {
+      color: var(--weak);
+    }
+
+    .category-trigger::after {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-right: 1px solid var(--weak);
+      border-bottom: 1px solid var(--weak);
+      transform: rotate(45deg);
+      transition: transform 160ms ease;
+      flex: 0 0 auto;
+      margin-right: 2px;
+    }
+
+    .category-trigger.open::after {
+      transform: rotate(225deg);
+      margin-top: 5px;
+    }
+
+    .category-popover {
+      position: absolute;
+      left: 0;
+      top: 44px;
+      z-index: 10;
+      display: none;
+      width: min(860px, calc(100vw - 430px));
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .popover-head {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: center;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      background: oklch(0.99 0.002 250);
+    }
+
+    .searchbox {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      background: var(--surface);
+    }
+
+    .searchbox input {
+      width: 100%;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--heading);
+    }
+
+    .magnifier {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--weak);
+      border-radius: 50%;
+      position: relative;
+      flex: 0 0 auto;
+    }
+
+    .magnifier::after {
+      content: "";
+      width: 6px;
+      height: 2px;
+      border-radius: 2px;
+      background: var(--weak);
+      position: absolute;
+      right: -5px;
+      bottom: -3px;
+      transform: rotate(45deg);
+    }
+
+    .sort-note {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .quick-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .recent-label {
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .quick-chip {
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 9px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .quick-chip.active {
+      color: oklch(0.48 0.13 48);
+      border-color: oklch(0.84 0.08 48);
+      background: var(--brand-soft);
+      font-weight: 650;
+    }
+
+    .category-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      height: 306px;
+    }
+
+    .category-col {
+      min-width: 0;
+      border-right: 1px solid var(--line);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .category-col:last-child {
+      border-right: 0;
+    }
+
+    .col-title {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 12px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .list {
+      overflow: auto;
+      padding: 6px;
+    }
+
+    .cat-item {
+      min-height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 4px;
+      color: var(--text);
+      user-select: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+    }
+
+    .cat-item:hover {
+      background: oklch(0.988 0.003 250);
+      border-color: var(--line);
+    }
+
+    .cat-item.active {
+      background: var(--brand-soft);
+      border-color: oklch(0.88 0.06 48);
+      color: var(--heading);
+      font-weight: 650;
+    }
+
+    .cat-item.disabled {
+      color: var(--weak);
+      cursor: not-allowed;
+    }
+
+    .cat-main {
+      min-width: 0;
+    }
+
+    .cat-name {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      line-height: 20px;
+    }
+
+    .cat-sub {
+      margin-top: 2px;
+      color: var(--weak);
+      font-size: 12px;
+      font-weight: 400;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .tag {
+      min-width: 34px;
+      height: 20px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 0 6px;
+      border-radius: 999px;
+      background: var(--panel-strong);
+      color: var(--muted);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .tag.hot {
+      color: oklch(0.52 0.14 48);
+      background: var(--brand-soft);
+    }
+
+    .tag.bad {
+      display: inline-flex;
+      color: var(--red);
+      background: oklch(0.97 0.026 24);
+    }
+
+    .popover-foot {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 12px;
+      border-top: 1px solid var(--line);
+      background: oklch(0.992 0.002 250);
+    }
+
+    .current-choice {
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .current-choice strong {
+      color: var(--heading);
+      font-weight: 650;
+    }
+
+    .btns {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn {
+      min-width: 78px;
+      height: 32px;
+      border: 1px solid var(--line-strong);
+      border-radius: 3px;
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .btn.primary {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: oklch(0.99 0.003 48);
+    }
+
+    .btn.primary:hover {
+      background: var(--brand-hover);
+    }
+
+    .content-card {
+      margin-top: 18px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      background: var(--surface);
+    }
+
+    .card-head {
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--line);
+      color: var(--heading);
+      font-weight: 650;
+    }
+
+    .card-body {
+      padding: 12px 10px 6px;
+    }
+
+    .input-grid {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .mini-label {
+      text-align: right;
+      color: var(--muted);
+    }
+
+    .input {
+      height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 3px;
+      padding: 0 9px;
+      color: var(--text);
+      background: var(--surface);
+    }
+
+    .textarea {
+      min-height: 64px;
+      padding: 8px 10px;
+      resize: none;
+    }
+
+    .richtext {
+      min-height: 118px;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      height: 32px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 0 10px;
+      border-bottom: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    .editor {
+      padding: 10px;
+      color: var(--weak);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      margin: 28px 0 0 132px;
+    }
+
+    .result-mode .category-body {
+      grid-template-columns: 1fr;
+      height: 330px;
+    }
+
+    .result-mode .category-col:not(.search-results) {
+      display: none;
+    }
+
+    .search-results {
+      display: none;
+    }
+
+    .result-mode .search-results {
+      display: flex;
+    }
+
+    mark {
+      background: oklch(0.91 0.09 88);
+      color: var(--heading);
+      padding: 0 1px;
+      border-radius: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo"></span>
+        <span>商户平台</span>
+      </div>
+      <div class="account">
+        <span>演示账号</span>
+        <span>回到首页</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="side-group">
+          <div class="side-title">商户</div>
+          <div class="side-item">商户管理</div>
+          <div class="side-item">门店管理</div>
+          <div class="side-item active">商品管理</div>
+          <div class="side-item">订单管理</div>
+        </div>
+        <div class="side-group">
+          <div class="side-title">商户券</div>
+          <div class="side-item">创建商户券</div>
+          <div class="side-item">商户券管理</div>
+          <div class="side-item">核销商户券</div>
+        </div>
+      </aside>
+
+      <main class="content">
+        <h1 class="page-title">商品管理</h1>
+
+        <section class="form">
+          <div class="row">
+            <label class="label required">发布渠道</label>
+            <div class="radio-line">
+              <span class="radio active"><span class="dot"></span>乘客商城</span>
+              <span class="radio"><span class="dot"></span>司机积分商城</span>
+              <span class="radio"><span class="dot"></span>新版司机积分商城</span>
+              <span class="radio"><span class="dot"></span>整合营销-环保活动</span>
+              <span class="radio"><span class="dot"></span>花小猪活动商城</span>
+              <span class="radio"><span class="dot"></span>严选车品</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="label required">商品品类</label>
+            <div class="control select-like"><span>车品</span><span class="chev"></span></div>
+          </div>
+
+          <div class="row">
+            <label class="label">服务费率</label>
+            <div class="control placeholder">按商户结算配置自动带入</div>
+          </div>
+
+          <div class="row">
+            <label class="label required">商品名称</label>
+            <div class="control placeholder">商品名称需要在23个字符以内</div>
+          </div>
+
+          <div class="row">
+            <label class="label required">城市</label>
+            <div class="control select-like placeholder"><span>请选择...</span><span class="chev"></span></div>
+          </div>
+
+          <div class="row">
+            <label class="label required">商品类目</label>
+            <div class="category-field">
+              <button class="category-trigger" type="button" id="categoryTrigger">
+                <span class="selected-path placeholder" id="triggerPath">
+                  <span class="path-node">商品类目需选择到三级类目</span>
+                </span>
+              </button>
+
+              <div class="category-popover" id="categoryPopover">
+                <div class="popover-head">
+                  <div class="searchbox">
+                    <span class="magnifier"></span>
+                    <input id="categorySearch" placeholder="输入类目名称，例如玻璃水、香薰、充电器" aria-label="搜索商品类目">
+                  </div>
+                </div>
+
+                <div class="quick-strip">
+                  <span class="recent-label">最近：</span>
+                  <button class="quick-chip" type="button" data-path="养护清洁/洗车养护/玻璃水">玻璃水</button>
+                  <button class="quick-chip" type="button" data-path="车内用品/空气香氛/车载香薰">车载香薰</button>
+                  <button class="quick-chip" type="button" data-path="电子数码/充电设备/车载充电器">车载充电器</button>
+                </div>
+
+                <div class="category-body" id="categoryBody">
+                  <div class="category-col">
+                    <div class="col-title"><span>一级类目</span></div>
+                    <div class="list" id="level1"></div>
+                  </div>
+                  <div class="category-col">
+                    <div class="col-title"><span>二级类目</span><span id="level2Count"></span></div>
+                    <div class="list" id="level2"></div>
+                  </div>
+                  <div class="category-col">
+                    <div class="col-title"><span>三级类目</span><span id="level3Count"></span></div>
+                    <div class="list" id="level3"></div>
+                  </div>
+                  <div class="category-col search-results">
+                    <div class="col-title"><span>搜索结果</span><span id="resultCount"></span></div>
+                    <div class="list" id="searchResults"></div>
+                  </div>
+                </div>
+
+                <div class="popover-foot">
+                  <div class="current-choice" id="currentChoice">已选：<strong>未选择</strong></div>
+                  <div class="btns">
+                    <button class="btn" type="button" id="clearBtn">清空</button>
+                    <button class="btn primary" type="button" id="confirmBtn">确认选择</button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="label required">商品类型</label>
+            <div class="control select-like"><span>虚拟商品</span><span class="chev"></span></div>
+          </div>
+
+          <div class="row">
+            <label class="label">推荐标签</label>
+            <div>
+              <div class="control placeholder">请输入推荐标签</div>
+              <div style="margin-top:6px;color:var(--red);font-size:12px;line-height:1.55">
+                推荐标签要求及示例：标签内容以商品卖点为主；每个商品最多2个标签；每个标签2到4个字。
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="label required">商品内容</label>
+            <div class="content-card">
+              <div class="card-head">
+                <span>商品内容1</span>
+                <span style="color:var(--weak);font-size:18px">×</span>
+              </div>
+              <div class="card-body">
+                <div class="input-grid">
+                  <div class="mini-label required">商品类型</div>
+                  <div class="input">优惠券</div>
+                </div>
+                <div class="input-grid">
+                  <div class="mini-label required">批次号</div>
+                  <input class="input" value="">
+                </div>
+                <div class="input-grid">
+                  <div class="mini-label">批次提示</div>
+                  <input class="input" value="">
+                </div>
+                <div class="input-grid">
+                  <div class="mini-label required">答券数量</div>
+                  <input class="input" value="">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="label required">商户名称</label>
+            <div class="control select-like placeholder"><span>请选择...</span><span class="chev"></span></div>
+          </div>
+
+          <div class="row">
+            <label class="label">原价格(市场价)</label>
+            <div class="control">0.00 <span style="margin-left:auto;color:var(--muted)">元</span></div>
+          </div>
+
+          <div class="row">
+            <label class="label required">商品描述</label>
+            <div class="richtext">
+              <div class="toolbar"><span>H</span><span>B</span><span>I</span><span>U</span><span>S</span><span>↶</span><span>↷</span></div>
+              <div class="editor">请输入详细的商品介绍，及购买说明。</div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn" type="button">返回</button>
+            <button class="btn primary" type="button">保存</button>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const data = [
+      {
+        name: "养护清洁",
+        count: 126,
+        children: [
+          { name: "洗车养护", count: 48, children: [
+            { name: "玻璃水", count: 18, hot: true },
+            { name: "洗车液", count: 11 },
+            { name: "镀膜剂", count: 7 },
+            { name: "轮胎蜡", count: 5 },
+            { name: "内饰清洁剂", count: 7 }
+          ] },
+          { name: "维修保养", count: 34, children: [
+            { name: "机油", count: 9 },
+            { name: "滤芯", count: 8 },
+            { name: "雨刮器", count: 12 },
+            { name: "防冻液", count: 5 }
+          ] },
+          { name: "美容护理", count: 21, children: [
+            { name: "车蜡", count: 7 },
+            { name: "补漆笔", count: 6 },
+            { name: "毛巾海绵", count: 8 }
+          ] }
+        ]
+      },
+      {
+        name: "电子数码",
+        count: 93,
+        children: [
+          { name: "充电设备", count: 36, children: [
+            { name: "车载充电器", count: 16, hot: true },
+            { name: "数据线", count: 10 },
+            { name: "充电支架", count: 10 }
+          ] },
+          { name: "行车记录", count: 18, children: [
+            { name: "行车记录仪", count: 12 },
+            { name: "存储卡", count: 6 }
+          ] },
+          { name: "智能设备", count: 39, children: [
+            { name: "车载吸尘器", count: 13 },
+            { name: "胎压监测", count: 10 },
+            { name: "车机配件", count: 16 }
+          ] }
+        ]
+      },
+      {
+        name: "车内用品",
+        count: 88,
+        children: [
+          { name: "空气香氛", count: 24, children: [
+            { name: "车载香薰", count: 14, hot: true },
+            { name: "除味炭包", count: 6 },
+            { name: "空气净化", count: 4 }
+          ] },
+          { name: "座椅脚垫", count: 31, children: [
+            { name: "座椅套", count: 12 },
+            { name: "头枕腰靠", count: 9 },
+            { name: "脚垫", count: 10 }
+          ] },
+          { name: "收纳整理", count: 33, children: [
+            { name: "后备箱收纳", count: 11 },
+            { name: "手机支架", count: 12 },
+            { name: "挂钩置物", count: 10 }
+          ] }
+        ]
+      },
+      {
+        name: "应急工具",
+        count: 54,
+        children: [
+          { name: "安全救援", count: 27, children: [
+            { name: "搭电宝", count: 13, hot: true },
+            { name: "拖车绳", count: 5 },
+            { name: "破窗器", count: 4 },
+            { name: "灭火器", count: 5 }
+          ] },
+          { name: "维修工具", count: 19, children: [
+            { name: "充气泵", count: 9 },
+            { name: "工具箱", count: 6 },
+            { name: "补胎工具", count: 4 }
+          ] },
+          { name: "冬季用品", count: 8, disabled: true, reason: "上级已禁用", children: [
+            { name: "除雪铲", count: 3, disabled: true, reason: "上级已禁用" },
+            { name: "防滑链", count: 5, disabled: true, reason: "上级已禁用" }
+          ] }
+        ]
+      },
+      {
+        name: "外饰改装",
+        count: 41,
+        children: [
+          { name: "车身装饰", count: 18, children: [
+            { name: "车贴", count: 8 },
+            { name: "门边防撞条", count: 6 },
+            { name: "牌照框", count: 4 }
+          ] },
+          { name: "照明升级", count: 23, children: [
+            { name: "车灯", count: 11 },
+            { name: "警示灯", count: 5 },
+            { name: "氛围灯", count: 7 }
+          ] }
+        ]
+      }
+    ];
+
+    const state = {
+      l1: 0,
+      l2: 0,
+      l3: 0,
+      selected: []
+    };
+
+    const level1 = document.getElementById("level1");
+    const level2 = document.getElementById("level2");
+    const level3 = document.getElementById("level3");
+    const level2Count = document.getElementById("level2Count");
+    const level3Count = document.getElementById("level3Count");
+    const currentChoice = document.getElementById("currentChoice");
+    const triggerPath = document.getElementById("triggerPath");
+    const searchInput = document.getElementById("categorySearch");
+    const categoryBody = document.getElementById("categoryBody");
+    const searchResults = document.getElementById("searchResults");
+    const resultCount = document.getElementById("resultCount");
+
+    function itemTemplate(item, active, onClick) {
+      const div = document.createElement("div");
+      div.className = `cat-item${active ? " active" : ""}${item.disabled ? " disabled" : ""}`;
+      div.innerHTML = `
+        <div class="cat-main">
+          <div class="cat-name">${item.name}</div>
+          ${item.reason ? `<div class="cat-sub">${item.reason}</div>` : ""}
+        </div>
+        <span class="tag ${item.disabled ? "bad" : ""}">${item.disabled ? "禁用" : ""}</span>
+      `;
+      div.addEventListener("click", () => {
+        if (!item.disabled) onClick();
+      });
+      return div;
+    }
+
+    function renderCascade() {
+      categoryBody.classList.remove("result-mode");
+      level1.innerHTML = "";
+      data.forEach((item, index) => {
+        level1.appendChild(itemTemplate(item, state.l1 === index, () => {
+          state.l1 = index;
+          state.l2 = 0;
+          state.l3 = 0;
+          syncSelectedFromCascade();
+          renderCascade();
+        }));
+      });
+
+      const second = data[state.l1].children || [];
+      level2Count.textContent = "";
+      level2.innerHTML = "";
+      second.forEach((item, index) => {
+        level2.appendChild(itemTemplate(item, state.l2 === index, () => {
+          state.l2 = index;
+          state.l3 = 0;
+          syncSelectedFromCascade();
+          renderCascade();
+        }));
+      });
+
+      const third = second[state.l2]?.children || [];
+      level3Count.textContent = "";
+      level3.innerHTML = "";
+      third.forEach((item, index) => {
+        level3.appendChild(itemTemplate(item, state.l3 === index, () => {
+          state.l3 = index;
+          syncSelectedFromCascade();
+          renderCascade();
+        }));
+      });
+      updateChoice();
+    }
+
+    function syncSelectedFromCascade() {
+      const second = data[state.l1]?.children || [];
+      const third = second[state.l2]?.children || [];
+      const leaf = third[state.l3];
+      if (leaf && !leaf.disabled && !second[state.l2]?.disabled && !data[state.l1]?.disabled) {
+        state.selected = [data[state.l1].name, second[state.l2].name, leaf.name];
+      } else if (second[state.l2]) {
+        state.selected = [data[state.l1].name, second[state.l2].name, "请选择可用三级类目"];
+      } else {
+        state.selected = [data[state.l1].name, "请选择二级类目", "请选择三级类目"];
+      }
+    }
+
+    function updateChoice() {
+      if (!state.selected.length) {
+        currentChoice.innerHTML = "已选：<strong>未选择</strong>";
+        triggerPath.classList.add("placeholder");
+        triggerPath.innerHTML = '<span class="path-node">商品类目需选择到三级类目</span>';
+        return;
+      }
+      const path = state.selected.join(" / ");
+      currentChoice.innerHTML = `已选：<strong>${path}</strong>`;
+      triggerPath.classList.remove("placeholder");
+      triggerPath.innerHTML = state.selected.map((node, index) => {
+        const sep = index < state.selected.length - 1 ? '<span class="path-sep">/</span>' : "";
+        return `<span class="path-node">${node}</span>${sep}`;
+      }).join("");
+    }
+
+    function flatCategories() {
+      const rows = [];
+      data.forEach((a, ai) => {
+        a.children.forEach((b, bi) => {
+          b.children.forEach((c, ci) => {
+            rows.push({ path: [a.name, b.name, c.name], ai, bi, ci, item: c, disabled: a.disabled || b.disabled || c.disabled });
+          });
+        });
+      });
+      return rows;
+    }
+
+    function highlight(text, query) {
+      if (!query) return text;
+      return text.replace(new RegExp(query, "g"), `<mark>${query}</mark>`);
+    }
+
+    function renderSearch(query) {
+      const q = query.trim();
+      if (!q) {
+        renderCascade();
+        return;
+      }
+      categoryBody.classList.add("result-mode");
+      searchResults.innerHTML = "";
+      const rows = flatCategories().filter(row => row.path.join(" ").includes(q));
+      resultCount.textContent = `${rows.length} 条`;
+      rows.forEach(row => {
+        const div = document.createElement("div");
+        div.className = `cat-item${row.disabled ? " disabled" : ""}`;
+        div.innerHTML = `
+          <div class="cat-main">
+            <div class="cat-name">${highlight(row.path.join(" / "), q)}</div>
+            <div class="cat-sub">${row.disabled ? "该路径当前不可选" : "可选择的后台三级类目"}</div>
+          </div>
+          <span class="tag ${row.disabled ? "bad" : ""}">${row.disabled ? "禁用" : ""}</span>
+        `;
+        div.addEventListener("click", () => {
+          if (row.disabled) return;
+          state.l1 = row.ai;
+          state.l2 = row.bi;
+          state.l3 = row.ci;
+          state.selected = row.path;
+          searchInput.value = "";
+          renderCascade();
+        });
+        searchResults.appendChild(div);
+      });
+    }
+
+    searchInput.addEventListener("input", event => {
+      renderSearch(event.target.value);
+    });
+
+    document.querySelectorAll(".quick-chip").forEach(chip => {
+      chip.addEventListener("click", () => {
+        document.querySelectorAll(".quick-chip").forEach(item => item.classList.remove("active"));
+        chip.classList.add("active");
+        state.selected = chip.dataset.path.split("/");
+        const ai = data.findIndex(item => item.name === state.selected[0]);
+        const bi = data[ai].children.findIndex(item => item.name === state.selected[1]);
+        const ci = data[ai].children[bi].children.findIndex(item => item.name === state.selected[2]);
+        state.l1 = ai;
+        state.l2 = bi;
+        state.l3 = ci;
+        searchInput.value = "";
+        renderCascade();
+      });
+    });
+
+    document.getElementById("clearBtn").addEventListener("click", () => {
+      state.selected = [];
+      document.querySelectorAll(".quick-chip").forEach(item => item.classList.remove("active"));
+      updateChoice();
+    });
+
+    const categoryTrigger = document.getElementById("categoryTrigger");
+    const categoryPopover = document.getElementById("categoryPopover");
+
+    function setCategoryOpen(open) {
+      categoryTrigger.classList.toggle("open", open);
+      categoryPopover.style.display = open ? "block" : "none";
+      if (open) searchInput.focus();
+    }
+
+    document.getElementById("confirmBtn").addEventListener("click", () => {
+      setCategoryOpen(false);
+    });
+
+    categoryTrigger.addEventListener("click", () => {
+      setCategoryOpen(!categoryTrigger.classList.contains("open"));
+    });
+
+    renderSearch(searchInput.value);
+  </script>
+</body>
+</html>
