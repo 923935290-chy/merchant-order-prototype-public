@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
   <title>商家创建商品 - 商品类目选择原型</title>
   <style>
     :root {
@@ -317,6 +318,18 @@
     .category-trigger.open::after {
       transform: rotate(225deg);
       margin-top: 5px;
+    }
+
+    .category-trigger.invalid {
+      border-color: var(--red);
+      box-shadow: 0 0 0 2px oklch(0.62 0.18 25 / 0.1);
+    }
+
+    .category-error {
+      min-height: 18px;
+      margin-top: 6px;
+      color: var(--red);
+      font-size: 12px;
     }
 
     .category-popover {
@@ -664,6 +677,35 @@
       margin: 28px 0 0 132px;
     }
 
+    .empty-state {
+      padding: 24px 12px;
+      color: var(--weak);
+      text-align: center;
+      font-size: 13px;
+    }
+
+    .toast {
+      position: fixed;
+      top: 62px;
+      left: 50%;
+      z-index: 50;
+      display: none;
+      transform: translateX(-50%);
+      min-width: 300px;
+      padding: 10px 18px;
+      border: 1px solid oklch(0.88 0.045 153);
+      border-radius: 4px;
+      background: oklch(0.965 0.032 153);
+      color: oklch(0.52 0.14 153);
+      box-shadow: 0 8px 24px oklch(0.3 0.02 250 / 0.12);
+      text-align: center;
+      font-weight: 650;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
     .result-mode .category-body {
       grid-template-columns: 1fr;
       height: 330px;
@@ -694,10 +736,10 @@
     <header class="topbar">
       <div class="brand">
         <span class="logo"></span>
-        <span>商户平台</span>
+        <span>滴滴 <span style="font-weight:400;opacity:.65">|</span> 商户平台</span>
       </div>
       <div class="account">
-        <span>演示账号</span>
+        <span>15043093603</span>
         <span>回到首页</span>
       </div>
     </header>
@@ -726,12 +768,12 @@
           <div class="row">
             <label class="label required">发布渠道</label>
             <div class="radio-line">
-              <span class="radio active"><span class="dot"></span>乘客商城</span>
+              <span class="radio active"><span class="dot"></span>滴滴乘客商城</span>
               <span class="radio"><span class="dot"></span>司机积分商城</span>
               <span class="radio"><span class="dot"></span>新版司机积分商城</span>
               <span class="radio"><span class="dot"></span>整合营销-环保活动</span>
               <span class="radio"><span class="dot"></span>花小猪活动商城</span>
-              <span class="radio"><span class="dot"></span>严选车品</span>
+              <span class="radio"><span class="dot"></span>滴滴有车严选车品</span>
             </div>
           </div>
 
@@ -768,15 +810,12 @@
                 <div class="popover-head">
                   <div class="searchbox">
                     <span class="magnifier"></span>
-                    <input id="categorySearch" placeholder="输入类目名称，例如玻璃水、香薰、充电器" aria-label="搜索商品类目">
+                    <input id="categorySearch" placeholder="输入类目名称，例如 OPPO手机、香薰商品、洗车消耗品" aria-label="搜索商品类目">
                   </div>
                 </div>
 
-                <div class="quick-strip">
+                <div class="quick-strip" id="recentCategories">
                   <span class="recent-label">最近：</span>
-                  <button class="quick-chip" type="button" data-path="养护清洁/洗车养护/玻璃水">玻璃水</button>
-                  <button class="quick-chip" type="button" data-path="车内用品/空气香氛/车载香薰">车载香薰</button>
-                  <button class="quick-chip" type="button" data-path="电子数码/充电设备/车载充电器">车载充电器</button>
                 </div>
 
                 <div class="category-body" id="categoryBody">
@@ -806,7 +845,7 @@
                   </div>
                 </div>
               </div>
-
+              <div class="category-error" id="categoryError" aria-live="polite"></div>
             </div>
           </div>
 
@@ -873,123 +912,59 @@
 
           <div class="form-actions">
             <button class="btn" type="button">返回</button>
-            <button class="btn primary" type="button">保存</button>
+            <button class="btn primary" id="saveProduct" type="button">保存</button>
           </div>
         </section>
       </main>
     </div>
   </div>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
-    const data = [
-      {
-        name: "养护清洁",
-        count: 126,
-        children: [
-          { name: "洗车养护", count: 48, children: [
-            { name: "玻璃水", count: 18, hot: true },
-            { name: "洗车液", count: 11 },
-            { name: "镀膜剂", count: 7 },
-            { name: "轮胎蜡", count: 5 },
-            { name: "内饰清洁剂", count: 7 }
-          ] },
-          { name: "维修保养", count: 34, children: [
-            { name: "机油", count: 9 },
-            { name: "滤芯", count: 8 },
-            { name: "雨刮器", count: 12 },
-            { name: "防冻液", count: 5 }
-          ] },
-          { name: "美容护理", count: 21, children: [
-            { name: "车蜡", count: 7 },
-            { name: "补漆笔", count: 6 },
-            { name: "毛巾海绵", count: 8 }
-          ] }
-        ]
-      },
-      {
-        name: "电子数码",
-        count: 93,
-        children: [
-          { name: "充电设备", count: 36, children: [
-            { name: "车载充电器", count: 16, hot: true },
-            { name: "数据线", count: 10 },
-            { name: "充电支架", count: 10 }
-          ] },
-          { name: "行车记录", count: 18, children: [
-            { name: "行车记录仪", count: 12 },
-            { name: "存储卡", count: 6 }
-          ] },
-          { name: "智能设备", count: 39, children: [
-            { name: "车载吸尘器", count: 13 },
-            { name: "胎压监测", count: 10 },
-            { name: "车机配件", count: 16 }
-          ] }
-        ]
-      },
-      {
-        name: "车内用品",
-        count: 88,
-        children: [
-          { name: "空气香氛", count: 24, children: [
-            { name: "车载香薰", count: 14, hot: true },
-            { name: "除味炭包", count: 6 },
-            { name: "空气净化", count: 4 }
-          ] },
-          { name: "座椅脚垫", count: 31, children: [
-            { name: "座椅套", count: 12 },
-            { name: "头枕腰靠", count: 9 },
-            { name: "脚垫", count: 10 }
-          ] },
-          { name: "收纳整理", count: 33, children: [
-            { name: "后备箱收纳", count: 11 },
-            { name: "手机支架", count: 12 },
-            { name: "挂钩置物", count: 10 }
-          ] }
-        ]
-      },
-      {
-        name: "应急工具",
-        count: 54,
-        children: [
-          { name: "安全救援", count: 27, children: [
-            { name: "搭电宝", count: 13, hot: true },
-            { name: "拖车绳", count: 5 },
-            { name: "破窗器", count: 4 },
-            { name: "灭火器", count: 5 }
-          ] },
-          { name: "维修工具", count: 19, children: [
-            { name: "充气泵", count: 9 },
-            { name: "工具箱", count: 6 },
-            { name: "补胎工具", count: 4 }
-          ] },
-          { name: "冬季用品", count: 8, disabled: true, reason: "上级已禁用", children: [
-            { name: "除雪铲", count: 3, disabled: true, reason: "上级已禁用" },
-            { name: "防滑链", count: 5, disabled: true, reason: "上级已禁用" }
-          ] }
-        ]
-      },
-      {
-        name: "外饰改装",
-        count: 41,
-        children: [
-          { name: "车身装饰", count: 18, children: [
-            { name: "车贴", count: 8 },
-            { name: "门边防撞条", count: 6 },
-            { name: "牌照框", count: 4 }
-          ] },
-          { name: "照明升级", count: 23, children: [
-            { name: "车灯", count: 11 },
-            { name: "警示灯", count: 5 },
-            { name: "氛围灯", count: 7 }
-          ] }
-        ]
+    const backendCategoryStorageKey = "didiShopBackendCategoriesV1";
+    const recentCategoryStorageKey = "didiShopMerchantRecentCategoriesV1";
+    const fallbackCategorySnapshot = [{"id":"BC20001","name":"手机数码与电器","level":1,"parentId":null,"sort":1,"status":"启用","effective":true},{"id":"BC20011","name":"手机_OV","level":2,"parentId":"BC20001","sort":1,"status":"启用","effective":true},{"id":"BC20101","name":"OPPO手机","level":3,"parentId":"BC20011","sort":1,"status":"启用","effective":true},{"id":"BC20102","name":"vivo手机","level":3,"parentId":"BC20011","sort":2,"status":"启用","effective":true},{"id":"BC20012","name":"手机_小米","level":2,"parentId":"BC20001","sort":20,"status":"启用","effective":true},{"id":"BC20002","name":"服饰配饰","level":1,"parentId":null,"sort":2,"status":"启用","effective":true},{"id":"BC20021","name":"鞋靴","level":2,"parentId":"BC20002","sort":1,"status":"禁用","effective":false},{"id":"BC20022","name":"上装","level":2,"parentId":"BC20002","sort":20,"status":"启用","effective":true},{"id":"BC30001","name":"车内气味管理","level":1,"parentId":null,"sort":30,"status":"启用","effective":true},{"id":"BC31000","name":"日常香薰_出风口","level":2,"parentId":"BC30001","sort":10,"status":"启用","effective":true},{"id":"BC31001","name":"出风口香薰商品","level":3,"parentId":"BC31000","sort":10,"status":"启用","effective":true},{"id":"BC31002","name":"日常香薰_挂饰","level":2,"parentId":"BC30001","sort":20,"status":"启用","effective":true},{"id":"BC31003","name":"挂饰摆件商品","level":3,"parentId":"BC31002","sort":10,"status":"启用","effective":true},{"id":"BC31004","name":"空气净化","level":2,"parentId":"BC30001","sort":30,"status":"启用","effective":true},{"id":"BC31005","name":"空气净化商品","level":3,"parentId":"BC31004","sort":10,"status":"启用","effective":true},{"id":"BC31006","name":"品质香薰","level":2,"parentId":"BC30001","sort":40,"status":"启用","effective":true},{"id":"BC31007","name":"品质香薰商品","level":3,"parentId":"BC31006","sort":10,"status":"启用","effective":true},{"id":"BC30002","name":"汽车清洁与保养","level":1,"parentId":null,"sort":40,"status":"启用","effective":true},{"id":"BC31008","name":"洗车消耗品","level":2,"parentId":"BC30002","sort":10,"status":"启用","effective":true},{"id":"BC31009","name":"洗车消耗品商品","level":3,"parentId":"BC31008","sort":10,"status":"启用","effective":true},{"id":"BC31010","name":"内饰清洁","level":2,"parentId":"BC30002","sort":20,"status":"启用","effective":true},{"id":"BC31011","name":"内饰清洁商品","level":3,"parentId":"BC31010","sort":10,"status":"启用","effective":true},{"id":"BC31012","name":"防雾除味","level":2,"parentId":"BC30002","sort":30,"status":"启用","effective":true},{"id":"BC31013","name":"防雾除味商品","level":3,"parentId":"BC31012","sort":10,"status":"启用","effective":true},{"id":"BC31014","name":"清洁工具","level":2,"parentId":"BC30002","sort":40,"status":"启用","effective":true},{"id":"BC31015","name":"清洁工具商品","level":3,"parentId":"BC31014","sort":10,"status":"启用","effective":true},{"id":"BC31016","name":"基础保养","level":2,"parentId":"BC30002","sort":50,"status":"启用","effective":true},{"id":"BC31017","name":"基础保养商品","level":3,"parentId":"BC31016","sort":10,"status":"启用","effective":true},{"id":"BC31018","name":"油车保养","level":2,"parentId":"BC30002","sort":60,"status":"启用","effective":true},{"id":"BC31019","name":"油车保养商品","level":3,"parentId":"BC31018","sort":10,"status":"启用","effective":true},{"id":"BC31020","name":"轮胎轮毂","level":2,"parentId":"BC30002","sort":70,"status":"启用","effective":true},{"id":"BC31021","name":"轮胎轮毂商品","level":3,"parentId":"BC31020","sort":10,"status":"启用","effective":true},{"id":"BC31022","name":"汽车美容","level":2,"parentId":"BC30002","sort":80,"status":"禁用","effective":false},{"id":"BC31023","name":"汽车美容商品","level":3,"parentId":"BC31022","sort":10,"status":"禁用","effective":false},{"id":"BC31024","name":"大件保养","level":2,"parentId":"BC30002","sort":90,"status":"禁用","effective":false},{"id":"BC31025","name":"大件保养商品","level":3,"parentId":"BC31024","sort":10,"status":"禁用","effective":false},{"id":"BC31026","name":"电车保养","level":2,"parentId":"BC30002","sort":100,"status":"禁用","effective":false},{"id":"BC31027","name":"电车保养商品","level":3,"parentId":"BC31026","sort":10,"status":"禁用","effective":false},{"id":"BC30003","name":"食品与提神","level":1,"parentId":null,"sort":50,"status":"启用","effective":true},{"id":"BC31028","name":"饮用水饮料","level":2,"parentId":"BC30003","sort":10,"status":"启用","effective":true},{"id":"BC31029","name":"饮用水/饮料商品","level":3,"parentId":"BC31028","sort":10,"status":"启用","effective":true},{"id":"BC31030","name":"提神冲饮","level":2,"parentId":"BC30003","sort":20,"status":"启用","effective":true},{"id":"BC31031","name":"提神冲饮商品","level":3,"parentId":"BC31030","sort":10,"status":"启用","effective":true},{"id":"BC31032","name":"零食速食","level":2,"parentId":"BC30003","sort":30,"status":"启用","effective":true},{"id":"BC31033","name":"零食速食商品","level":3,"parentId":"BC31032","sort":10,"status":"启用","effective":true},{"id":"BC31034","name":"粮油生鲜","level":2,"parentId":"BC30003","sort":40,"status":"启用","effective":true},{"id":"BC31035","name":"粮油生鲜商品","level":3,"parentId":"BC31034","sort":10,"status":"启用","effective":true},{"id":"BC31036","name":"养生滋补","level":2,"parentId":"BC30003","sort":50,"status":"禁用","effective":false},{"id":"BC31037","name":"养生滋补商品","level":3,"parentId":"BC31036","sort":10,"status":"禁用","effective":false},{"id":"BC30004","name":"汽车用品与装饰","level":1,"parentId":null,"sort":60,"status":"启用","effective":true},{"id":"BC31038","name":"合规装备","level":2,"parentId":"BC30004","sort":10,"status":"启用","effective":true},{"id":"BC31039","name":"合规装备商品","level":3,"parentId":"BC31038","sort":10,"status":"启用","effective":true},{"id":"BC31040","name":"舒适升级","level":2,"parentId":"BC30004","sort":20,"status":"启用","effective":true},{"id":"BC31041","name":"舒适升级商品","level":3,"parentId":"BC31040","sort":10,"status":"启用","effective":true},{"id":"BC31042","name":"保护防损","level":2,"parentId":"BC30004","sort":30,"status":"启用","effective":true},{"id":"BC31043","name":"保护防损商品","level":3,"parentId":"BC31042","sort":10,"status":"启用","effective":true},{"id":"BC31044","name":"坐垫_冰丝","level":2,"parentId":"BC30004","sort":40,"status":"启用","effective":true},{"id":"BC31045","name":"冰丝凉垫商品","level":3,"parentId":"BC31044","sort":10,"status":"启用","effective":true},{"id":"BC31046","name":"坐垫_加绒","level":2,"parentId":"BC30004","sort":50,"status":"启用","effective":true},{"id":"BC31047","name":"加绒保暖垫商品","level":3,"parentId":"BC31046","sort":10,"status":"启用","effective":true},{"id":"BC31048","name":"腰靠头枕","level":2,"parentId":"BC30004","sort":60,"status":"启用","effective":true},{"id":"BC31049","name":"腰靠头枕商品","level":3,"parentId":"BC31048","sort":10,"status":"启用","effective":true},{"id":"BC31050","name":"汽车收纳","level":2,"parentId":"BC30004","sort":70,"status":"启用","effective":true},{"id":"BC31051","name":"汽车收纳商品","level":3,"parentId":"BC31050","sort":10,"status":"启用","effective":true},{"id":"BC31052","name":"脚垫地毯","level":2,"parentId":"BC30004","sort":80,"status":"启用","effective":true},{"id":"BC31053","name":"脚垫地毯商品","level":3,"parentId":"BC31052","sort":10,"status":"启用","effective":true},{"id":"BC31054","name":"内饰装饰","level":2,"parentId":"BC30004","sort":90,"status":"启用","effective":true},{"id":"BC31055","name":"内饰装饰商品","level":3,"parentId":"BC31054","sort":10,"status":"启用","effective":true},{"id":"BC30005","name":"生活用品","level":1,"parentId":null,"sort":70,"status":"启用","effective":true},{"id":"BC31056","name":"水杯","level":2,"parentId":"BC30005","sort":10,"status":"启用","effective":true},{"id":"BC31057","name":"水杯商品","level":3,"parentId":"BC31056","sort":10,"status":"启用","effective":true},{"id":"BC31058","name":"睡眠休息","level":2,"parentId":"BC30005","sort":20,"status":"启用","effective":true},{"id":"BC31059","name":"睡眠休息商品","level":3,"parentId":"BC31058","sort":10,"status":"启用","effective":true},{"id":"BC31060","name":"日用杂货","level":2,"parentId":"BC30005","sort":30,"status":"启用","effective":true},{"id":"BC31061","name":"日用杂货商品","level":3,"parentId":"BC31060","sort":10,"status":"启用","effective":true},{"id":"BC31062","name":"纸巾湿巾","level":2,"parentId":"BC30005","sort":40,"status":"启用","effective":true},{"id":"BC31063","name":"纸巾湿巾商品","level":3,"parentId":"BC31062","sort":10,"status":"启用","effective":true},{"id":"BC31064","name":"家居清洁","level":2,"parentId":"BC30005","sort":50,"status":"启用","effective":true},{"id":"BC31065","name":"家居清洁商品","level":3,"parentId":"BC31064","sort":10,"status":"启用","effective":true},{"id":"BC31066","name":"衣物驱蚊","level":2,"parentId":"BC30005","sort":60,"status":"启用","effective":true},{"id":"BC31067","name":"衣物驱蚊商品","level":3,"parentId":"BC31066","sort":10,"status":"启用","effective":true},{"id":"BC31068","name":"家用电器","level":2,"parentId":"BC30005","sort":70,"status":"启用","effective":true},{"id":"BC31069","name":"家用电器商品","level":3,"parentId":"BC31068","sort":10,"status":"启用","effective":true},{"id":"BC30006","name":"个护美妆","level":1,"parentId":null,"sort":80,"status":"启用","effective":true},{"id":"BC31070","name":"面部护理_基础","level":2,"parentId":"BC30006","sort":10,"status":"启用","effective":true},{"id":"BC31071","name":"基础护肤商品","level":3,"parentId":"BC31070","sort":10,"status":"启用","effective":true},{"id":"BC31072","name":"面部护理_防晒","level":2,"parentId":"BC30006","sort":20,"status":"启用","effective":true},{"id":"BC31073","name":"防晒/面膜商品","level":3,"parentId":"BC31072","sort":10,"status":"启用","effective":true},{"id":"BC31074","name":"身体洗护","level":2,"parentId":"BC30006","sort":30,"status":"启用","effective":true},{"id":"BC31075","name":"身体洗护商品","level":3,"parentId":"BC31074","sort":10,"status":"启用","effective":true},{"id":"BC31076","name":"套装礼盒","level":2,"parentId":"BC30006","sort":40,"status":"启用","effective":true},{"id":"BC31077","name":"套装礼盒商品","level":3,"parentId":"BC31076","sort":10,"status":"启用","effective":true},{"id":"BC31078","name":"口腔护理","level":2,"parentId":"BC30006","sort":50,"status":"启用","effective":true},{"id":"BC31079","name":"口腔护理商品","level":3,"parentId":"BC31078","sort":10,"status":"启用","effective":true},{"id":"BC31080","name":"男士理容","level":2,"parentId":"BC30006","sort":60,"status":"启用","effective":true},{"id":"BC31081","name":"男士理容商品","level":3,"parentId":"BC31080","sort":10,"status":"启用","effective":true},{"id":"BC30007","name":"安全应急","level":1,"parentId":null,"sort":90,"status":"启用","effective":true},{"id":"BC31082","name":"安全工具_破窗","level":2,"parentId":"BC30007","sort":10,"status":"启用","effective":true},{"id":"BC31083","name":"破窗灭火商品","level":3,"parentId":"BC31082","sort":10,"status":"启用","effective":true},{"id":"BC31084","name":"安全工具_照明","level":2,"parentId":"BC30007","sort":20,"status":"启用","effective":true},{"id":"BC31085","name":"拖车照明商品","level":3,"parentId":"BC31084","sort":10,"status":"启用","effective":true},{"id":"BC31086","name":"防护装备","level":2,"parentId":"BC30007","sort":30,"status":"启用","effective":true},{"id":"BC31087","name":"防护装备商品","level":3,"parentId":"BC31086","sort":10,"status":"启用","effective":true},{"id":"BC31088","name":"应急设备","level":2,"parentId":"BC30007","sort":40,"status":"启用","effective":true},{"id":"BC31089","name":"应急设备商品","level":3,"parentId":"BC31088","sort":10,"status":"启用","effective":true}];
+    let categorySnapshot = [];
+    let data = [];
+
+    function readCategorySnapshot() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(backendCategoryStorageKey) || "null");
+        if (Array.isArray(stored) && stored.length) return stored;
+      } catch (error) {
+        // 受限环境下使用与当前类目原型同步的内置快照。
       }
-    ];
+      return fallbackCategorySnapshot;
+    }
+
+    function buildCategoryTree(snapshot) {
+      const nodes = new Map(snapshot.map(item => [item.id, {
+        ...item,
+        disabled: !item.effective,
+        reason: item.status === "禁用" ? "当前已禁用" : !item.effective ? "上级已禁用" : "",
+        children: []
+      }]));
+      nodes.forEach(node => {
+        if (node.parentId && nodes.has(node.parentId)) nodes.get(node.parentId).children.push(node);
+      });
+      const sortNodes = rows => rows.sort((a, b) => a.sort - b.sort || a.id.localeCompare(b.id, "zh-Hans-CN", { numeric: true })).map(row => {
+        row.children = sortNodes(row.children);
+        return row;
+      });
+      return sortNodes([...nodes.values()].filter(node => node.level === 1));
+    }
+
+    function reloadCategoryData() {
+      categorySnapshot = readCategorySnapshot();
+      data = buildCategoryTree(categorySnapshot);
+    }
 
     const state = {
       l1: 0,
       l2: 0,
       l3: 0,
+      selectedId: "",
       selected: []
     };
 
@@ -1004,14 +979,92 @@
     const categoryBody = document.getElementById("categoryBody");
     const searchResults = document.getElementById("searchResults");
     const resultCount = document.getElementById("resultCount");
+    const recentCategories = document.getElementById("recentCategories");
+    const categoryError = document.getElementById("categoryError");
+    const categoryTrigger = document.getElementById("categoryTrigger");
+    const categoryPopover = document.getElementById("categoryPopover");
+    const toast = document.getElementById("toast");
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function showToast(text) {
+      toast.textContent = text;
+      toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove("show"), 1800);
+    }
+
+    function clearCategoryError() {
+      categoryError.textContent = "";
+      categoryTrigger.classList.remove("invalid");
+    }
+
+    function showCategoryError(text = "请选择商品三级类目") {
+      categoryError.textContent = text;
+      categoryTrigger.classList.add("invalid");
+    }
+
+    function nodeById(categoryId) {
+      return categorySnapshot.find(item => item.id === categoryId) || null;
+    }
+
+    function categoryPathById(categoryId) {
+      const rows = [];
+      let current = nodeById(categoryId);
+      while (current) {
+        rows.unshift(current.name);
+        current = current.parentId ? nodeById(current.parentId) : null;
+      }
+      return rows;
+    }
+
+    function treePositionById(categoryId) {
+      for (let ai = 0; ai < data.length; ai += 1) {
+        for (let bi = 0; bi < (data[ai].children || []).length; bi += 1) {
+          const ci = (data[ai].children[bi].children || []).findIndex(item => item.id === categoryId);
+          if (ci >= 0) return { ai, bi, ci };
+        }
+      }
+      return null;
+    }
+
+    function selectedLeaf() {
+      const item = nodeById(state.selectedId);
+      return item?.level === 3 && item.effective ? item : null;
+    }
+
+    function setSelectedLeaf(item, position = treePositionById(item?.id)) {
+      if (!item || item.level !== 3 || !item.effective || !position) return false;
+      state.l1 = position.ai;
+      state.l2 = position.bi;
+      state.l3 = position.ci;
+      state.selectedId = item.id;
+      state.selected = categoryPathById(item.id);
+      clearCategoryError();
+      return true;
+    }
+
+    function firstAvailableIndex(rows = [], requireLeaf = false) {
+      return rows.findIndex(item => item.effective && (!requireLeaf || (item.children || []).some(child => child.level === 3 && child.effective)));
+    }
 
     function itemTemplate(item, active, onClick) {
       const div = document.createElement("div");
       div.className = `cat-item${active ? " active" : ""}${item.disabled ? " disabled" : ""}`;
+      const emptyReason = item.level < 3 && !(item.children || []).length ? "暂无可用下级类目" : "";
+      const reason = item.reason || emptyReason;
       div.innerHTML = `
         <div class="cat-main">
-          <div class="cat-name">${item.name}</div>
-          ${item.reason ? `<div class="cat-sub">${item.reason}</div>` : ""}
+          <div class="cat-name">${escapeHtml(item.name)}</div>
+          ${reason ? `<div class="cat-sub">${escapeHtml(reason)}</div>` : ""}
         </div>
         <span class="tag ${item.disabled ? "bad" : ""}">${item.disabled ? "禁用" : ""}</span>
       `;
@@ -1024,76 +1077,108 @@
     function renderCascade() {
       categoryBody.classList.remove("result-mode");
       level1.innerHTML = "";
+      if (!data.length) {
+        level1.innerHTML = '<div class="empty-state">暂无后台类目</div>';
+        level2.innerHTML = "";
+        level3.innerHTML = "";
+        updateChoice();
+        return;
+      }
+
+      state.l1 = Math.min(state.l1, data.length - 1);
       data.forEach((item, index) => {
         level1.appendChild(itemTemplate(item, state.l1 === index, () => {
           state.l1 = index;
-          state.l2 = 0;
+          const secondRows = item.children || [];
+          const firstBranch = firstAvailableIndex(secondRows, true);
+          state.l2 = firstBranch >= 0 ? firstBranch : 0;
           state.l3 = 0;
           syncSelectedFromCascade();
           renderCascade();
         }));
       });
 
-      const second = data[state.l1].children || [];
-      level2Count.textContent = "";
+      const second = data[state.l1]?.children || [];
+      state.l2 = Math.min(state.l2, Math.max(0, second.length - 1));
+      level2Count.textContent = second.length ? `${second.length} 项` : "";
       level2.innerHTML = "";
       second.forEach((item, index) => {
         level2.appendChild(itemTemplate(item, state.l2 === index, () => {
           state.l2 = index;
-          state.l3 = 0;
+          const thirdRows = item.children || [];
+          const firstLeaf = firstAvailableIndex(thirdRows);
+          state.l3 = firstLeaf >= 0 ? firstLeaf : 0;
           syncSelectedFromCascade();
           renderCascade();
         }));
       });
+      if (!second.length) level2.innerHTML = '<div class="empty-state">暂无二级类目</div>';
 
       const third = second[state.l2]?.children || [];
-      level3Count.textContent = "";
+      state.l3 = Math.min(state.l3, Math.max(0, third.length - 1));
+      level3Count.textContent = third.length ? `${third.length} 项` : "";
       level3.innerHTML = "";
       third.forEach((item, index) => {
         level3.appendChild(itemTemplate(item, state.l3 === index, () => {
           state.l3 = index;
-          syncSelectedFromCascade();
+          setSelectedLeaf(item, { ai: state.l1, bi: state.l2, ci: index });
           renderCascade();
         }));
       });
+      if (!third.length) level3.innerHTML = '<div class="empty-state">暂无可用三级类目</div>';
       updateChoice();
     }
 
     function syncSelectedFromCascade() {
-      const second = data[state.l1]?.children || [];
-      const third = second[state.l2]?.children || [];
-      const leaf = third[state.l3];
-      if (leaf && !leaf.disabled && !second[state.l2]?.disabled && !data[state.l1]?.disabled) {
-        state.selected = [data[state.l1].name, second[state.l2].name, leaf.name];
-      } else if (second[state.l2]) {
-        state.selected = [data[state.l1].name, second[state.l2].name, "请选择可用三级类目"];
+      const first = data[state.l1];
+      const second = first?.children || [];
+      const secondItem = second[state.l2];
+      const third = secondItem?.children || [];
+      const preferredIndex = third[state.l3]?.effective ? state.l3 : firstAvailableIndex(third);
+      const leaf = preferredIndex >= 0 ? third[preferredIndex] : null;
+      if (leaf && first?.effective && secondItem?.effective) {
+        state.l3 = preferredIndex;
+        setSelectedLeaf(leaf, { ai: state.l1, bi: state.l2, ci: preferredIndex });
       } else {
-        state.selected = [data[state.l1].name, "请选择二级类目", "请选择三级类目"];
+        state.selectedId = "";
+        state.selected = first
+          ? [first.name, secondItem?.name || "请选择二级类目", "请选择可用三级类目"]
+          : [];
       }
     }
 
     function updateChoice() {
-      if (!state.selected.length) {
-        currentChoice.innerHTML = "已选：<strong>未选择</strong>";
+      const leaf = selectedLeaf();
+      if (!leaf) {
+        const draft = state.selected.length ? state.selected.join(" / ") : "未选择";
+        currentChoice.innerHTML = `已选：<strong>${escapeHtml(draft)}</strong>`;
         triggerPath.classList.add("placeholder");
         triggerPath.innerHTML = '<span class="path-node">商品类目需选择到三级类目</span>';
         return;
       }
-      const path = state.selected.join(" / ");
-      currentChoice.innerHTML = `已选：<strong>${path}</strong>`;
+      const path = state.selected;
+      currentChoice.innerHTML = `已选：<strong>${escapeHtml(path.join(" / "))}</strong>`;
       triggerPath.classList.remove("placeholder");
-      triggerPath.innerHTML = state.selected.map((node, index) => {
-        const sep = index < state.selected.length - 1 ? '<span class="path-sep">/</span>' : "";
-        return `<span class="path-node">${node}</span>${sep}`;
+      triggerPath.innerHTML = path.map((node, index) => {
+        const sep = index < path.length - 1 ? '<span class="path-sep">/</span>' : "";
+        return `<span class="path-node">${escapeHtml(node)}</span>${sep}`;
       }).join("");
     }
 
     function flatCategories() {
       const rows = [];
       data.forEach((a, ai) => {
-        a.children.forEach((b, bi) => {
-          b.children.forEach((c, ci) => {
-            rows.push({ path: [a.name, b.name, c.name], ai, bi, ci, item: c, disabled: a.disabled || b.disabled || c.disabled });
+        (a.children || []).forEach((b, bi) => {
+          (b.children || []).forEach((c, ci) => {
+            rows.push({
+              path: [a.name, b.name, c.name],
+              ai,
+              bi,
+              ci,
+              item: c,
+              disabled: !a.effective || !b.effective || !c.effective,
+              reason: c.status === "禁用" ? "当前类目已禁用" : (!a.effective || !b.effective) ? "上级类目已禁用" : ""
+            });
           });
         });
       });
@@ -1101,8 +1186,10 @@
     }
 
     function highlight(text, query) {
-      if (!query) return text;
-      return text.replace(new RegExp(query, "g"), `<mark>${query}</mark>`);
+      const escapedText = escapeHtml(text);
+      if (!query) return escapedText;
+      const escapedQuery = query.replace(/[.*+?^$(){}|[\]\\]/g, "\\$&");
+      return escapedText.replace(new RegExp(escapedQuery, "gi"), match => `<mark>${match}</mark>`);
     }
 
     function renderSearch(query) {
@@ -1113,7 +1200,7 @@
       }
       categoryBody.classList.add("result-mode");
       searchResults.innerHTML = "";
-      const rows = flatCategories().filter(row => row.path.join(" ").includes(q));
+      const rows = flatCategories().filter(row => row.path.join(" ").toLowerCase().includes(q.toLowerCase()));
       resultCount.textContent = `${rows.length} 条`;
       rows.forEach(row => {
         const div = document.createElement("div");
@@ -1121,59 +1208,119 @@
         div.innerHTML = `
           <div class="cat-main">
             <div class="cat-name">${highlight(row.path.join(" / "), q)}</div>
-            <div class="cat-sub">${row.disabled ? "该路径当前不可选" : "可选择的后台三级类目"}</div>
+            <div class="cat-sub">${escapeHtml(row.disabled ? row.reason || "该路径当前不可选" : "可选择的后台三级类目")}</div>
           </div>
           <span class="tag ${row.disabled ? "bad" : ""}">${row.disabled ? "禁用" : ""}</span>
         `;
         div.addEventListener("click", () => {
           if (row.disabled) return;
-          state.l1 = row.ai;
-          state.l2 = row.bi;
-          state.l3 = row.ci;
-          state.selected = row.path;
+          setSelectedLeaf(row.item, { ai: row.ai, bi: row.bi, ci: row.ci });
           searchInput.value = "";
           renderCascade();
         });
         searchResults.appendChild(div);
       });
+      if (!rows.length) searchResults.innerHTML = '<div class="empty-state">无匹配三级类目</div>';
     }
 
-    searchInput.addEventListener("input", event => {
-      renderSearch(event.target.value);
-    });
+    function readRecentCategoryIds() {
+      try {
+        const stored = JSON.parse(localStorage.getItem(recentCategoryStorageKey) || "null");
+        if (Array.isArray(stored)) return stored;
+      } catch (error) {
+        // 使用模拟账号的默认最近类目。
+      }
+      return ["BC31009", "BC31001", "BC20101"];
+    }
 
-    document.querySelectorAll(".quick-chip").forEach(chip => {
-      chip.addEventListener("click", () => {
-        document.querySelectorAll(".quick-chip").forEach(item => item.classList.remove("active"));
-        chip.classList.add("active");
-        state.selected = chip.dataset.path.split("/");
-        const ai = data.findIndex(item => item.name === state.selected[0]);
-        const bi = data[ai].children.findIndex(item => item.name === state.selected[1]);
-        const ci = data[ai].children[bi].children.findIndex(item => item.name === state.selected[2]);
-        state.l1 = ai;
-        state.l2 = bi;
-        state.l3 = ci;
-        searchInput.value = "";
-        renderCascade();
-      });
+    function renderRecentCategories() {
+      const rows = readRecentCategoryIds()
+        .map(nodeById)
+        .filter(item => item?.level === 3 && item.effective)
+        .slice(0, 3);
+      recentCategories.innerHTML = '<span class="recent-label">最近：</span>' + (rows.length
+        ? rows.map(item => `<button class="quick-chip" type="button" data-category-id="${escapeHtml(item.id)}">${escapeHtml(item.name)}</button>`).join("")
+        : '<span class="recent-label">暂无最近使用类目</span>');
+    }
+
+    function saveRecentCategory(categoryId) {
+      const ids = [categoryId, ...readRecentCategoryIds().filter(id => id !== categoryId)].slice(0, 3);
+      try {
+        localStorage.setItem(recentCategoryStorageKey, JSON.stringify(ids));
+      } catch (error) {
+        // 受限环境不阻断商品保存。
+      }
+      renderRecentCategories();
+    }
+
+    function reconcileSelectedCategory() {
+      if (!state.selectedId) return;
+      const leaf = nodeById(state.selectedId);
+      const position = treePositionById(state.selectedId);
+      if (!leaf || !leaf.effective || !position) {
+        state.selectedId = "";
+        state.selected = [];
+        showCategoryError("原选择类目已被禁用、移动为非三级或删除，请重新选择");
+        return;
+      }
+      setSelectedLeaf(leaf, position);
+    }
+
+    function setCategoryOpen(open) {
+      if (open) {
+        reloadCategoryData();
+        reconcileSelectedCategory();
+        renderRecentCategories();
+        renderSearch(searchInput.value);
+      }
+      categoryTrigger.classList.toggle("open", open);
+      categoryPopover.style.display = open ? "block" : "none";
+      if (open) {
+        searchInput.focus({ preventScroll: true });
+        requestAnimationFrame(() => {
+          const margin = 16;
+          let rect = categoryPopover.getBoundingClientRect();
+          if (rect.bottom > window.innerHeight - margin) {
+            window.scrollBy(0, rect.bottom - window.innerHeight + margin);
+            rect = categoryPopover.getBoundingClientRect();
+          }
+          if (rect.top < margin) {
+            window.scrollBy(0, rect.top - margin);
+          }
+        });
+      }
+    }
+
+    searchInput.addEventListener("input", event => renderSearch(event.target.value));
+
+    recentCategories.addEventListener("click", event => {
+      const chip = event.target.closest(".quick-chip");
+      if (!chip) return;
+      const item = nodeById(chip.dataset.categoryId);
+      if (!item || !setSelectedLeaf(item)) {
+        showCategoryError("该最近使用类目已不可用，请重新选择");
+        renderRecentCategories();
+        return;
+      }
+      recentCategories.querySelectorAll(".quick-chip").forEach(row => row.classList.toggle("active", row === chip));
+      searchInput.value = "";
+      renderCascade();
     });
 
     document.getElementById("clearBtn").addEventListener("click", () => {
+      state.selectedId = "";
       state.selected = [];
-      document.querySelectorAll(".quick-chip").forEach(item => item.classList.remove("active"));
+      recentCategories.querySelectorAll(".quick-chip").forEach(item => item.classList.remove("active"));
+      clearCategoryError();
       updateChoice();
     });
 
-    const categoryTrigger = document.getElementById("categoryTrigger");
-    const categoryPopover = document.getElementById("categoryPopover");
-
-    function setCategoryOpen(open) {
-      categoryTrigger.classList.toggle("open", open);
-      categoryPopover.style.display = open ? "block" : "none";
-      if (open) searchInput.focus();
-    }
-
     document.getElementById("confirmBtn").addEventListener("click", () => {
+      if (!selectedLeaf()) {
+        showCategoryError("请选择商品三级类目");
+        return;
+      }
+      clearCategoryError();
       setCategoryOpen(false);
     });
 
@@ -1181,7 +1328,29 @@
       setCategoryOpen(!categoryTrigger.classList.contains("open"));
     });
 
-    renderSearch(searchInput.value);
+    document.getElementById("saveProduct").addEventListener("click", () => {
+      reloadCategoryData();
+      reconcileSelectedCategory();
+      if (!selectedLeaf()) {
+        showCategoryError("请选择商品三级类目");
+        setCategoryOpen(true);
+        return;
+      }
+      saveRecentCategory(state.selectedId);
+      showToast(`商品保存成功，已关联后台类目 ${state.selectedId}`);
+    });
+
+    window.addEventListener("storage", event => {
+      if (event.key !== backendCategoryStorageKey) return;
+      reloadCategoryData();
+      reconcileSelectedCategory();
+      renderRecentCategories();
+      renderSearch(searchInput.value);
+    });
+
+    reloadCategoryData();
+    renderRecentCategories();
+    renderSearch("");
   </script>
 </body>
 </html>
