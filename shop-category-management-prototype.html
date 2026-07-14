@@ -1001,6 +1001,11 @@
       display: block;
     }
 
+    .help.tooltip-right::after {
+      right: 0;
+      left: auto;
+    }
+
     .modal-foot {
       flex: 0 0 auto;
       height: 60px;
@@ -3345,7 +3350,7 @@
                 <th>后台类目路径</th>
                 <th>商户</th>
                 <th>售卖价格</th>
-                <th>商品排序值</th>
+                <th>商品排序值<span class="help tooltip-right" data-tip="数值越小排序越靠前；默认排序值为 100；允许相同排序值，相同时由后端默认排序逻辑兜底；支持 0-9999 的整数。">?</span></th>
               </tr>
             </thead>
             <tbody id="productSortRows"></tbody>
