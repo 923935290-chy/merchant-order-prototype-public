@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
-  <title>滴滴小卖铺 - 类目管理后台原型</title>
+  <title>示例商城 - 类目管理后台原型</title>
   <style>
     :root {
       --bg: oklch(0.965 0.006 255);
@@ -617,6 +617,20 @@
       box-shadow: 0 0 0 3px oklch(0.63 0.16 258 / 0.14);
       outline: none;
       transform: translateY(-1px);
+    }
+
+    .category-image-cell {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .image-source {
+      color: var(--weak);
+      font-size: 11px;
+      line-height: 1;
+      white-space: nowrap;
     }
 
     .thumb.shoes {
@@ -1720,14 +1734,14 @@
   <header class="topbar">
     <div class="brand">
       <span class="mark" aria-hidden="true"></span>
-      <span>业务工作台 <small>• UT⌄</small></span>
+      <span>运营工作台 <small>• Demo⌄</small></span>
     </div>
     <nav class="topnav" aria-label="顶部业务导航">
       <span>数据分析</span>
       <span>智能触达</span>
       <span>端内投放</span>
       <span>端外投放</span>
-      <span class="active">车主服务</span>
+      <span class="active">商城业务</span>
       <span>POI服务</span>
       <span>营销增长</span>
       <span>常用工具</span>
@@ -1761,7 +1775,7 @@
         <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>优惠活动标签管理</div>
       </div>
       <div class="side-section">
-        <div class="side-title">严选车品</div>
+        <div class="side-title">商品中心</div>
         <div class="side-item"><span class="hamb"><i></i><i></i><i></i></span>商品管理</div>
         <div class="side-item sub">商品管理</div>
         <div class="side-item sub">商品组管理</div>
@@ -1777,7 +1791,7 @@
       <div class="page-head">
         <div>
           <div class="page-title" id="pageTitle">后台类目管理</div>
-          <div class="crumb" id="breadcrumb">车主服务 / 严选车品 / 商品管理 / 后台类目管理</div>
+          <div class="crumb" id="breadcrumb">商城业务 / 商品中心 / 商品管理 / 后台类目管理</div>
         </div>
       </div>
 
@@ -2982,8 +2996,8 @@
                 <label>操作人</label>
                 <select class="select" id="logOperatorFilter">
                   <option>全部</option>
-                  <option>王运营</option>
-                  <option>李商品</option>
+                  <option>运营甲</option>
+                  <option>商品乙</option>
                   <option>当前用户</option>
                 </select>
               </div>
@@ -3142,7 +3156,7 @@
           </select>
         </div>
         <div class="batch-field hidden tips" style="grid-column: 1 / -1;">
-          批量新增仅支持当前父级下的同级类目。展示二级类目批量新增后可先保存为禁用，再逐个补充图片并启用展示。
+          批量新增仅支持当前父级下的同级类目。状态默认启用；如需暂不展示，可主动选择禁用。展示二级类目图片允许后续逐个补充，未上传图片不拦截启用。
         </div>
         <div class="image-field" id="imageField">
           <span class="upload" id="uploadBox">+</span>
@@ -3293,7 +3307,7 @@
               <span class="success" id="productImportSuccess">可导入 0 条</span>
               <span class="failed" id="productImportFailed">失败 0 条</span>
             </div>
-            <span class="tips">仅商品权值可修改，全部校验通过后整批生效</span>
+            <span class="tips">仅商品排序值可修改，数值越小越靠前；全部校验通过后整批生效</span>
           </div>
           <div class="product-import-preview">
             <table>
@@ -3301,8 +3315,8 @@
                 <tr>
                   <th>商品 ID</th>
                   <th>商品名称</th>
-                  <th>原权值</th>
-                  <th>新权值</th>
+                  <th>原排序值</th>
+                  <th>新排序值</th>
                   <th>校验结果</th>
                 </tr>
               </thead>
@@ -3331,7 +3345,7 @@
                 <th>后台类目路径</th>
                 <th>商户</th>
                 <th>售卖价格</th>
-                <th>商品权值</th>
+                <th>商品排序值</th>
               </tr>
             </thead>
             <tbody id="productSortRows"></tbody>
@@ -3478,7 +3492,7 @@
       {
         time: "2026-07-09 09:42",
         type: "编辑",
-        operator: "王运营",
+        operator: "运营甲",
         object: "手机数码与电器（BC20001）",
         detail: "排序值由 2 调整为 1",
         result: "成功"
@@ -3486,7 +3500,7 @@
       {
         time: "2026-07-09 09:40",
         type: "导出",
-        operator: "王运营",
+        operator: "运营甲",
         object: "后台类目",
         detail: "按当前筛选条件导出启用状态的后台类目",
         result: "成功"
@@ -3494,7 +3508,7 @@
       {
         time: "2026-07-09 09:35",
         type: "新增",
-        operator: "李商品",
+        operator: "商品乙",
         object: "手机_OV（BC20011）",
         detail: "在手机数码与电器下新增二级类目",
         result: "成功"
@@ -3502,7 +3516,7 @@
       {
         time: "2026-07-09 09:32",
         type: "新增",
-        operator: "李商品",
+        operator: "商品乙",
         object: "手机（BC20101）",
         detail: "在手机_OV下新增三级类目，状态为启用",
         result: "成功"
@@ -3510,7 +3524,7 @@
       {
         time: "2026-07-09 09:18",
         type: "编辑",
-        operator: "王运营",
+        operator: "运营甲",
         object: "蓝牙耳机（BC20102）",
         detail: "类目名称由无线耳机修改为蓝牙耳机",
         result: "成功"
@@ -3518,7 +3532,7 @@
       {
         time: "2026-07-08 17:12",
         type: "启用",
-        operator: "李商品",
+        operator: "商品乙",
         object: "服饰配饰（BC20002）",
         detail: "状态由禁用变更为启用",
         result: "成功"
@@ -3526,7 +3540,7 @@
       {
         time: "2026-07-08 16:44",
         type: "禁用",
-        operator: "王运营",
+        operator: "运营甲",
         object: "鞋靴（BC20021）",
         detail: "状态由启用变更为禁用",
         result: "成功"
@@ -3534,7 +3548,7 @@
       {
         time: "2026-07-08 16:10",
         type: "删除",
-        operator: "王运营",
+        operator: "运营甲",
         object: "过期配件（BC20991）",
         detail: "删除无子类目且无关联商品的三级类目",
         result: "成功"
@@ -3542,7 +3556,7 @@
       {
         time: "2026-07-08 15:20",
         type: "排序",
-        operator: "李商品",
+        operator: "商品乙",
         object: "一级类目",
         detail: "批量调整后台一级类目排序",
         result: "成功"
@@ -3550,7 +3564,7 @@
       {
         time: "2026-07-08 14:56",
         type: "排序",
-        operator: "王运营",
+        operator: "运营甲",
         object: "手机数码与电器下的二级类目",
         detail: "将手机_OV排序调整到该父级下第 1 位",
         result: "成功"
@@ -3558,7 +3572,7 @@
       {
         time: "2026-07-08 14:22",
         type: "编辑",
-        operator: "李商品",
+        operator: "商品乙",
         object: "车载充电器（BC20121）",
         detail: "排序值由 4 调整为 3，状态保持启用",
         result: "成功"
@@ -3566,7 +3580,7 @@
       {
         time: "2026-07-08 13:48",
         type: "新增",
-        operator: "王运营",
+        operator: "运营甲",
         object: "车载清洁（BC20031）",
         detail: "在一级类目下新增二级类目，状态为禁用",
         result: "成功"
@@ -3574,7 +3588,7 @@
       {
         time: "2026-07-08 11:05",
         type: "导出",
-        operator: "李商品",
+        operator: "商品乙",
         object: "后台类目",
         detail: "按类目层级为三级的筛选条件导出后台类目",
         result: "成功"
@@ -3583,7 +3597,7 @@
         module: "front",
         time: "2026-07-09 11:20",
         type: "编辑",
-        operator: "王运营",
+        operator: "运营甲",
         object: "数码（FC10001）",
         detail: "调整展示一级类目映射后台类目、展示地区和排序值",
         result: "成功"
@@ -3592,7 +3606,7 @@
         module: "front",
         time: "2026-07-09 11:18",
         type: "新增",
-        operator: "李商品",
+        operator: "商品乙",
         object: "OPPO（FC10011）",
         detail: "在数码下新增二级展示类目，并配置类目图片",
         result: "成功"
@@ -3601,7 +3615,7 @@
         module: "front",
         time: "2026-07-09 10:38",
         type: "排序",
-        operator: "王运营",
+        operator: "运营甲",
         object: "数码下的二级类目",
         detail: "批量调整展示二级图片入口顺序",
         result: "成功"
@@ -3610,7 +3624,7 @@
         module: "front",
         time: "2026-07-08 18:06",
         type: "禁用",
-        operator: "李商品",
+        operator: "商品乙",
         object: "上装（FC10022）",
         detail: "状态由启用变更为禁用，C 端不再展示该二级入口",
         result: "成功"
@@ -3619,7 +3633,7 @@
         module: "front",
         time: "2026-07-08 17:40",
         type: "导出",
-        operator: "王运营",
+        operator: "运营甲",
         object: "展示类目",
         detail: "按当前筛选条件导出启用状态的展示类目，包含展示地区",
         result: "成功"
@@ -4060,6 +4074,10 @@
       }
     ];
 
+    productCatalog.forEach(item => {
+      item.imageSrc ||= productImageSrc(item);
+    });
+
     function switchMode(next) {
       mode = next;
       categoryPage.classList.remove("hidden");
@@ -4070,7 +4088,7 @@
       frontOnly.forEach(el => el.classList.toggle("hidden", next !== "front"));
       backOnly.forEach(el => el.classList.toggle("hidden", next !== "back"));
       pageTitle.textContent = next === "front" ? "展示类目管理" : "后台类目管理";
-      breadcrumb.textContent = `车主服务 / 严选车品 / 商品管理 / ${pageTitle.textContent}`;
+      breadcrumb.textContent = `商城业务 / 商品中心 / 商品管理 / ${pageTitle.textContent}`;
       resultTitle.textContent = next === "front" ? "展示类目列表" : "后台类目列表";
       syncLevelFilterOptions();
       document.querySelector("#openCreate").textContent = "新增一级类目";
@@ -4107,7 +4125,7 @@
       pageTitle.textContent = `${moduleName}操作日志`;
       logTitle.textContent = `${moduleName}操作日志`;
       document.querySelector("#backToCategory").textContent = `返回${moduleName}管理`;
-      breadcrumb.textContent = `车主服务 / 严选车品 / 商品管理 / ${moduleName}管理 / 操作日志`;
+      breadcrumb.textContent = `商城业务 / 商品中心 / 商品管理 / ${moduleName}管理 / 操作日志`;
       syncLogTypeOptions();
       renderOperationLogs(1);
     }
@@ -4365,9 +4383,6 @@
       createTypeSwitch.classList.toggle("hidden", formType !== "create");
       singleFields.forEach(el => el.classList.toggle("hidden", isBatch));
       batchFields.forEach(el => el.classList.toggle("hidden", !isBatch));
-      if (mode === "front" && modalLevel.value === "二级" && formType === "create") {
-        statusSelect.value = isBatch ? "禁用" : "启用";
-      }
       createTypeSwitch.querySelectorAll("button").forEach(button => {
         button.classList.toggle("active", button.dataset.createType === createType);
       });
@@ -4825,10 +4840,44 @@
       return names.filter(name => existingNames.has(name));
     }
 
-    function imageHtmlFor(name, src = "") {
-      return src
-        ? `<img class="thumb zoomable-image" src="${escapeHtml(src)}" alt="${escapeHtml(name)}类目图片" title="点击查看大图" role="button" tabindex="0" data-preview-src="${escapeHtml(src)}" data-preview-title="${escapeHtml(name)}类目图片">`
+    function imageHtmlFor(name, src = "", source = "configured", product = null) {
+      if (!src) return "-";
+      const sourceLabel = source === "configured" ? "配置图" : "商品图兜底";
+      const sourceDetail = product ? `，来源商品：${product.name}（${product.id}）` : "";
+      const previewTitle = `${name}类目图片（${sourceLabel}${sourceDetail}）`;
+      return `<span class="category-image-cell"><img class="thumb zoomable-image" src="${escapeHtml(src)}" alt="${escapeHtml(name)}类目图片" title="${escapeHtml(previewTitle)}，点击查看大图" role="button" tabindex="0" data-preview-src="${escapeHtml(src)}" data-preview-title="${escapeHtml(previewTitle)}"><span class="image-source">${sourceLabel}</span></span>`;
+    }
+
+    function productImageSrc(item) {
+      const hue = (Array.from(item.id).reduce((sum, char) => sum + char.charCodeAt(0), 0) * 29) % 360;
+      const shortName = item.name.slice(0, 6);
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" viewBox="0 0 240 240"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="hsl(${hue} 72% 92%)"/><stop offset="1" stop-color="hsl(${(hue + 34) % 360} 58% 78%)"/></linearGradient></defs><rect width="240" height="240" rx="24" fill="url(#g)"/><circle cx="120" cy="92" r="48" fill="rgba(255,255,255,.72)"/><path d="M84 98h72l-9 42H93z" fill="hsl(${hue} 42% 42%)" opacity=".82"/><circle cx="105" cy="145" r="8" fill="hsl(${hue} 42% 32%)"/><circle cx="139" cy="145" r="8" fill="hsl(${hue} 42% 32%)"/><text x="120" y="194" text-anchor="middle" font-family="Arial,Microsoft YaHei,sans-serif" font-size="19" font-weight="700" fill="hsl(${hue} 38% 25%)">${escapeHtml(shortName)}</text></svg>`;
+      return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    }
+
+    function effectiveCategoryImage(row) {
+      if (rowMode(row) !== "front" || Number(row.dataset.level) !== 2) return null;
+      if (row.dataset.imageSrc) {
+        return { src: row.dataset.imageSrc, source: "configured", product: null };
+      }
+      const product = sortedProductItems(productSortPool(row), row)[0];
+      return product?.imageSrc ? { src: product.imageSrc, source: "product", product } : null;
+    }
+
+    function renderCategoryImage(row) {
+      if (rowMode(row) !== "front") return;
+      const cell = row.children[col("image", "front")];
+      if (!cell) return;
+      cell.innerHTML = row.dataset.imageSrc
+        ? imageHtmlFor(rowText(row), row.dataset.imageSrc, "configured")
         : "-";
+    }
+
+    function syncEffectiveCategoryImageState(row) {
+      if (rowMode(row) !== "front" || Number(row.dataset.level) !== 2) return;
+      const effectiveImage = effectiveCategoryImage(row);
+      row.dataset.effectiveImageSource = effectiveImage?.source || "none";
+      row.dataset.effectiveImageProductId = effectiveImage?.product?.id || "";
     }
 
     function openImagePreview(src, title = "图片预览") {
@@ -4873,11 +4922,13 @@
     function refreshDisplayStates(table = activeTable()) {
       tableRows(table).forEach(row => {
         row.children[col("display", rowMode(row))].innerHTML = displayStateHtml(row);
+        syncEffectiveCategoryImageState(row);
+        renderCategoryImage(row);
       });
     }
 
     function rowHasImage(row) {
-      return Boolean(row.dataset.imageSrc && row.querySelector("img.zoomable-image"));
+      return Boolean(row.dataset.imageSrc);
     }
 
     function frontRowsMappedToBackend(backendRow) {
@@ -5101,11 +5152,10 @@
       if (modeForRow === "front" && level === "二级") {
         if (uploadBox.classList.contains("has-image")) {
           row.dataset.imageSrc = imageObjectUrl || row.dataset.imageSrc || "";
-          row.children[col("image", "front")].innerHTML = imageHtmlFor(newName, row.dataset.imageSrc);
         } else {
           delete row.dataset.imageSrc;
-          row.children[col("image", "front")].innerHTML = "-";
         }
+        renderCategoryImage(row);
       }
       sortActiveCategoryTree();
       if (modeForRow === "back") {
@@ -5682,16 +5732,16 @@
       return productCatalog.filter(item => item.effective && productBackendCategoryAvailable(item) && productMatchesBackend(item, backendMapIds, backendMaps));
     }
 
-    function productSortWeight(item) {
-      const scopeKey = rowKey(productSortContext.row);
+    function productSortWeight(item, row = productSortContext.row) {
+      const scopeKey = row ? rowKey(row) : "";
       const scopedWeight = item.weights?.[scopeKey];
       if (Number.isInteger(scopedWeight)) return scopedWeight;
       return Number.isInteger(item.weight) ? item.weight : 100;
     }
 
-    function sortedProductItems(items) {
+    function sortedProductItems(items, row = productSortContext.row) {
       return [...items].sort((a, b) => {
-        if (productSortWeight(a) !== productSortWeight(b)) return productSortWeight(b) - productSortWeight(a);
+        if (productSortWeight(a, row) !== productSortWeight(b, row)) return productSortWeight(a, row) - productSortWeight(b, row);
         return a.defaultRank - b.defaultRank;
       });
     }
@@ -5739,7 +5789,7 @@
         const rawValue = input.value.trim();
         if (!/^\d{1,4}$/.test(rawValue)) {
           input.focus();
-          showToast("商品权值必填，需为 0-9999 的整数");
+          showToast("商品排序值必填，需为 0-9999 的整数");
           return false;
         }
         const weight = Number(rawValue);
@@ -5751,8 +5801,9 @@
         item.weights[rowKey(productSortContext.row)] = weight;
       });
       const row = productSortContext.row;
+      syncEffectiveCategoryImageState(row);
       appendOperationLog("排序", rowLogObject(row), `配置展示类目商品排序，变更商品 ${changedCount} 个`);
-      showToast("商品排序已保存，C 端下一次请求按最新权值生效");
+      showToast("商品排序已保存，C 端下一次请求按最新排序值生效");
       return true;
     }
 
@@ -5790,7 +5841,7 @@
           <td>${productSortWeight(item)}</td>
         </tr>
       `).join("");
-      const content = `<!doctype html><html><head><meta charset="utf-8"></head><body><table><thead><tr><th>商品 ID</th><th>商品名称</th><th>后台类目路径</th><th>商户 ID</th><th>商户名称</th><th>售卖价格</th><th>商品权值</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
+      const content = `<!doctype html><html><head><meta charset="utf-8"></head><body><table><thead><tr><th>商品 ID</th><th>商品名称</th><th>后台类目路径</th><th>商户 ID</th><th>商户名称</th><th>售卖价格</th><th>商品排序值</th></tr></thead><tbody>${rows}</tbody></table></body></html>`;
       const blob = new Blob([content], { type: "application/vnd.ms-excel;charset=utf-8" });
       const link = document.createElement("a");
       const safeName = categoryPath.replace(/[\\/:*?"<>|\s]+/g, "_");
@@ -5847,8 +5898,8 @@
       const headers = matrix[0].map(value => value.replace(/\s+/g, ""));
       const idIndex = headers.indexOf("商品ID");
       const nameIndex = headers.indexOf("商品名称");
-      const weightIndex = headers.indexOf("商品权值");
-      if (idIndex < 0 || weightIndex < 0) return [{ id: "-", name: "-", oldWeight: "-", newWeight: "-", error: "缺少商品 ID 或商品权值列" }];
+      const weightIndex = headers.indexOf("商品排序值");
+      if (idIndex < 0 || weightIndex < 0) return [{ id: "-", name: "-", oldWeight: "-", newWeight: "-", error: "缺少商品 ID 或商品排序值列" }];
       const pool = new Map(productSortExportRows().map(item => [item.id, item]));
       const seen = new Set();
       return matrix.slice(1).filter(row => row.some(value => String(value).trim())).map(row => {
@@ -5859,7 +5910,7 @@
         if (!id) error = "商品 ID 不能为空";
         else if (seen.has(id)) error = "商品 ID 重复";
         else if (!item) error = "商品不存在或不属于当前类目";
-        else if (!/^\d{1,4}$/.test(rawWeight)) error = "权值需为 0-9999 的整数且不可为空";
+        else if (!/^\d{1,4}$/.test(rawWeight)) error = "商品排序值需为 0-9999 的整数且不可为空";
         seen.add(id);
         return {
           id: id || "-",
@@ -5917,10 +5968,11 @@
         change.item.weights ||= {};
         change.item.weights[rowKey(productSortContext.row)] = change.weight;
       });
+      syncEffectiveCategoryImageState(productSortContext.row);
       appendOperationLog("导入", rowLogObject(productSortContext.row), `导入商品排序 Excel，更新商品 ${changedCount} 个`);
       renderProductSortRows();
       resetProductSortImport();
-      showToast(`导入成功，已更新 ${changedCount} 个商品权值`);
+      showToast(`导入成功，已更新 ${changedCount} 个商品排序值`);
     }
 
     function renderSortRows() {
@@ -6220,6 +6272,10 @@
     ensureProductSortActions();
     refreshFrontendBackendMappings();
     refreshProductBackendPaths();
+    const oppoCategoryRow = tableRows(frontTable).find(row => rowKey(row) === "FC10011");
+    if (oppoCategoryRow && !oppoCategoryRow.dataset.imageSrc) {
+      oppoCategoryRow.dataset.imageSrc = productImageSrc({ id: "FC10011", name: "OPPO 类目头图" });
+    }
     publishBackendCategorySnapshot();
     refreshDisplayStates(frontTable);
     refreshDisplayStates(backTable);
