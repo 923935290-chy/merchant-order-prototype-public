@@ -3160,7 +3160,7 @@
             <option>禁用</option>
           </select>
         </div>
-        <div class="batch-field hidden tips" style="grid-column: 1 / -1;">
+        <div class="batch-field hidden tips" id="batchCreateTip" style="grid-column: 1 / -1;">
           批量新增仅支持当前父级下的同级类目。状态默认启用；如需暂不展示，可主动选择禁用。展示二级类目图片允许后续逐个补充，未上传图片不拦截启用。
         </div>
         <div class="image-field" id="imageField">
@@ -3411,6 +3411,7 @@
     const createTypeSwitch = document.querySelector("#createTypeSwitch");
     const singleFields = Array.from(document.querySelectorAll(".single-field"));
     const batchFields = Array.from(document.querySelectorAll(".batch-field"));
+    const batchCreateTip = document.querySelector("#batchCreateTip");
     const parentSelect = document.querySelector("#parentSelect");
     const backendMapField = document.querySelector("#backendMapField");
     const backendMapOptions = document.querySelector("#backendMapOptions");
@@ -4388,6 +4389,7 @@
       createTypeSwitch.classList.toggle("hidden", formType !== "create");
       singleFields.forEach(el => el.classList.toggle("hidden", isBatch));
       batchFields.forEach(el => el.classList.toggle("hidden", !isBatch));
+      batchCreateTip.classList.toggle("hidden", !isBatch || mode === "back");
       createTypeSwitch.querySelectorAll("button").forEach(button => {
         button.classList.toggle("active", button.dataset.createType === createType);
       });
