@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>车服运营台 - 门店管理原型</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 32 32%22><rect width=%2232%22 height=%2232%22 rx=%228%22 fill=%22%233f7df2%22/><path d=%22M9 10h14v12H9z%22 fill=%22white%22/></svg>">
   <style>
     :root {
       --bg: #f2f4f8;
@@ -36,7 +37,6 @@
 
     .topbar {
       height: 76px;
-      min-width: 1440px;
       background: #fffffe;
       border-bottom: 1px solid #edf0f5;
       box-shadow: 0 2px 10px rgba(38, 45, 62, .05);
@@ -49,7 +49,8 @@
     .top-left {
       display: flex;
       align-items: center;
-      gap: 62px;
+      gap: 28px;
+      min-width: 0;
       height: 100%;
     }
 
@@ -57,7 +58,7 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       color: #343949;
       white-space: nowrap;
@@ -83,7 +84,7 @@
     .top-tabs {
       display: flex;
       align-items: stretch;
-      gap: 34px;
+      gap: 22px;
       height: 100%;
     }
 
@@ -115,6 +116,7 @@
       display: flex;
       align-items: center;
       gap: 14px;
+      flex: 0 0 auto;
     }
 
     .search {
@@ -141,6 +143,8 @@
       justify-content: center;
       font-size: 14px;
       font-weight: 800;
+      border: 0;
+      cursor: pointer;
     }
 
     .avatar {
@@ -153,9 +157,8 @@
     }
 
     .shell {
-      min-width: 1440px;
       display: grid;
-      grid-template-columns: 250px minmax(1100px, 1fr);
+      grid-template-columns: 220px minmax(0, 1fr);
       min-height: calc(100vh - 76px);
     }
 
@@ -179,7 +182,7 @@
       padding: 0 28px;
       gap: 12px;
       color: #333a48;
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 700;
       cursor: default;
     }
@@ -204,7 +207,7 @@
     .content {
       padding: 0 26px 34px;
       background: var(--bg);
-      overflow: hidden;
+      min-width: 0;
     }
 
     .subtabs {
@@ -221,7 +224,12 @@
       display: flex;
       align-items: center;
       position: relative;
-      cursor: default;
+      cursor: pointer;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      font: inherit;
+      padding: 0;
     }
 
     .subtab.active {
@@ -273,13 +281,20 @@
     }
 
     .filter-grid {
-      display: grid;
-      grid-template-columns: repeat(5, minmax(180px, 1fr));
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
       gap: 20px 16px;
       padding: 12px 26px 0;
     }
 
+    .filter-item { min-width: 0; }
+    .filter-item.id-field { width: 180px; }
+    .filter-item.name-field { width: min(260px, calc(50vw - 160px)); }
+    .filter-item.status-field { width: 160px; }
+
     .field-label {
+      display: block;
       color: #6f7890;
       font-weight: 600;
       margin-bottom: 8px;
@@ -296,6 +311,22 @@
       padding: 0 14px;
       color: #323846;
       min-width: 0;
+      width: 100%;
+      font: inherit;
+      outline: 0;
+    }
+
+    .input:focus-visible,
+    .btn:focus-visible,
+    .subtab:focus-visible,
+    .link-btn:focus-visible,
+    .page-chip:focus-visible,
+    .checkbox:focus-visible,
+    .top-icon:focus-visible,
+    .close:focus-visible {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(63, 125, 242, .18);
+      outline: 0;
     }
 
     .placeholder { color: #b1b8c5; }
@@ -365,35 +396,6 @@
       font-weight: 700;
     }
 
-    .selection-panel {
-      display: none;
-      margin: 0 26px 12px;
-      padding: 12px 14px;
-      border: 1px solid #d9e5ff;
-      background: #f7faff;
-      border-radius: 5px;
-      align-items: center;
-      justify-content: space-between;
-      gap: 18px;
-    }
-
-    .selection-panel.show { display: flex; }
-
-    .selection-title {
-      color: #252b38;
-      font-weight: 800;
-      margin-right: 8px;
-      white-space: nowrap;
-    }
-
-    .selection-list {
-      flex: 1;
-      color: #4e5668;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
     .link-btn {
       border: 0;
       background: transparent;
@@ -410,6 +412,17 @@
       border-collapse: separate;
       border-spacing: 0 4px;
       table-layout: fixed;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 0 26px;
+    }
+
+    .table-wrap table {
+      width: 100%;
+      min-width: 980px;
+      margin: 0;
     }
 
     thead th {
@@ -468,6 +481,13 @@
       position: relative;
       cursor: pointer;
       vertical-align: middle;
+      padding: 0;
+    }
+
+    .checkbox:disabled {
+      cursor: not-allowed;
+      background: #f0f2f6;
+      border-color: #dfe3ea;
     }
 
     .checkbox.checked {
@@ -516,17 +536,25 @@
     .ops {
       display: flex;
       justify-content: center;
-      gap: 18px;
+      gap: 10px;
       flex-wrap: wrap;
       line-height: 1.45;
     }
 
-    .ops a {
+    .ops a,
+    .ops button {
       color: #0874ff;
       text-decoration: none;
       font-weight: 800;
       cursor: pointer;
+      border: 0;
+      background: transparent;
+      padding: 4px 0;
+      font: inherit;
+      font-size: 13px;
     }
+
+    .ops button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
     .pagination {
       height: 52px;
@@ -548,7 +576,11 @@
       border-radius: 4px;
       background: #fffffe;
       color: #667084;
+      cursor: pointer;
+      padding: 0;
     }
+
+    .page-chip:disabled { cursor: not-allowed; color: #b1b7c2; background: #f4f5f7; }
 
     .page-chip.active {
       color: #2e73f6;
@@ -558,6 +590,7 @@
     .detail-card,
     .form-card {
       padding: 26px;
+      min-height: 320px;
     }
 
     .detail-grid {
@@ -670,6 +703,7 @@
     }
 
     .merchant-option {
+      width: 100%;
       min-height: 42px;
       padding: 9px 12px;
       display: flex;
@@ -678,6 +712,10 @@
       gap: 12px;
       cursor: pointer;
       color: #323846;
+      border: 0;
+      background: #fffffe;
+      font: inherit;
+      text-align: left;
     }
 
     .merchant-option:hover {
@@ -759,6 +797,7 @@
       color: #7a8394;
       font-size: 13px;
       margin-top: 8px;
+      line-height: 1.65;
     }
 
     .mask {
@@ -807,6 +846,8 @@
 
     .modal-body {
       padding: 24px 28px 8px;
+      max-height: min(62vh, 560px);
+      overflow-y: auto;
     }
 
     .confirm-text {
@@ -945,6 +986,62 @@
       opacity: 1;
       transform: translateX(-50%) translateY(4px);
     }
+
+    .empty-state {
+      padding: 54px 20px;
+      color: #8a93a3;
+      text-align: center;
+    }
+
+    .result-target {
+      color: #526072;
+      font-size: 14px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+
+    .impact-note {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border-radius: 5px;
+      background: #fff8e8;
+      color: #795d1b;
+      line-height: 1.6;
+    }
+
+    .page-size-select {
+      width: 92px;
+      height: 30px;
+      border: 1px solid #d8deea;
+      border-radius: 4px;
+      background: #fff;
+      color: #667084;
+      padding: 0 8px;
+    }
+
+    @media (max-width: 1360px) {
+      .topbar { padding: 0 18px; }
+      .top-left { gap: 20px; }
+      .top-tabs { gap: 16px; }
+      .top-tab { font-size: 13px; }
+      .top-user { gap: 8px; }
+      .search { min-width: 72px; }
+      .shell { grid-template-columns: 196px minmax(0, 1fr); }
+      .side-item { padding: 0 20px; }
+      .group-title { padding: 0 20px; }
+      .content { padding: 0 18px 28px; }
+      .filter-item.id-field { width: 160px; }
+      .filter-item.name-field { width: 220px; }
+      .filter-item.status-field { width: 140px; }
+      .filter-grid, .filter-actions { padding-left: 20px; padding-right: 20px; }
+      .toolbar { padding-left: 20px; padding-right: 20px; }
+      .table-wrap { margin-left: 20px; margin-right: 20px; }
+      .pagination { padding-left: 20px; padding-right: 20px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
+    }
   </style>
 </head>
 <body>
@@ -965,10 +1062,10 @@
     </div>
     <div class="top-user">
       <div class="search">⌕ 搜索</div>
-      <div class="top-icon">◆</div>
-      <div class="top-icon">?</div>
-      <div class="top-icon">✉</div>
-      <div class="avatar"></div>
+      <button class="top-icon" type="button" aria-label="快捷入口">◆</button>
+      <button class="top-icon" type="button" aria-label="帮助中心">?</button>
+      <button class="top-icon" type="button" aria-label="消息中心">✉</button>
+      <div class="avatar" role="img" aria-label="当前用户头像"></div>
     </div>
   </header>
 
@@ -995,40 +1092,44 @@
     </aside>
 
     <section class="content">
-      <div class="subtabs">
-        <div class="subtab active" data-tab="stores" data-page="stores">全部门店</div>
-        <div class="subtab" data-tab="logs" data-page="logs">操作日志</div>
+      <div class="subtabs" role="tablist" aria-label="门店管理页面">
+        <button class="subtab active" type="button" role="tab" aria-selected="true" data-tab="stores" data-page="stores">全部门店</button>
+        <button class="subtab" type="button" role="tab" aria-selected="false" data-tab="logs" data-page="logs">操作日志</button>
       </div>
 
       <section class="page active" id="stores">
         <div class="card filters">
           <div class="section-title">门店管理</div>
-          <div class="filter-grid">
-            <div>
-              <div class="field-label">商户id</div>
-              <div class="input placeholder">请输入</div>
-            </div>
-            <div>
-              <div class="field-label">商户名称</div>
-              <div class="input placeholder">请输入</div>
-            </div>
-            <div>
-              <div class="field-label">门店id</div>
-              <div class="input placeholder">请输入</div>
-            </div>
-            <div>
-              <div class="field-label">门店名称</div>
-              <div class="input placeholder">请输入</div>
-            </div>
-            <div>
-              <div class="field-label">状态</div>
-              <div class="input placeholder">请选择⌄</div>
-            </div>
+          <div class="filter-grid" aria-label="门店筛选条件">
+            <label class="filter-item id-field">
+              <span class="field-label">商户 ID</span>
+              <input class="input" id="merchantIdFilter" inputmode="numeric" placeholder="请输入商户 ID">
+            </label>
+            <label class="filter-item name-field">
+              <span class="field-label">商户名称</span>
+              <input class="input" id="merchantNameFilter" placeholder="请输入商户名称">
+            </label>
+            <label class="filter-item id-field">
+              <span class="field-label">门店 ID</span>
+              <input class="input" id="storeIdFilter" inputmode="numeric" placeholder="请输入门店 ID">
+            </label>
+            <label class="filter-item name-field">
+              <span class="field-label">门店名称</span>
+              <input class="input" id="storeNameFilter" placeholder="请输入门店名称">
+            </label>
+            <label class="filter-item status-field">
+              <span class="field-label">状态</span>
+              <select class="input" id="statusFilter">
+                <option value="">全部状态</option>
+                <option value="启用">启用</option>
+                <option value="停用">停用</option>
+                <option value="审核中">审核中</option>
+              </select>
+            </label>
           </div>
           <div class="filter-actions">
-            <button class="btn btn-primary">⌕ 搜索</button>
-            <button class="btn">⟳ 重置</button>
-            <button class="btn" id="openLogsTop">操作日志</button>
+            <button class="btn btn-primary" id="searchStores" type="button">搜索</button>
+            <button class="btn" id="resetStores" type="button">重置</button>
           </div>
         </div>
 
@@ -1037,78 +1138,28 @@
             <div class="section-title">筛选结果</div>
             <div class="toolbar-actions">
               <span class="selection-count" id="selectionCount">已选 0 个门店</span>
+              <button class="link-btn" id="clearSelection" type="button" hidden>清空</button>
               <button class="btn btn-primary btn-disabled" id="batchChange" disabled>批量更换商户</button>
             </div>
           </div>
-          <div class="selection-panel" id="selectionPanel">
-            <span class="selection-title">已选门店</span>
-            <span class="selection-list" id="selectionList">暂无选中门店</span>
-            <button class="link-btn" id="clearSelection">清空选择</button>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width:56px;"><button class="checkbox" id="selectAll" type="button" aria-label="全选当前页可操作门店"></button></th>
+                  <th style="width:100px;">门店 ID</th>
+                  <th style="width:160px;">门店名称</th>
+                  <th style="width:96px;">城市</th>
+                  <th style="width:140px;">电话</th>
+                  <th style="width:220px;">归属商户</th>
+                  <th style="width:90px;">状态</th>
+                  <th style="width:160px;">操作</th>
+                </tr>
+              </thead>
+              <tbody id="storeTableBody"></tbody>
+            </table>
           </div>
-          <table>
-            <thead>
-              <tr>
-                <th style="width:72px;"><span class="checkbox" id="selectAll" title="全选"></span></th>
-                <th style="width:130px;">门店id</th>
-                <th>门店名称</th>
-                <th style="width:130px;">城市</th>
-                <th style="width:160px;">电话</th>
-                <th style="width:210px;">归属商户</th>
-                <th style="width:120px;">状态</th>
-                <th style="width:190px;">操作</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr data-store-id="27522" data-store-name="星程车检中心" data-merchant="90036｜澄安汽车服务中心" data-status="启用">
-                <td><span class="checkbox row-check" data-store-id="27522"></span></td>
-                <td>27522</td>
-                <td>星程车检中心</td>
-                <td>示例市</td>
-                <td>138****2301</td>
-                <td>90036｜澄安汽车服务中心</td>
-                <td><span class="status status-on">启用</span></td>
-                <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27522">更换商户</a></div></td>
-              </tr>
-              <tr data-store-id="27520" data-store-name="云桥检测站" data-merchant="90036｜澄安汽车服务中心" data-latest-merchant="90102｜衡安检测服务商" data-status="启用">
-                <td><span class="checkbox row-check" data-store-id="27520"></span></td>
-                <td>27520</td>
-                <td>云桥检测站</td>
-                <td>示例市</td>
-                <td>138****4516</td>
-                <td>90036｜澄安汽车服务中心</td>
-                <td><span class="status status-on">启用</span></td>
-                <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27520">更换商户</a></div></td>
-              </tr>
-              <tr data-store-id="27506" data-store-name="衡安车检广场" data-merchant="90102｜衡安检测服务商" data-status="启用" data-latest-status="停用">
-                <td><span class="checkbox row-check" data-store-id="27506"></span></td>
-                <td>27506</td>
-                <td>衡安车检广场</td>
-                <td>示例市</td>
-                <td>138****7812</td>
-                <td>90102｜衡安检测服务商</td>
-                <td><span class="status status-on">启用</span></td>
-                <td><div class="ops"><a data-page="detail">查看详情</a><a data-change-single="27506">更换商户</a></div></td>
-              </tr>
-              <tr data-store-id="27518" data-store-name="启明检测服务站" data-merchant="90216｜云程车检合作商" data-status="审核中">
-                <td><span class="checkbox row-check" data-store-id="27518"></span></td>
-                <td>27518</td>
-                <td>启明检测服务站</td>
-                <td>示例市</td>
-                <td>138****6729</td>
-                <td>90216｜云程车检合作商</td>
-                <td><span class="status status-pending">审核中</span></td>
-                <td><div class="ops"><a data-page="detail">查看详情</a></div></td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="pagination">
-            <span>共 126 条</span>
-            <span>每页 10 条</span>
-            <span class="page-chip active">1</span>
-            <span class="page-chip">2</span>
-            <span class="page-chip">3</span>
-            <span>...</span>
-            <span class="page-chip">13</span>
+          <div class="pagination" id="storePagination"></div>
           </div>
         </div>
       </section>
@@ -1117,59 +1168,38 @@
         <div class="card filters">
           <div class="section-title">门店管理-操作日志</div>
           <div class="filter-grid">
-            <div><div class="field-label">门店id</div><div class="input placeholder">请输入</div></div>
-            <div><div class="field-label">操作类型</div><div class="input">更换商户⌄</div></div>
-            <div><div class="field-label">操作人</div><div class="input placeholder">请输入</div></div>
-            <div><div class="field-label">操作时间</div><div class="input placeholder">请选择</div></div>
+            <label class="filter-item id-field"><span class="field-label">门店 ID</span><input class="input" id="logStoreIdFilter" placeholder="请输入门店 ID"></label>
+            <label class="filter-item status-field"><span class="field-label">操作类型</span><select class="input" id="logTypeFilter"><option value="">全部类型</option><option value="更换商户">更换商户</option></select></label>
+            <label class="filter-item name-field"><span class="field-label">操作人</span><input class="input" id="logOperatorFilter" placeholder="请输入操作人"></label>
+            <label class="filter-item name-field"><span class="field-label">操作日期</span><input class="input" id="logDateFilter" type="date"></label>
           </div>
           <div class="filter-actions">
-            <button class="btn btn-primary">⌕ 搜索</button>
-            <button class="btn">⟳ 重置</button>
-            <button class="btn" data-page="stores">返回</button>
+            <button class="btn btn-primary" id="searchLogs" type="button">搜索</button>
+            <button class="btn" id="resetLogs" type="button">重置</button>
           </div>
         </div>
         <div class="card result-card">
           <div class="toolbar"><div class="section-title">筛选结果</div></div>
-          <table>
+          <div class="table-wrap"><table>
             <thead>
               <tr>
-                <th style="width:160px;">门店id</th>
+                <th style="width:160px;">门店 ID</th>
                 <th style="width:160px;">操作类型</th>
                 <th>操作内容</th>
                 <th style="width:140px;">操作人</th>
                 <th style="width:190px;">操作时间</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>27522</td>
-                <td>更换商户</td>
-                <td>门店归属商户由「90036 澄安汽车服务中心」变更为「90088 星途车服运营商」</td>
-                <td>运营专员A</td>
-                <td>2026-01-09 15:42:16</td>
-              </tr>
-              <tr>
-                <td>27520</td>
-                <td>更换商户</td>
-                <td>门店归属商户由「90036 澄安汽车服务中心」变更为「90102 衡安检测服务商」</td>
-                <td>运营专员B</td>
-                <td>2026-01-09 14:18:03</td>
-              </tr>
-            </tbody>
-          </table>
+            <tbody id="logTableBody"></tbody>
+          </table></div>
+          <div class="pagination" id="logPagination"></div>
         </div>
       </section>
 
       <section class="page" id="detail">
         <div class="card detail-card">
           <div class="section-title" style="padding:0 0 22px;">门店详情</div>
-          <div class="detail-grid">
-            <div class="detail-label">门店名称</div><div class="detail-value">星程车检中心</div>
-            <div class="detail-label">状态</div><div class="detail-value"><span class="status status-on">启用</span></div>
-            <div class="detail-label">门店地址</div><div class="detail-value">示例市滨河区云桥路 88 号</div>
-            <div class="detail-label">门店联系电话</div><div class="detail-value">138****2301</div>
-            <div class="detail-label">门店子账户手机号</div><div class="detail-value">139****6208</div>
-          </div>
+          <div class="detail-grid" id="detailGrid"></div>
           <div class="form-actions"><button class="btn" data-page="stores">返回</button></div>
         </div>
       </section>
@@ -1181,20 +1211,20 @@
             <div class="form-label">待更换门店</div>
             <div>
               <div class="store-list-card" id="changeStoreList"></div>
-              <div class="form-hint">批量更换时，所选门店将统一变更为同一个新商户；提交后商品发布状态保持不变。</div>
+              <div class="form-hint">批量更换时，所选门店将统一变更为同一个新商户。更换成功后，商品和订单操作权限由新商户继承，商品发布及审核状态保持不变；历史已支付订单仍按支付成功时的快照分账。</div>
             </div>
           </div>
           <div class="form-row">
-            <div class="form-label required">新门店归属商户</div>
+            <div class="form-label required">新归属商户</div>
             <div class="merchant-combobox" id="merchantBox">
-              <button class="input merchant-trigger" id="merchantTrigger" type="button">
+              <button class="input merchant-trigger" id="merchantTrigger" type="button" aria-haspopup="listbox" aria-expanded="false">
                 <span class="placeholder" id="merchantValue">请选择或搜索商户</span>
               </button>
               <div class="merchant-menu" id="merchantMenu">
                 <input class="merchant-search" id="merchantSearch" type="text" placeholder="输入商户ID或商户名称搜索">
-                <div class="merchant-options" id="merchantOptions"></div>
+                <div class="merchant-options" id="merchantOptions" role="listbox" aria-label="商户候选项"></div>
               </div>
-              <div class="form-error" id="merchantError">请选择新门店归属商户</div>
+              <div class="form-error" id="merchantError">请选择新归属商户</div>
             </div>
           </div>
           <div class="form-actions">
@@ -1207,19 +1237,20 @@
   </main>
 
   <div class="mask" id="confirmMask">
-    <div class="modal">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
       <div class="modal-head">
-        <div class="modal-title">确认更换商户</div>
-        <button class="close" id="closeConfirm">×</button>
+        <div class="modal-title" id="confirmTitle">确认更换商户</div>
+        <button class="close" id="closeConfirm" type="button" aria-label="关闭确认弹窗">×</button>
       </div>
       <div class="modal-body">
-        <div class="confirm-text">确认要变更门店归属商户么？</div>
+        <div class="confirm-text">是否确认变更以下门店的归属商户？</div>
         <div class="confirm-summary">
           <span>门店数量</span><b id="confirmStoreCount">1 个</b>
           <span>待更换门店</span>
           <div class="confirm-store-list" id="confirmStoreList"></div>
           <span>新归属商户</span><b id="confirmMerchant">-</b>
         </div>
+        <div class="impact-note">更换后商品和订单操作权限由新商户继承；商品发布及审核状态保持不变；历史已支付订单仍按支付成功时的快照分账。</div>
       </div>
       <div class="modal-foot">
         <button class="btn" id="cancelConfirm">取消</button>
@@ -1229,10 +1260,10 @@
   </div>
 
   <div class="mask" id="resultMask">
-    <div class="modal modal-wide">
+    <div class="modal modal-wide" role="dialog" aria-modal="true" aria-labelledby="resultTitle">
       <div class="modal-head">
-        <div class="modal-title">更换商户执行结果</div>
-        <button class="close" id="closeResult">×</button>
+        <div class="modal-title" id="resultTitle">更换商户执行结果</div>
+        <button class="close" id="closeResult" type="button" aria-label="关闭结果弹窗">×</button>
       </div>
       <div class="modal-body">
         <div class="result-summary">
@@ -1251,12 +1282,13 @@
         </div>
       </div>
       <div class="modal-foot">
+        <button class="btn" id="retryFailures" type="button" hidden>重试失败项</button>
         <button class="btn btn-primary" id="finishResult">我知道了</button>
       </div>
     </div>
   </div>
 
-  <div class="toast" id="toast">更换商户成功</div>
+  <div class="toast" id="toast" role="status" aria-live="polite">更换商户成功</div>
 
   <script>
     const pages = [...document.querySelectorAll('.page')];
@@ -1265,11 +1297,8 @@
     const resultMask = document.getElementById('resultMask');
     const toast = document.getElementById('toast');
     const selectAll = document.getElementById('selectAll');
-    const rowChecks = [...document.querySelectorAll('.row-check')];
     const batchChange = document.getElementById('batchChange');
     const selectionCount = document.getElementById('selectionCount');
-    const selectionPanel = document.getElementById('selectionPanel');
-    const selectionList = document.getElementById('selectionList');
     const clearSelection = document.getElementById('clearSelection');
     const changeStoreList = document.getElementById('changeStoreList');
     const confirmStoreCount = document.getElementById('confirmStoreCount');
@@ -1279,15 +1308,18 @@
     const failureCount = document.getElementById('failureCount');
     const successList = document.getElementById('successList');
     const failureList = document.getElementById('failureList');
+    const retryFailures = document.getElementById('retryFailures');
     const merchantBox = document.getElementById('merchantBox');
     const merchantTrigger = document.getElementById('merchantTrigger');
     const merchantValue = document.getElementById('merchantValue');
     const merchantMenu = document.getElementById('merchantMenu');
     const merchantSearch = document.getElementById('merchantSearch');
     const merchantOptions = document.getElementById('merchantOptions');
-    let selectedStoreIds = [];
-    let changeStoreIds = ['27522'];
-    let selectedMerchant = null;
+    const storeTableBody = document.getElementById('storeTableBody');
+    const storePagination = document.getElementById('storePagination');
+    const logTableBody = document.getElementById('logTableBody');
+    const logPagination = document.getElementById('logPagination');
+    const detailGrid = document.getElementById('detailGrid');
 
     const merchants = [
       { id: '90088', name: '星途车服运营商' },
@@ -1295,54 +1327,189 @@
       { id: '90036', name: '澄安汽车服务中心' },
       { id: '90216', name: '云程车检合作商' },
       { id: '90309', name: '路安综合服务商' }
-    ].map(merchant => ({
-      ...merchant,
-      label: `${merchant.id}｜${merchant.name}`
+    ].map(merchant => ({ ...merchant, label: `${merchant.id}｜${merchant.name}` }));
+
+    const stores = [
+      { id: '27522', name: '星程车检中心', city: '示例市', phone: '138****2301', subPhone: '139****6208', address: '示例市滨河区云桥路 88 号', merchantId: '90036', merchantName: '澄安汽车服务中心', status: '启用' },
+      { id: '27520', name: '云桥检测站', city: '示例市', phone: '138****4516', subPhone: '139****2086', address: '示例市河东区晨光路 16 号', merchantId: '90036', merchantName: '澄安汽车服务中心', status: '启用', latestMerchant: '90102｜衡安检测服务商' },
+      { id: '27506', name: '衡安车检广场', city: '示例市', phone: '138****7812', subPhone: '139****7710', address: '示例市高新区安顺大道 102 号', merchantId: '90102', merchantName: '衡安检测服务商', status: '启用', latestStatus: '停用' },
+      { id: '27518', name: '启明检测服务站', city: '示例市', phone: '138****6729', subPhone: '139****3452', address: '示例市北城区启明路 9 号', merchantId: '90216', merchantName: '云程车检合作商', status: '审核中' },
+      { id: '27531', name: '路安机动车检测中心', city: '示例市', phone: '138****3148', subPhone: '139****8531', address: '示例市南城区通达路 31 号', merchantId: '90309', merchantName: '路安综合服务商', status: '启用' },
+      { id: '27533', name: '星河车辆检测站', city: '示例市', phone: '138****9435', subPhone: '139****2254', address: '示例市新城区星河路 12 号', merchantId: '90088', merchantName: '星途车服运营商', status: '启用' },
+      { id: '27541', name: '北辰车检服务中心', city: '邻州市', phone: '138****7780', subPhone: '139****1198', address: '邻州市北辰大道 66 号', merchantId: '90036', merchantName: '澄安汽车服务中心', status: '停用' },
+      { id: '27546', name: '安行机动车检测站', city: '邻州市', phone: '138****6613', subPhone: '139****8862', address: '邻州市安行路 28 号', merchantId: '90102', merchantName: '衡安检测服务商', status: '启用' },
+      { id: '27552', name: '顺达车检中心', city: '邻州市', phone: '138****5270', subPhone: '139****6501', address: '邻州市顺达街 52 号', merchantId: '90216', merchantName: '云程车检合作商', status: '启用' },
+      { id: '27560', name: '远航机动车服务站', city: '邻州市', phone: '138****0926', subPhone: '139****3319', address: '邻州市远航大道 8 号', merchantId: '90309', merchantName: '路安综合服务商', status: '启用' },
+      { id: '27568', name: '新程车辆检测中心', city: '示例市', phone: '138****4810', subPhone: '139****4406', address: '示例市东城区新程路 18 号', merchantId: '90088', merchantName: '星途车服运营商', status: '启用' },
+      { id: '27573', name: '嘉安汽车检测站', city: '示例市', phone: '138****7392', subPhone: '139****7520', address: '示例市嘉安街 73 号', merchantId: '90036', merchantName: '澄安汽车服务中心', status: '启用' }
+    ].map(store => ({
+      ...store,
+      merchant: `${store.merchantId}｜${store.merchantName}`,
+      latestMerchant: store.latestMerchant || `${store.merchantId}｜${store.merchantName}`,
+      latestStatus: store.latestStatus || store.status
     }));
 
-    const storeRows = [...document.querySelectorAll('tr[data-store-id]')];
-    const stores = storeRows.map(row => ({
-      id: row.dataset.storeId,
-      name: row.dataset.storeName,
-      merchant: row.dataset.merchant,
-      latestMerchant: row.dataset.latestMerchant || row.dataset.merchant,
-      status: row.dataset.status,
-      latestStatus: row.dataset.latestStatus || row.dataset.status,
-      row
-    }));
+    const logs = [
+      { storeId: '27522', type: '更换商户', content: '门店归属商户由「90036 澄安汽车服务中心」变更为「90088 星途车服运营商」', operator: '运营专员A', time: '2026-01-09 15:42:16' },
+      { storeId: '27520', type: '更换商户', content: '门店归属商户由「90036 澄安汽车服务中心」变更为「90102 衡安检测服务商」', operator: '运营专员B', time: '2026-01-09 14:18:03' },
+      { storeId: '27531', type: '更换商户', content: '门店归属商户由「90036 澄安汽车服务中心」变更为「90309 路安综合服务商」', operator: '运营专员A', time: '2026-01-08 17:06:12' },
+      { storeId: '27546', type: '更换商户', content: '门店归属商户由「90309 路安综合服务商」变更为「90102 衡安检测服务商」', operator: '运营专员C', time: '2026-01-08 11:25:40' },
+      { storeId: '27552', type: '更换商户', content: '门店归属商户由「90088 星途车服运营商」变更为「90216 云程车检合作商」', operator: '运营专员B', time: '2026-01-07 16:31:08' },
+      { storeId: '27568', type: '更换商户', content: '门店归属商户由「90036 澄安汽车服务中心」变更为「90088 星途车服运营商」', operator: '运营专员A', time: '2026-01-07 10:14:52' }
+    ];
+
+    let storeFilters = {};
+    let logFilters = {};
+    let selectedStoreIds = [];
+    let changeStoreIds = [];
+    let selectedMerchant = null;
+    let currentDetailId = null;
+    let storePage = 1;
+    let storePageSize = 10;
+    let logPage = 1;
+    let logPageSize = 5;
+    let lastFailedIds = [];
+    let lastFocusedElement = null;
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
+    }
+
+    function statusClass(status) {
+      if (status === '启用') return 'status-on';
+      if (status === '审核中') return 'status-pending';
+      return 'status-off';
+    }
+
+    function formatNow() {
+      const pad = value => String(value).padStart(2, '0');
+      const now = new Date();
+      return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    }
 
     function getStoresByIds(ids) {
       return ids.map(id => stores.find(store => store.id === id)).filter(Boolean);
     }
 
+    function getFilteredStores() {
+      return stores.filter(store => (
+        (!storeFilters.merchantId || store.merchantId === storeFilters.merchantId)
+        && (!storeFilters.merchantName || store.merchantName.includes(storeFilters.merchantName))
+        && (!storeFilters.storeId || store.id === storeFilters.storeId)
+        && (!storeFilters.storeName || store.name.includes(storeFilters.storeName))
+        && (!storeFilters.status || store.status === storeFilters.status)
+      ));
+    }
+
+    function getVisibleStores() {
+      const filtered = getFilteredStores();
+      const maxPage = Math.max(1, Math.ceil(filtered.length / storePageSize));
+      storePage = Math.min(storePage, maxPage);
+      return filtered.slice((storePage - 1) * storePageSize, storePage * storePageSize);
+    }
+
+    function renderPagination(target, total, page, pageSize, scope) {
+      const pageCount = Math.max(1, Math.ceil(total / pageSize));
+      const start = total ? (page - 1) * pageSize + 1 : 0;
+      const end = Math.min(page * pageSize, total);
+      const pageButtons = Array.from({ length: pageCount }, (_, index) => index + 1).map(value => (
+        `<button class="page-chip ${value === page ? 'active' : ''}" type="button" data-${scope}-page="${value}" aria-label="第 ${value} 页" ${value === page ? 'aria-current="page"' : ''}>${value}</button>`
+      )).join('');
+      target.innerHTML = `
+        <span>共 ${total} 条，当前 ${start}-${end} 条</span>
+        <select class="page-size-select" data-${scope}-page-size aria-label="每页条数">
+          ${[5, 10, 20].map(value => `<option value="${value}" ${value === pageSize ? 'selected' : ''}>${value} 条/页</option>`).join('')}
+        </select>
+        <button class="page-chip" type="button" data-${scope}-page="${page - 1}" aria-label="上一页" ${page === 1 ? 'disabled' : ''}>‹</button>
+        ${pageButtons}
+        <button class="page-chip" type="button" data-${scope}-page="${page + 1}" aria-label="下一页" ${page === pageCount ? 'disabled' : ''}>›</button>`;
+    }
+
+    function renderStoreTable() {
+      const filtered = getFilteredStores();
+      const visibleStores = getVisibleStores();
+      storeTableBody.innerHTML = visibleStores.length ? visibleStores.map(store => {
+        const checked = selectedStoreIds.includes(store.id);
+        const eligible = store.status === '启用';
+        return `
+          <tr class="${checked ? 'selected' : ''}">
+            <td><button class="checkbox ${checked ? 'checked' : ''}" type="button" data-check-store="${store.id}" aria-label="选择门店 ${escapeHtml(store.name)}" aria-pressed="${checked}" ${eligible ? '' : 'disabled title="当前状态不可更换商户"'}></button></td>
+            <td>${store.id}</td>
+            <td title="${escapeHtml(store.name)}">${escapeHtml(store.name)}</td>
+            <td>${escapeHtml(store.city)}</td>
+            <td>${store.phone}</td>
+            <td title="${escapeHtml(store.merchant)}">${escapeHtml(store.merchant)}</td>
+            <td><span class="status ${statusClass(store.status)}">${store.status}</span></td>
+            <td><div class="ops"><button type="button" data-detail="${store.id}">查看详情</button>${eligible ? `<button type="button" data-change-single="${store.id}">更换商户</button>` : ''}</div></td>
+          </tr>`;
+      }).join('') : '<tr><td colspan="8"><div class="empty-state">未找到符合条件的门店</div></td></tr>';
+      const selectableIds = visibleStores.filter(store => store.status === '启用').map(store => store.id);
+      const allChecked = selectableIds.length > 0 && selectableIds.every(id => selectedStoreIds.includes(id));
+      selectAll.classList.toggle('checked', allChecked);
+      selectAll.setAttribute('aria-pressed', String(allChecked));
+      selectAll.disabled = selectableIds.length === 0;
+      renderPagination(storePagination, filtered.length, storePage, storePageSize, 'store');
+      updateSelectionSummary();
+    }
+
+    function updateSelectionSummary() {
+      selectionCount.textContent = `已选 ${selectedStoreIds.length} 个门店`;
+      clearSelection.hidden = selectedStoreIds.length === 0;
+      batchChange.disabled = selectedStoreIds.length === 0;
+      batchChange.classList.toggle('btn-disabled', selectedStoreIds.length === 0);
+    }
+
+    function renderDetail(store) {
+      if (!store) {
+        detailGrid.innerHTML = '<div class="empty-state">门店不存在或已无查看权限</div>';
+        return;
+      }
+      detailGrid.innerHTML = `
+        <div class="detail-label">门店 ID</div><div class="detail-value">${store.id}</div>
+        <div class="detail-label">门店名称</div><div class="detail-value">${escapeHtml(store.name)}</div>
+        <div class="detail-label">状态</div><div class="detail-value"><span class="status ${statusClass(store.status)}">${store.status}</span></div>
+        <div class="detail-label">归属商户</div><div class="detail-value">${escapeHtml(store.merchant)}</div>
+        <div class="detail-label">门店地址</div><div class="detail-value">${escapeHtml(store.address)}</div>
+        <div class="detail-label">门店联系电话</div><div class="detail-value">${store.phone}</div>
+        <div class="detail-label">门店子账户手机号</div><div class="detail-value">${store.subPhone}</div>`;
+    }
+
+    function getFilteredLogs() {
+      return logs.filter(log => (
+        (!logFilters.storeId || log.storeId === logFilters.storeId)
+        && (!logFilters.type || log.type === logFilters.type)
+        && (!logFilters.operator || log.operator.includes(logFilters.operator))
+        && (!logFilters.date || log.time.startsWith(logFilters.date))
+      ));
+    }
+
+    function renderLogs() {
+      const filtered = getFilteredLogs();
+      const maxPage = Math.max(1, Math.ceil(filtered.length / logPageSize));
+      logPage = Math.min(logPage, maxPage);
+      const visibleLogs = filtered.slice((logPage - 1) * logPageSize, logPage * logPageSize);
+      logTableBody.innerHTML = visibleLogs.length ? visibleLogs.map(log => `
+        <tr>
+          <td>${log.storeId}</td><td>${log.type}</td><td title="${escapeHtml(log.content)}">${escapeHtml(log.content)}</td><td>${escapeHtml(log.operator)}</td><td>${log.time}</td>
+        </tr>`).join('') : '<tr><td colspan="5"><div class="empty-state">暂无操作日志</div></td></tr>';
+      renderPagination(logPagination, filtered.length, logPage, logPageSize, 'log');
+    }
+
     function renderStoreList(target, storeList) {
       target.innerHTML = `
-        <div class="store-list-head"><span>门店id</span><span>门店名称</span><span>原归属商户</span></div>
-        ${storeList.map(store => `
-          <div class="store-list-row">
-            <span>${store.id}</span>
-            <span>${store.name}</span>
-            <span>${store.merchant}</span>
-          </div>
-        `).join('')}
-      `;
+        <div class="store-list-head"><span>门店 ID</span><span>门店名称</span><span>原归属商户</span></div>
+        ${storeList.map(store => `<div class="store-list-row"><span>${store.id}</span><span title="${escapeHtml(store.name)}">${escapeHtml(store.name)}</span><span title="${escapeHtml(store.merchant)}">${escapeHtml(store.merchant)}</span></div>`).join('')}`;
     }
 
     function renderConfirmStoreList(storeList) {
-      confirmStoreList.innerHTML = storeList.map(store => `
-        <div class="confirm-store-row"><span>${store.id}</span><b>${store.name}</b></div>
-      `).join('');
+      confirmStoreList.innerHTML = storeList.map(store => `<div class="confirm-store-row"><span>${store.id}</span><b>${escapeHtml(store.name)} · ${escapeHtml(store.merchant)}</b></div>`).join('');
       confirmStoreCount.textContent = `${storeList.length} 个`;
     }
 
     function getBlockReason(store) {
-      if (store.latestStatus !== store.status) {
-        return `门店状态已由「${store.status}」变更为「${store.latestStatus}」，请刷新后重试`;
-      }
-      if (store.latestMerchant !== store.merchant) {
-        return `归属商户已由「${store.merchant}」变更为「${store.latestMerchant}」，请刷新后重试`;
-      }
-      if (selectedMerchant?.label === store.latestMerchant) return '商户未变化，请确认要更换的商户';
+      if (store.latestStatus !== store.status) return `门店状态已由「${store.status}」变更为「${store.latestStatus}」，请刷新后重试`;
+      if (store.latestMerchant !== store.merchant) return `归属商户已由「${store.merchant}」变更为「${store.latestMerchant}」，请刷新后重试`;
+      if (selectedMerchant?.label === store.latestMerchant) return '商户未变化，请重新选择新归属商户';
       if (store.status === '审核中') return '门店审核中，暂不支持更换商户';
       if (store.status !== '启用') return `门店状态为「${store.status}」，暂不支持更换商户`;
       return '';
@@ -1351,50 +1518,44 @@
     function renderChangeResult(results) {
       const successRows = results.filter(result => result.success);
       const failureRows = results.filter(result => !result.success);
+      lastFailedIds = failureRows.map(result => result.store.id);
       successCount.textContent = successRows.length;
       failureCount.textContent = failureRows.length;
       successList.innerHTML = successRows.length
-        ? successRows.map(result => `
-          <div class="result-row">${result.store.name}（门店ID ${result.store.id}）</div>
-        `).join('')
+        ? successRows.map(result => `<div class="result-row">${escapeHtml(result.store.name)}（门店 ID ${result.store.id}）<span class="result-target">已变更为 ${escapeHtml(result.targetMerchant)}</span></div>`).join('')
         : '<div class="result-empty">无</div>';
       failureList.innerHTML = failureRows.length
-        ? failureRows.map(result => `
-          <div class="result-row reason">${result.store.name}（门店ID ${result.store.id}）：${result.reason}</div>
-        `).join('')
+        ? failureRows.map(result => `<div class="result-row reason">${escapeHtml(result.store.name)}（门店 ID ${result.store.id}）：${escapeHtml(result.reason)}</div>`).join('')
         : '<div class="result-empty">无</div>';
-      resultMask.style.display = 'flex';
+      retryFailures.hidden = failureRows.length === 0;
+      openModal(resultMask, document.getElementById('finishResult'));
     }
 
     function showToast(message) {
       toast.textContent = message;
       toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 1800);
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => toast.classList.remove('show'), 1800);
     }
 
     function renderMerchantOptions(keyword = '') {
       const normalized = keyword.trim().toLowerCase();
-      const matched = merchants.filter(merchant => (
-        `${merchant.id} ${merchant.name}`.toLowerCase().includes(normalized)
-      ));
-
+      const matched = merchants.filter(merchant => `${merchant.id} ${merchant.name}`.toLowerCase().includes(normalized));
       merchantOptions.innerHTML = matched.length
-        ? matched.map(merchant => `
-          <div class="merchant-option ${selectedMerchant?.id === merchant.id ? 'selected' : ''}" data-merchant-id="${merchant.id}">
-            <span>${merchant.label}</span>
-          </div>
-        `).join('')
+        ? matched.map(merchant => `<button class="merchant-option ${selectedMerchant?.id === merchant.id ? 'selected' : ''}" type="button" role="option" aria-selected="${selectedMerchant?.id === merchant.id}" data-merchant-id="${merchant.id}"><span>${escapeHtml(merchant.label)}</span></button>`).join('')
         : '<div class="merchant-option empty">未找到匹配商户</div>';
     }
 
     function openMerchantMenu() {
       merchantMenu.classList.add('show');
+      merchantTrigger.setAttribute('aria-expanded', 'true');
       renderMerchantOptions(merchantSearch.value);
       setTimeout(() => merchantSearch.focus(), 0);
     }
 
     function closeMerchantMenu() {
       merchantMenu.classList.remove('show');
+      merchantTrigger.setAttribute('aria-expanded', 'false');
     }
 
     function resetMerchant() {
@@ -1414,118 +1575,219 @@
       merchantBox.classList.remove('error');
       closeMerchantMenu();
       renderMerchantOptions(merchantSearch.value);
-    }
-
-    function updateSelection() {
-      const selectedStores = getStoresByIds(selectedStoreIds);
-      rowChecks.forEach(check => {
-        const checked = selectedStoreIds.includes(check.dataset.storeId);
-        check.classList.toggle('checked', checked);
-        check.closest('tr').classList.toggle('selected', checked);
-      });
-
-      selectAll.classList.toggle('checked', selectedStoreIds.length === stores.length);
-      selectionCount.textContent = `已选 ${selectedStoreIds.length} 个门店`;
-      batchChange.disabled = selectedStoreIds.length === 0;
-      batchChange.classList.toggle('btn-disabled', selectedStoreIds.length === 0);
-      selectionPanel.classList.toggle('show', selectedStoreIds.length > 0);
-      selectionList.textContent = selectedStores.length
-        ? selectedStores.map(store => `${store.id}｜${store.name}`).join('、')
-        : '暂无选中门店';
+      merchantTrigger.focus();
     }
 
     function showPage(id) {
-      pages.forEach(page => page.classList.toggle('active', page.id === id));
-      const activeTab = id === 'logs' ? 'logs' : 'stores';
-      subtabs.forEach(tab => tab.classList.toggle('active', tab.dataset.tab === activeTab));
-      window.location.hash = id;
+      const safeId = ['stores', 'logs', 'detail', 'change'].includes(id) ? id : 'stores';
+      pages.forEach(page => page.classList.toggle('active', page.id === safeId));
+      const activeTab = safeId === 'logs' ? 'logs' : 'stores';
+      subtabs.forEach(tab => {
+        const active = tab.dataset.tab === activeTab;
+        tab.classList.toggle('active', active);
+        tab.setAttribute('aria-selected', String(active));
+      });
+      history.replaceState(null, '', `#${safeId}`);
+      window.scrollTo({ top: 0, left: 0 });
+      requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo({ top: 0, left: 0 })));
     }
 
     function openChange(ids) {
-      changeStoreIds = ids.length ? ids : ['27522'];
-      renderStoreList(changeStoreList, getStoresByIds(changeStoreIds));
+      const validStores = getStoresByIds(ids);
+      if (!validStores.length) {
+        showToast('请选择可更换商户的门店');
+        showPage('stores');
+        return;
+      }
+      changeStoreIds = validStores.map(store => store.id);
+      renderStoreList(changeStoreList, validStores);
       resetMerchant();
       showPage('change');
     }
 
-    document.addEventListener('click', (event) => {
+    function openModal(mask, focusTarget) {
+      lastFocusedElement = document.activeElement;
+      mask.style.display = 'flex';
+      setTimeout(() => focusTarget?.focus(), 0);
+    }
+
+    function closeModal(mask) {
+      mask.style.display = 'none';
+      lastFocusedElement?.focus?.();
+    }
+
+    function applyStoreFilters() {
+      storeFilters = {
+        merchantId: document.getElementById('merchantIdFilter').value.trim(),
+        merchantName: document.getElementById('merchantNameFilter').value.trim(),
+        storeId: document.getElementById('storeIdFilter').value.trim(),
+        storeName: document.getElementById('storeNameFilter').value.trim(),
+        status: document.getElementById('statusFilter').value
+      };
+      storePage = 1;
+      selectedStoreIds = [];
+      renderStoreTable();
+    }
+
+    function applyLogFilters() {
+      logFilters = {
+        storeId: document.getElementById('logStoreIdFilter').value.trim(),
+        type: document.getElementById('logTypeFilter').value,
+        operator: document.getElementById('logOperatorFilter').value.trim(),
+        date: document.getElementById('logDateFilter').value
+      };
+      logPage = 1;
+      renderLogs();
+    }
+
+    document.addEventListener('click', event => {
       if (!event.target.closest('#merchantBox')) closeMerchantMenu();
-
-      const checkbox = event.target.closest('.checkbox');
-      if (checkbox) {
-        if (checkbox.id === 'selectAll') {
-          selectedStoreIds = selectedStoreIds.length === stores.length ? [] : stores.map(store => store.id);
-          updateSelection();
-          return;
-        }
-        if (checkbox.dataset.storeId) {
-          const id = checkbox.dataset.storeId;
-          selectedStoreIds = selectedStoreIds.includes(id)
-            ? selectedStoreIds.filter(storeId => storeId !== id)
-            : [...selectedStoreIds, id];
-          updateSelection();
-          return;
-        }
+      const checkStore = event.target.closest('[data-check-store]');
+      if (checkStore) {
+        const id = checkStore.dataset.checkStore;
+        selectedStoreIds = selectedStoreIds.includes(id) ? selectedStoreIds.filter(storeId => storeId !== id) : [...selectedStoreIds, id];
+        renderStoreTable();
+        return;
       }
-
+      if (event.target.closest('#selectAll')) {
+        const visibleIds = getVisibleStores().filter(store => store.status === '启用').map(store => store.id);
+        const allChecked = visibleIds.every(id => selectedStoreIds.includes(id));
+        selectedStoreIds = allChecked ? selectedStoreIds.filter(id => !visibleIds.includes(id)) : [...new Set([...selectedStoreIds, ...visibleIds])];
+        renderStoreTable();
+        return;
+      }
+      const detail = event.target.closest('[data-detail]');
+      if (detail) {
+        currentDetailId = detail.dataset.detail;
+        renderDetail(stores.find(store => store.id === currentDetailId));
+        showPage('detail');
+        return;
+      }
       const singleChange = event.target.closest('[data-change-single]');
       if (singleChange) {
         openChange([singleChange.dataset.changeSingle]);
         return;
       }
-
+      const storePageTarget = event.target.closest('[data-store-page]');
+      if (storePageTarget && !storePageTarget.disabled) {
+        storePage = Number(storePageTarget.dataset.storePage);
+        renderStoreTable();
+        return;
+      }
+      const logPageTarget = event.target.closest('[data-log-page]');
+      if (logPageTarget && !logPageTarget.disabled) {
+        logPage = Number(logPageTarget.dataset.logPage);
+        renderLogs();
+        return;
+      }
       const target = event.target.closest('[data-page]');
-      if (!target) return;
-      showPage(target.dataset.page);
+      if (target) showPage(target.dataset.page);
     });
 
-    document.getElementById('openLogsTop').addEventListener('click', () => showPage('logs'));
-    batchChange.addEventListener('click', () => openChange(selectedStoreIds));
-    clearSelection.addEventListener('click', () => {
-      selectedStoreIds = [];
-      updateSelection();
+    document.addEventListener('change', event => {
+      if (event.target.matches('[data-store-page-size]')) {
+        storePageSize = Number(event.target.value);
+        storePage = 1;
+        renderStoreTable();
+      }
+      if (event.target.matches('[data-log-page-size]')) {
+        logPageSize = Number(event.target.value);
+        logPage = 1;
+        renderLogs();
+      }
     });
-    merchantTrigger.addEventListener('click', () => openMerchantMenu());
+
+    document.getElementById('searchStores').addEventListener('click', applyStoreFilters);
+    document.getElementById('resetStores').addEventListener('click', () => {
+      ['merchantIdFilter', 'merchantNameFilter', 'storeIdFilter', 'storeNameFilter', 'statusFilter'].forEach(id => { document.getElementById(id).value = ''; });
+      storeFilters = {};
+      storePage = 1;
+      selectedStoreIds = [];
+      renderStoreTable();
+    });
+    document.getElementById('searchLogs').addEventListener('click', applyLogFilters);
+    document.getElementById('resetLogs').addEventListener('click', () => {
+      ['logStoreIdFilter', 'logTypeFilter', 'logOperatorFilter', 'logDateFilter'].forEach(id => { document.getElementById(id).value = ''; });
+      logFilters = {};
+      logPage = 1;
+      renderLogs();
+    });
+    document.querySelectorAll('.filters input').forEach(input => input.addEventListener('keydown', event => {
+      if (event.key === 'Enter') (input.closest('#logs') ? applyLogFilters : applyStoreFilters)();
+    }));
+    batchChange.addEventListener('click', () => openChange(selectedStoreIds));
+    clearSelection.addEventListener('click', () => { selectedStoreIds = []; renderStoreTable(); });
+    merchantTrigger.addEventListener('click', () => merchantMenu.classList.contains('show') ? closeMerchantMenu() : openMerchantMenu());
     merchantSearch.addEventListener('input', () => renderMerchantOptions(merchantSearch.value));
-    merchantOptions.addEventListener('click', (event) => {
+    merchantSearch.addEventListener('keydown', event => {
+      if (event.key === 'ArrowDown') merchantOptions.querySelector('[data-merchant-id]')?.focus();
+    });
+    merchantOptions.addEventListener('click', event => {
       const option = event.target.closest('[data-merchant-id]');
-      if (!option) return;
-      const merchant = merchants.find(item => item.id === option.dataset.merchantId);
+      const merchant = merchants.find(item => item.id === option?.dataset.merchantId);
       if (merchant) selectMerchant(merchant);
     });
     document.getElementById('submitChange').addEventListener('click', () => {
       if (!selectedMerchant) {
         merchantBox.classList.add('error');
-        showToast('请选择新门店归属商户');
+        showToast('请选择新归属商户');
         openMerchantMenu();
         return;
       }
       renderConfirmStoreList(getStoresByIds(changeStoreIds));
       confirmMerchant.textContent = selectedMerchant.label;
-      confirmMask.style.display = 'flex';
+      openModal(confirmMask, document.getElementById('confirmChange'));
     });
-    document.getElementById('closeConfirm').addEventListener('click', () => confirmMask.style.display = 'none');
-    document.getElementById('cancelConfirm').addEventListener('click', () => confirmMask.style.display = 'none');
+    document.getElementById('closeConfirm').addEventListener('click', () => closeModal(confirmMask));
+    document.getElementById('cancelConfirm').addEventListener('click', () => closeModal(confirmMask));
     document.getElementById('confirmChange').addEventListener('click', () => {
-      confirmMask.style.display = 'none';
+      closeModal(confirmMask);
       const results = getStoresByIds(changeStoreIds).map(store => {
         const reason = getBlockReason(store);
-        return { store, success: !reason, reason };
+        if (reason) return { store, success: false, reason };
+        const oldMerchant = store.merchant;
+        store.merchantId = selectedMerchant.id;
+        store.merchantName = selectedMerchant.name;
+        store.merchant = selectedMerchant.label;
+        store.latestMerchant = selectedMerchant.label;
+        logs.unshift({
+          storeId: store.id,
+          type: '更换商户',
+          content: `门店归属商户由「${oldMerchant.replace('｜', ' ')}」变更为「${selectedMerchant.label.replace('｜', ' ')}」`,
+          operator: '当前运营人员',
+          time: formatNow()
+        });
+        return { store, success: true, reason: '', targetMerchant: selectedMerchant.label };
       });
+      selectedStoreIds = [];
+      renderStoreTable();
+      renderLogs();
+      showPage('stores');
       renderChangeResult(results);
       showToast('更换商户处理完成');
-      selectedStoreIds = [];
-      updateSelection();
-      showPage('stores');
     });
-    document.getElementById('closeResult').addEventListener('click', () => resultMask.style.display = 'none');
-    document.getElementById('finishResult').addEventListener('click', () => resultMask.style.display = 'none');
+    document.getElementById('closeResult').addEventListener('click', () => closeModal(resultMask));
+    document.getElementById('finishResult').addEventListener('click', () => closeModal(resultMask));
+    retryFailures.addEventListener('click', () => {
+      closeModal(resultMask);
+      openChange(lastFailedIds);
+    });
+    [confirmMask, resultMask].forEach(mask => mask.addEventListener('click', event => {
+      if (event.target === mask) closeModal(mask);
+    }));
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      if (merchantMenu.classList.contains('show')) closeMerchantMenu();
+      else if (resultMask.style.display === 'flex') closeModal(resultMask);
+      else if (confirmMask.style.display === 'flex') closeModal(confirmMask);
+    });
 
-    const initial = window.location.hash.replace('#', '');
-    renderStoreList(changeStoreList, getStoresByIds(changeStoreIds));
+    renderStoreTable();
+    renderLogs();
     renderMerchantOptions();
-    updateSelection();
-    if (initial && document.getElementById(initial)) showPage(initial);
+    const initial = window.location.hash.replace('#', '');
+    showPage(['stores', 'logs'].includes(initial) ? initial : 'stores');
+    window.addEventListener('load', () => setTimeout(() => window.scrollTo({ top: 0, left: 0 }), 0));
   </script>
 </body>
 </html>
