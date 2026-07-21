@@ -5202,6 +5202,7 @@
       if (modeForRow === "front") {
         const maps = selectedBackendMaps();
         const mapIds = selectedBackendMapIds();
+        clearRemovedProductSortConfigs(row, mapIds, maps);
         const cityScope = cityScopeSelect.value;
         const cities = selectedCities();
         row.dataset.backendMaps = maps.join("|");
@@ -5804,6 +5805,15 @@
       }
       if (!backendMaps.length) return false;
       return backendMaps.some(path => item.backendPath === path || item.backendPath.startsWith(`${path} / `));
+    }
+
+    function clearRemovedProductSortConfigs(row, nextBackendMapIds, nextBackendMaps) {
+      const scopeKey = rowKey(row);
+      productCatalog.forEach(item => {
+        if (!Number.isInteger(item.weights?.[scopeKey])) return;
+        if (productMatchesBackend(item, nextBackendMapIds, nextBackendMaps)) return;
+        delete item.weights[scopeKey];
+      });
     }
 
     function productSortPool(row) {
