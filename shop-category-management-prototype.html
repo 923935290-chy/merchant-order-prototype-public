@@ -287,6 +287,26 @@
       font-weight: 650;
     }
 
+    .field-meta {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 6px;
+      color: var(--weak);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .field-meta.counter-only {
+      justify-content: flex-end;
+    }
+
+    .field-meta .over-limit {
+      color: var(--red);
+      font-weight: 700;
+    }
+
     .control,
     .select {
       width: 100%;
@@ -1022,6 +1042,12 @@
       margin-top: 6px;
       color: var(--red);
       font-size: 12px;
+    }
+
+    .batch-field .error {
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+      white-space: pre-line;
     }
 
     .field.invalid .control,
@@ -3082,12 +3108,19 @@
         </div>
         <div class="field single-field">
           <label>类目名称</label>
-          <input class="control" id="modalName" placeholder="请输入类目名称">
+          <input class="control" id="modalName" placeholder="请输入类目名称" aria-describedby="modalNameMeta">
+          <div class="field-meta counter-only" id="modalNameMeta">
+            <span id="modalNameCounter">0/20</span>
+          </div>
           <div class="error">请输入类目名称</div>
         </div>
         <div class="field batch-field hidden" style="grid-column: 1 / -1;">
           <label>批量类目名称</label>
-          <textarea class="control" id="batchNames" placeholder="一行一个类目名称&#10;例如：&#10;其他&#10;鞋靴&#10;上装"></textarea>
+          <textarea class="control" id="batchNames" placeholder="一行一个类目名称&#10;例如：&#10;其他&#10;鞋靴&#10;上装" aria-describedby="batchNameMeta"></textarea>
+          <div class="field-meta" id="batchNameMeta">
+            <span>一行一个，空行自动忽略</span>
+            <span id="batchNameSummary">0 个类目</span>
+          </div>
           <div class="error">请输入至少一个类目名称，且类目名称全局不能重复</div>
         </div>
         <div class="field">
@@ -3407,7 +3440,9 @@
     const modalTitle = document.querySelector("#modalTitle");
     const modalLevel = document.querySelector("#modalLevel");
     const modalName = document.querySelector("#modalName");
+    const modalNameCounter = document.querySelector("#modalNameCounter");
     const batchNames = document.querySelector("#batchNames");
+    const batchNameSummary = document.querySelector("#batchNameSummary");
     const createTypeSwitch = document.querySelector("#createTypeSwitch");
     const singleFields = Array.from(document.querySelectorAll(".single-field"));
     const batchFields = Array.from(document.querySelectorAll(".batch-field"));
@@ -4393,6 +4428,7 @@
       createTypeSwitch.querySelectorAll("button").forEach(button => {
         button.classList.toggle("active", button.dataset.createType === createType);
       });
+      updateCategoryNameMeta();
       syncImageField();
     }
 
@@ -5090,9 +5126,36 @@
       anchor.insertAdjacentElement("afterend", row);
     }
 
+    const CATEGORY_NAME_MAX_LENGTH = 20;
+
+    function categoryNameLength(value) {
+      return Array.from(value.trim()).length;
+    }
+
+    function categoryNameFormatOk(value) {
+      return !/[\u0000-\u001F\u007F]/.test(value.trim());
+    }
+
+    function batchNameEntries() {
+      return batchNames.value.split(/\n/).map((value, index) => ({
+        name: value.trim(),
+        line: index + 1
+      })).filter(item => item.name);
+    }
+
+    function updateCategoryNameMeta() {
+      const nameLength = categoryNameLength(modalName.value);
+      modalNameCounter.textContent = `${nameLength}/${CATEGORY_NAME_MAX_LENGTH}`;
+      modalNameCounter.classList.toggle("over-limit", nameLength > CATEGORY_NAME_MAX_LENGTH);
+      const entries = batchNameEntries();
+      const overLimitCount = entries.filter(item => categoryNameLength(item.name) > CATEGORY_NAME_MAX_LENGTH).length;
+      batchNameSummary.textContent = entries.length ? `已输入 ${entries.length} 个类目` : "0 个类目";
+      batchNameSummary.classList.toggle("over-limit", overLimitCount > 0);
+    }
+
     function createdNames() {
       if (createType !== "batch") return [modalName.value.trim()];
-      return batchNames.value.split(/\n/).map(item => item.trim()).filter(Boolean);
+      return batchNameEntries().map(item => item.name);
     }
 
     function addCreatedCategories() {
@@ -5657,6 +5720,7 @@
       cityConfigField.classList.remove("invalid");
       sortInput.closest(".field").classList.remove("invalid");
       sortStepInput.closest(".field").classList.remove("invalid");
+      updateCategoryNameMeta();
     }
 
     function openModal(level = "二级", type = "create", context = {}) {
@@ -6099,12 +6163,19 @@
     function validateForm() {
       const isBatch = createType === "batch" && formType === "create";
       const nameOk = modalName.value.trim().length > 0;
-      const batchList = batchNames.value.split(/\n/).map(item => item.trim()).filter(Boolean);
+      const nameLengthOk = categoryNameLength(modalName.value) <= CATEGORY_NAME_MAX_LENGTH;
+      const nameFormatOk = categoryNameFormatOk(modalName.value);
+      const batchEntries = batchNameEntries();
+      const batchList = batchEntries.map(item => item.name);
+      const batchOverLimit = batchEntries.filter(item => categoryNameLength(item.name) > CATEGORY_NAME_MAX_LENGTH);
+      const batchLengthOk = batchOverLimit.length === 0;
+      const batchInvalidFormat = batchEntries.filter(item => !categoryNameFormatOk(item.name));
+      const batchFormatOk = batchInvalidFormat.length === 0;
       const batchUnique = new Set(batchList).size === batchList.length;
-      const singleDuplicateNames = !isBatch && nameOk ? duplicateCategoryNames([modalName.value.trim()]) : [];
-      const batchDuplicateNames = isBatch && batchUnique ? duplicateCategoryNames(batchList) : [];
+      const singleDuplicateNames = !isBatch && nameOk && nameLengthOk && nameFormatOk ? duplicateCategoryNames([modalName.value.trim()]) : [];
+      const batchDuplicateNames = isBatch && batchLengthOk && batchFormatOk && batchUnique ? duplicateCategoryNames(batchList) : [];
       const nameUniqueOk = isBatch ? batchDuplicateNames.length === 0 : singleDuplicateNames.length === 0;
-      const batchOk = batchList.length > 0 && batchUnique && nameUniqueOk;
+      const batchOk = batchList.length > 0 && batchLengthOk && batchFormatOk && batchUnique && nameUniqueOk;
       const sortOk = /^\d{1,4}$/.test(sortInput.value.trim());
       const stepOk = /^[1-9]\d{0,3}$/.test(sortStepInput.value.trim());
       const canCheckGeneratedSort = sortOk && (!isBatch || (stepOk && batchList.length > 0));
@@ -6119,11 +6190,19 @@
       const sortError = sortInput.closest(".field").querySelector(".error");
       if (!nameOk) {
         nameError.textContent = "请输入类目名称";
+      } else if (!nameLengthOk) {
+        nameError.textContent = "类目名称最多 20 个字符";
+      } else if (!nameFormatOk) {
+        nameError.textContent = "类目名称不能包含换行符或控制字符";
       } else if (!nameUniqueOk) {
         nameError.textContent = "类目名称全局重复，请调整后保存";
       }
       if (batchList.length === 0) {
         batchError.textContent = "请输入至少一个类目名称";
+      } else if (!batchLengthOk) {
+        batchError.textContent = batchOverLimit.map(item => `第 ${item.line} 行「${item.name}」超过 20 个字符`).join("\n");
+      } else if (!batchFormatOk) {
+        batchError.textContent = batchInvalidFormat.map(item => `第 ${item.line} 行「${item.name}」包含控制字符`).join("\n");
       } else if (!batchUnique) {
         batchError.textContent = "批量输入中存在重复类目名称，请调整后保存";
       } else if (!nameUniqueOk) {
@@ -6134,14 +6213,14 @@
       } else if (!sortUniqueOk) {
         sortError.textContent = "同一父级、同一层级下排序值不能重复，请调整后保存";
       }
-      modalName.closest(".field").classList.toggle("invalid", !isBatch && (!nameOk || !nameUniqueOk));
+      modalName.closest(".field").classList.toggle("invalid", !isBatch && (!nameOk || !nameLengthOk || !nameFormatOk || !nameUniqueOk));
       batchNames.closest(".field").classList.toggle("invalid", isBatch && !batchOk);
       backendMapField.classList.toggle("invalid", !backendMapOk);
       cityConfigField.classList.toggle("invalid", !cityOk);
       sortInput.closest(".field").classList.toggle("invalid", !sortOk || !generatedSortOk || !sortUniqueOk);
       sortStepInput.closest(".field").classList.toggle("invalid", isBatch && !stepOk);
       imageField.classList.toggle("invalid-image", !imageOk);
-      return (isBatch ? batchOk && stepOk : nameOk && nameUniqueOk) && sortOk && generatedSortOk && sortUniqueOk && imageOk && backendMapOk && cityOk;
+      return (isBatch ? batchOk && stepOk : nameOk && nameLengthOk && nameFormatOk && nameUniqueOk) && sortOk && generatedSortOk && sortUniqueOk && imageOk && backendMapOk && cityOk;
     }
 
     function toggleCategoryRow(row, twisty) {
@@ -6186,6 +6265,14 @@
       if (!button) return;
       createType = button.dataset.createType;
       syncCreateType();
+    });
+    modalName.addEventListener("input", () => {
+      updateCategoryNameMeta();
+      modalName.closest(".field").classList.remove("invalid");
+    });
+    batchNames.addEventListener("input", () => {
+      updateCategoryNameMeta();
+      batchNames.closest(".field").classList.remove("invalid");
     });
     document.querySelector("#openSort").addEventListener("click", openSortModal);
     document.querySelector("#openExport").addEventListener("click", openExportModal);
