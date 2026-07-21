@@ -5357,11 +5357,18 @@
       const cSideText = rowMode(row) === "front"
         ? "保存成功后，C 端下一次请求立即按最新展示类目树生效，不保留原层级入口。"
         : "后台类目路径变化后，商品关联类目 ID 不变，路径文案和展示类目映射路径随最新树结构展示。";
+      const productSortText = rowMode(row) === "front"
+        ? "商品排序按展示类目 ID 保留，不因父级、层级或路径变化而重置，也不与新父级的商品排序合并。"
+        : "";
+      const moveScopeText = rowMode(row) === "front"
+        ? `当前层级：${levelLabel(oldLevel)}；移动后层级：${levelLabel(targetLevel)}。`
+        : `当前层级：${levelLabel(oldLevel)}；移动后层级：${levelLabel(targetLevel)}；受影响子类目：${affectedChildren} 个。`;
       const blocked = deepestLevel > maxLevel;
       moveImpact.innerHTML = `
-        <div>当前层级：${levelLabel(oldLevel)}；移动后层级：${levelLabel(targetLevel)}；受影响子类目：${affectedChildren} 个。</div>
+        <div>${moveScopeText}</div>
         <div>移动后最深层级：${deepestLevel <= 3 ? levelLabel(deepestLevel) : `${deepestLevel}级`}${blocked ? `，超过${rowMode(row) === "front" ? "展示类目" : "后台类目"}最大支持层级 ${maxLevel}，不允许保存。` : "，符合层级限制。"}</div>
         <div>${cSideText}</div>
+        ${productSortText ? `<div>${productSortText}</div>` : ""}
       `;
       moveImpact.style.color = blocked ? "var(--danger)" : "var(--muted)";
     }
@@ -5519,8 +5526,10 @@
       resetFilters(false);
       refreshCurrentPage(pageForRow(row));
       highlightRows(block.filter(item => !item.classList.contains("paged-out")));
-      const frontImpact = modeForRow === "front" ? "，展示地区与展示状态已重算" : "";
-      appendOperationLog("编辑", rowLogObject(row), `移动类目：上级由${oldParent}调整为${targetParentName}，层级由${levelLabel(oldLevel)}调整为${levelLabel(targetLevel)}，排序值由${oldSort}调整为${moveSortInput.value.trim()}，受影响子类目 ${block.length - 1} 个${frontImpact}`);
+      const relationImpact = modeForRow === "front"
+        ? "，展示地区与展示状态已重算，商品排序按展示类目 ID 保留"
+        : `，受影响子类目 ${block.length - 1} 个`;
+      appendOperationLog("编辑", rowLogObject(row), `移动类目：上级由${oldParent}调整为${targetParentName}，层级由${levelLabel(oldLevel)}调整为${levelLabel(targetLevel)}，排序值由${oldSort}调整为${moveSortInput.value.trim()}${relationImpact}`);
       showToast(modeForRow === "front"
         ? "类目移动成功，C 端已按最新结构生效"
         : "类目移动成功，后台类目路径及展示类目映射已更新");
