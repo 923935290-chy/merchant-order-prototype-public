@@ -158,6 +158,64 @@
       font-weight: 650;
     }
 
+    .existing-product-state {
+      margin: 0 0 20px 132px;
+      padding: 14px 16px;
+      border: 1px solid oklch(0.86 0.055 48);
+      border-radius: 6px;
+      background: var(--brand-soft);
+    }
+
+    .existing-state-head,
+    .existing-state-row,
+    .existing-state-actions {
+      display: flex;
+      align-items: center;
+    }
+
+    .existing-state-head {
+      justify-content: space-between;
+      margin-bottom: 10px;
+      color: var(--heading);
+    }
+
+    .existing-state-row {
+      min-height: 34px;
+      gap: 18px;
+      border-top: 1px solid oklch(0.88 0.04 48);
+      color: var(--text);
+      font-size: 13px;
+    }
+
+    .existing-state-row strong {
+      min-width: 76px;
+      color: var(--heading);
+    }
+
+    .existing-state-actions {
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .state-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 0 8px;
+      border-radius: 999px;
+      background: oklch(0.94 0.055 35);
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .state-note {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
     .form {
       max-width: 1040px;
     }
@@ -437,6 +495,14 @@
       font-weight: 650;
     }
 
+    .quick-chip:disabled {
+      color: oklch(0.58 0.01 260);
+      border-color: oklch(0.9 0.01 260);
+      background: oklch(0.97 0.005 260);
+      cursor: not-allowed;
+      opacity: 1;
+    }
+
     .category-body {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
@@ -597,6 +663,12 @@
 
     .btn.primary:hover {
       background: var(--brand-hover);
+    }
+
+    .btn:disabled {
+      color: var(--weak);
+      background: var(--panel);
+      cursor: not-allowed;
     }
 
     .content-card {
@@ -765,6 +837,30 @@
         <h1 class="page-title">商品管理</h1>
 
         <section class="form">
+          <div class="existing-product-state" aria-label="后台类目禁用后的存量商品示例">
+            <div class="existing-state-head">
+              <strong>存量商品状态示例</strong>
+              <span class="state-pill">后台类目已禁用</span>
+            </div>
+            <div class="existing-state-row">
+              <strong>上架商品</strong>
+              <span>商品类目：服饰配饰 / 鞋靴</span>
+              <span>商品状态：上架</span>
+              <span>类目渠道：不展示</span>
+              <div class="existing-state-actions">
+                <button class="btn" type="button" id="saveExistingFields">保存非类目字段</button>
+              </div>
+            </div>
+            <div class="existing-state-row">
+              <strong id="relistProductState">下架商品</strong>
+              <span>原后台类目关联保留</span>
+              <span id="relistCategoryState">后台类目已禁用，重新上架后类目渠道仍不展示</span>
+              <div class="existing-state-actions">
+                <button class="btn" type="button" id="relistExistingProduct">重新上架</button>
+              </div>
+            </div>
+            <div class="state-note">后台类目禁用不自动下架已有商品，也不清空原后台类目 ID；商品仍可处理非类目字段、历史订单、退款和售后。</div>
+          </div>
           <div class="row">
             <label class="label required">发布渠道</label>
             <div class="radio-line">
@@ -1230,16 +1326,20 @@
       } catch (error) {
         // 使用模拟账号的默认最近类目。
       }
-      return ["BC31009", "BC31001", "BC20101"];
+      return ["BC31009", "BC31001", "BC31023"];
     }
 
     function renderRecentCategories() {
       const rows = readRecentCategoryIds()
         .map(nodeById)
-        .filter(item => item?.level === 3 && item.effective)
+        .filter(item => item?.level === 3)
         .slice(0, 3);
       recentCategories.innerHTML = '<span class="recent-label">最近：</span>' + (rows.length
-        ? rows.map(item => `<button class="quick-chip" type="button" data-category-id="${escapeHtml(item.id)}">${escapeHtml(item.name)}</button>`).join("")
+        ? rows.map(item => {
+          const reason = item.effective ? "" : (item.status === "禁用" ? "当前后台类目已禁用" : "上级后台类目已禁用");
+          const path = categoryPathById(item.id).join(" / ");
+          return `<button class="quick-chip" type="button" data-category-id="${escapeHtml(item.id)}" title="${escapeHtml(path + (reason ? `；${reason}` : ""))}"${item.effective ? "" : " disabled"}>${escapeHtml(item.name)}${reason ? `（${escapeHtml(reason)}）` : ""}</button>`;
+        }).join("")
         : '<span class="recent-label">暂无最近使用类目</span>');
     }
 
@@ -1326,6 +1426,18 @@
 
     categoryTrigger.addEventListener("click", () => {
       setCategoryOpen(!categoryTrigger.classList.contains("open"));
+    });
+
+    document.getElementById("saveExistingFields").addEventListener("click", () => {
+      showToast("非类目字段保存成功，原后台类目关联保持不变");
+    });
+
+    document.getElementById("relistExistingProduct").addEventListener("click", () => {
+      document.getElementById("relistProductState").textContent = "上架商品";
+      document.getElementById("relistCategoryState").textContent = "商品状态：上架；后台类目仍不可用，类目渠道仍不展示";
+      document.getElementById("relistExistingProduct").disabled = true;
+      document.getElementById("relistExistingProduct").textContent = "已上架";
+      showToast("商品已重新上架，原后台类目关联保持不变");
     });
 
     document.getElementById("saveProduct").addEventListener("click", () => {
