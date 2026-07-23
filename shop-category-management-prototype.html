@@ -934,6 +934,13 @@
       line-height: 1.45;
     }
 
+    .backend-child-impact {
+      grid-column: 1 / -1;
+      border: 1px solid #f2d29b;
+      background: #fff8e8;
+      color: #7a4b00;
+    }
+
     .image-field {
       display: grid;
       grid-template-columns: 86px 1fr;
@@ -1528,6 +1535,11 @@
       font-size: 12px;
       font-weight: 700;
       line-height: 1.4;
+    }
+
+    .map-tag.unavailable {
+      background: var(--red-soft);
+      color: var(--red);
     }
 
     .backend-map-options {
@@ -3016,6 +3028,7 @@
                   <option>全部</option>
                   <option>新增</option>
                   <option>编辑</option>
+                  <option>移动</option>
                   <option>删除</option>
                   <option>启用</option>
                   <option>禁用</option>
@@ -3142,6 +3155,7 @@
             <option>三级</option>
           </select>
         </div>
+        <div class="form-note backend-child-impact hidden" id="backendChildImpactNotice" role="status"></div>
         <div class="field" id="backendMapField">
           <label>映射后台类目</label>
           <div class="backend-map-picker">
@@ -3251,7 +3265,7 @@
           <div class="error">请选择有效的目标上级类目</div>
         </div>
         <div class="field">
-          <label>移动后层级</label>
+          <label id="moveLevelLabel">移动后层级</label>
           <input class="control" id="moveLevelInput" disabled>
         </div>
         <div class="field">
@@ -3447,6 +3461,7 @@
     const singleFields = Array.from(document.querySelectorAll(".single-field"));
     const batchFields = Array.from(document.querySelectorAll(".batch-field"));
     const batchCreateTip = document.querySelector("#batchCreateTip");
+    const backendChildImpactNotice = document.querySelector("#backendChildImpactNotice");
     const parentSelect = document.querySelector("#parentSelect");
     const backendMapField = document.querySelector("#backendMapField");
     const backendMapOptions = document.querySelector("#backendMapOptions");
@@ -3480,6 +3495,7 @@
     const moveParentSearch = document.querySelector("#moveParentSearch");
     const moveParentSelect = document.querySelector("#moveParentSelect");
     const moveParentOptionsEl = document.querySelector("#moveParentOptions");
+    const moveLevelLabel = document.querySelector("#moveLevelLabel");
     const moveLevelInput = document.querySelector("#moveLevelInput");
     const moveSortInput = document.querySelector("#moveSortInput");
     const moveImpact = document.querySelector("#moveImpact");
@@ -4462,19 +4478,23 @@
         id: rowKey(row),
         path: rowPathText(row),
         level: row.children[2].textContent.trim(),
-        ancestorIds: ancestorRows(row).map(rowKey)
+        ancestorIds: ancestorRows(row).map(rowKey),
+        available: backendCategoryAvailable(row)
       })).filter(option => {
         if (selectedIdSet.has(option.id) || (!selectedIdSet.size && normalizedSelected.includes(option.path))) return true;
         if (shouldConstrainByParent && !parentMapIds.length) return false;
         if (!parentMapIds.length) return true;
         return parentMapIds.some(parentId => option.id === parentId || option.ancestorIds.includes(parentId));
       });
-      backendMapOptions.innerHTML = options.map(option => `
+      backendMapOptions.innerHTML = options.map(option => {
+        const selected = selectedIdSet.has(option.id) || (!selectedIdSet.size && normalizedSelected.includes(option.path));
+        return `
         <label class="map-option" data-level="${option.level}" data-keyword="${escapeHtml(option.path)}">
-          <input type="checkbox" value="${escapeHtml(option.path)}" data-backend-id="${escapeHtml(option.id)}"${selectedIdSet.has(option.id) || (!selectedIdSet.size && normalizedSelected.includes(option.path)) ? " checked" : ""}>
-          <span>${escapeHtml(option.path)}</span>
+          <input type="checkbox" value="${escapeHtml(option.path)}" data-backend-id="${escapeHtml(option.id)}" data-unavailable="${option.available ? "false" : "true"}"${selected ? " checked" : ""}${!option.available && !selected ? " disabled" : ""}>
+          <span>${escapeHtml(option.path)}${option.available ? "" : "（已禁用）"}</span>
         </label>
-      `).join("");
+      `;
+      }).join("");
       applyBackendMapFilter();
       renderSelectedMapSummary();
     }
@@ -4494,8 +4514,9 @@
       renderSelectedMapSummary();
     }
 
-    function mapTagsHtml(values = []) {
-      return `<div class="map-tags">${values.map(value => `<span class="map-tag">${escapeHtml(value)}</span>`).join("")}</div>`;
+    function mapTagsHtml(values = [], unavailableIndexes = []) {
+      const unavailable = new Set(unavailableIndexes);
+      return `<div class="map-tags">${values.map((value, index) => `<span class="map-tag${unavailable.has(index) ? " unavailable" : ""}">${escapeHtml(value)}${unavailable.has(index) ? " · 已禁用" : ""}</span>`).join("")}</div>`;
     }
 
     function applyBackendMapFilter() {
@@ -4746,7 +4767,9 @@
     }
 
     function syncLogTypeOptions() {
-      const types = ["全部", "新增", "编辑", "删除", "启用", "禁用", "排序", "导入", "导出"];
+      const types = ["全部", "新增", "编辑", "移动", "删除", "启用", "禁用", "排序"];
+      if (logMode === "front") types.push("导入");
+      types.push("导出");
       logTypeFilter.innerHTML = types.map(type => `<option>${type}</option>`).join("");
       logTypeFilter.value = "全部";
     }
@@ -4979,6 +5002,16 @@
       return tableRows(frontTable).filter(row => frontBackendMapIds(row).includes(backendId));
     }
 
+    function backendStatusImpact(row) {
+      const subtreeRows = [row, ...descendantRows(row)];
+      const mappedFrontRows = [...new Set(subtreeRows.flatMap(frontRowsMappedToBackend))];
+      return {
+        descendantCount: subtreeRows.length - 1,
+        productCount: Number(row.children[col("productCount", "back")].textContent.trim()) || 0,
+        mappedFrontRows
+      };
+    }
+
     function backendCategoryAvailable(row) {
       return Boolean(row) && rowStatus(row) === "启用" && ancestorRows(row).every(parentRow => rowStatus(parentRow) === "启用");
     }
@@ -5017,8 +5050,11 @@
           const backendRow = backendRowById(categoryId);
           return backendRow ? rowPathText(backendRow) : previousPaths[index] || categoryId;
         });
+        const unavailableIndexes = mapIds
+          .map((categoryId, index) => backendCategoryAvailable(backendRowById(categoryId)) ? -1 : index)
+          .filter(index => index >= 0);
         row.dataset.backendMaps = currentPaths.join("|");
-        row.children[col("backendMap", "front")].innerHTML = mapTagsHtml(currentPaths);
+        row.children[col("backendMap", "front")].innerHTML = mapTagsHtml(currentPaths, unavailableIndexes);
       });
     }
 
@@ -5039,7 +5075,7 @@
       const stateAction = status === "启用" ? "禁用" : "启用";
       const editClass = level === "一级" ? "edit-first" : level === "二级" ? "edit-second" : "edit-third";
       const childAction = level === "三级" || (mode === "front" && level === "二级") ? "" : `<button class="link" type="button">新增子类</button>`;
-      const moveAction = `<button class="link" type="button">移动</button>`;
+      const moveAction = mode === "back" && level === "一级" ? "" : `<button class="link" type="button">移动</button>`;
       const productSortAction = mode === "front" ? `<button class="link" type="button">商品排序</button>` : "";
       const stateActionHtml = `<button class="link${stateAction === "禁用" ? " danger" : ""}" type="button">${stateAction}</button>`;
       const deleteAction = `<button class="link danger" type="button">删除</button>`;
@@ -5209,7 +5245,10 @@
         row.dataset.backendMapIds = mapIds.join("|");
         row.dataset.cityScope = cityScope;
         row.dataset.cityNames = cities.join("|");
-        row.children[col("backendMap", "front")].innerHTML = mapTagsHtml(maps);
+        const unavailableIndexes = mapIds
+          .map((categoryId, index) => backendCategoryAvailable(backendRowById(categoryId)) ? -1 : index)
+          .filter(index => index >= 0);
+        row.children[col("backendMap", "front")].innerHTML = mapTagsHtml(maps, unavailableIndexes);
         row.children[col("city", "front")].innerHTML = cityCellHtml(cityScope, cities);
       }
       row.children[col("sort", modeForRow)].textContent = sortInput.value.trim();
@@ -5269,7 +5308,12 @@
     function ensureMoveActions() {
       tableRows(frontTable).concat(tableRows(backTable)).forEach(row => {
         const actionsCell = row.children[col("actions", rowMode(row))];
-        if (!Array.from(actionsCell.querySelectorAll(".link")).some(button => button.textContent.trim() === "移动")) {
+        const existingMove = Array.from(actionsCell.querySelectorAll(".link")).find(button => button.textContent.trim() === "移动");
+        if (rowMode(row) === "back" && Number(row.dataset.level) === 1) {
+          existingMove?.remove();
+          return;
+        }
+        if (!existingMove) {
           const editButton = Array.from(actionsCell.querySelectorAll(".link")).find(button => button.textContent.trim() === "编辑");
           editButton?.insertAdjacentHTML("afterend", '<button class="link" type="button">移动</button>');
         }
@@ -5300,10 +5344,15 @@
       const maxLevel = maxLevelForMode(targetMode);
       const movingRows = new Set(rowBlock(row));
       const depth = subtreeDepth(row);
-      const options = depth + 1 <= maxLevel ? [{ key: "-", label: "-", value: "-", level: 0 }] : [];
+      const currentLevel = Number(row.dataset.level);
+      if (targetMode === "back" && currentLevel === 1) return [];
+      const options = targetMode === "back"
+        ? []
+        : (depth + 1 <= maxLevel ? [{ key: "-", label: "-", value: "-", level: 0 }] : []);
       tableRows(row.closest("table")).forEach(candidate => {
         if (movingRows.has(candidate)) return;
         const candidateLevel = Number(candidate.dataset.level);
+        if (targetMode === "back" && candidateLevel !== currentLevel - 1) return;
         if (candidateLevel >= maxLevel) return;
         if (candidateLevel + 1 + depth > maxLevel) return;
         options.push({
@@ -5329,6 +5378,7 @@
     }
 
     function moveTargetLevel() {
+      if (rowMode(moveContext.row) === "back") return Number(moveContext.row.dataset.level);
       const parentRow = selectedMoveParentRow();
       return parentRow ? Number(parentRow.dataset.level) + 1 : 1;
     }
@@ -5363,11 +5413,11 @@
         : "";
       const moveScopeText = rowMode(row) === "front"
         ? `当前层级：${levelLabel(oldLevel)}；移动后层级：${levelLabel(targetLevel)}。`
-        : `当前层级：${levelLabel(oldLevel)}；移动后层级：${levelLabel(targetLevel)}；受影响子类目：${affectedChildren} 个。`;
-      const blocked = deepestLevel > maxLevel;
+        : `类目层级固定为${levelLabel(oldLevel)}，仅更换上级类目；受影响子类目：${affectedChildren} 个。`;
+      const blocked = rowMode(row) === "front" && deepestLevel > maxLevel;
       moveImpact.innerHTML = `
         <div>${moveScopeText}</div>
-        <div>移动后最深层级：${deepestLevel <= 3 ? levelLabel(deepestLevel) : `${deepestLevel}级`}${blocked ? `，超过${rowMode(row) === "front" ? "展示类目" : "后台类目"}最大支持层级 ${maxLevel}，不允许保存。` : "，符合层级限制。"}</div>
+        ${rowMode(row) === "front" ? `<div>移动后最深层级：${deepestLevel <= 3 ? levelLabel(deepestLevel) : `${deepestLevel}级`}${blocked ? `，超过展示类目最大支持层级 ${maxLevel}，不允许保存。` : "，符合层级限制。"}</div>` : "<div>移动前后层级保持不变，二级只能选择一级上级，三级只能选择二级上级。</div>"}
         <div>${cSideText}</div>
         ${productSortText ? `<div>${productSortText}</div>` : ""}
       `;
@@ -5428,6 +5478,7 @@
       renderMoveParentOptions(moveContext.parentOptions.some(option => option.key === parentKey) ? parentKey : "-");
       moveParentSearch.value = moveParentLabel(moveParentSelect.value);
       moveTitle.textContent = `移动${rowMode(row) === "front" ? "展示" : "后台"}类目「${rowText(row)}」`;
+      moveLevelLabel.textContent = rowMode(row) === "back" ? "类目层级（不可变）" : "移动后层级";
       clearMoveErrors();
       refreshMovePreview(true);
       moveMask.classList.add("show");
@@ -5441,6 +5492,8 @@
       const targetParentName = targetLevel === 1 ? "-" : targetOption?.value || "";
       const maxLevel = maxLevelForMode(rowMode(row));
       const deepestLevel = targetLevel + subtreeDepth(row);
+      const targetParentLevel = selectedMoveParentRow() ? Number(selectedMoveParentRow().dataset.level) : 0;
+      const levelMismatch = rowMode(row) === "back" && targetParentLevel !== Number(row.dataset.level) - 1;
       const sortValue = moveSortInput.value.trim();
       const sortOk = /^\d{1,4}$/.test(sortValue);
       const nameConflict = tableRows(row.closest("table")).some(item => {
@@ -5453,7 +5506,7 @@
         const itemParent = targetLevel === 1 ? "-" : item.children[col("parent", rowMode(item))].textContent.trim();
         return itemParent === targetParentName && item.children[col("sort", rowMode(item))].textContent.trim() === sortValue;
       });
-      const blocked = deepestLevel > maxLevel || nameConflict || sortConflict || !sortOk;
+      const blocked = (rowMode(row) === "front" && deepestLevel > maxLevel) || levelMismatch || nameConflict || sortConflict || !sortOk;
       const sortError = moveSortInput.closest(".field").querySelector(".error");
       if (!sortOk) {
         sortError.textContent = "请输入 0-9999 的整数";
@@ -5461,10 +5514,12 @@
         sortError.textContent = "目标父级下排序值已存在，请调整后保存";
       }
       moveSortInput.closest(".field").classList.toggle("invalid", !sortOk || sortConflict);
-      moveParentSelect.closest(".field").classList.toggle("invalid", deepestLevel > maxLevel || nameConflict);
+      moveParentSelect.closest(".field").classList.toggle("invalid", (rowMode(row) === "front" && deepestLevel > maxLevel) || levelMismatch || nameConflict);
       if (nameConflict) {
         moveParentSelect.closest(".field").querySelector(".error").textContent = "当前类目名称已与其他类目重复，请先修改名称";
-      } else if (deepestLevel > maxLevel) {
+      } else if (levelMismatch) {
+        moveParentSelect.closest(".field").querySelector(".error").textContent = "移动前后类目层级必须保持不变";
+      } else if (rowMode(row) === "front" && deepestLevel > maxLevel) {
         moveParentSelect.closest(".field").querySelector(".error").textContent = "移动后子树层级超过系统最大支持层级";
       } else {
         moveParentSelect.closest(".field").querySelector(".error").textContent = "请选择有效的目标上级类目";
@@ -5530,7 +5585,7 @@
       const relationImpact = modeForRow === "front"
         ? "，展示地区与展示状态已重算，商品排序按展示类目 ID 保留"
         : `，受影响子类目 ${block.length - 1} 个`;
-      appendOperationLog("编辑", rowLogObject(row), `移动类目：上级由${oldParent}调整为${targetParentName}，层级由${levelLabel(oldLevel)}调整为${levelLabel(targetLevel)}，排序值由${oldSort}调整为${moveSortInput.value.trim()}${relationImpact}`);
+      appendOperationLog("移动", rowLogObject(row), `${modeForRow === "front" ? "移动展示类目" : "同层级移动后台类目"}：上级由${oldParent}调整为${targetParentName}，层级${modeForRow === "front" ? `由${levelLabel(oldLevel)}调整为${levelLabel(targetLevel)}` : `保持${levelLabel(oldLevel)}不变`}，排序值由${oldSort}调整为${moveSortInput.value.trim()}${relationImpact}`);
       showToast(modeForRow === "front"
         ? "类目移动成功，C 端已按最新结构生效"
         : "类目移动成功，后台类目路径及展示类目映射已更新");
@@ -5571,6 +5626,7 @@
       refreshDisplayStates(row.closest("table"));
       if (modeForRow === "back") {
         publishBackendCategorySnapshot();
+        refreshFrontendBackendMappings();
         refreshDisplayStates(frontTable);
       }
       if (queryActive) applyQuery(false);
@@ -5730,6 +5786,8 @@
       cityConfigField.classList.remove("invalid");
       sortInput.closest(".field").classList.remove("invalid");
       sortStepInput.closest(".field").classList.remove("invalid");
+      backendChildImpactNotice.textContent = "";
+      backendChildImpactNotice.classList.add("hidden");
       updateCategoryNameMeta();
     }
 
@@ -5774,6 +5832,13 @@
       } else if (action === "delete") {
         confirmDesc.textContent = "删除后不可恢复，确认后该类目将从列表移除。";
         confirmAction.textContent = "确认删除";
+      } else if (mode === "back" && action === "status" && actionLabel === "禁用") {
+        const impact = backendStatusImpact(row);
+        confirmDesc.textContent = `禁用后，当前后台类目及 ${impact.descendantCount} 个后台子类目不可用于新建、复制或修改商品类目；${impact.productCount} 个关联商品不自动下架，但暂时退出相关展示类目商品池；保留 ${impact.mappedFrontRows.length} 个展示类目映射及原商品排序。`;
+        confirmAction.textContent = "确认禁用";
+      } else if (mode === "back" && action === "status" && actionLabel === "启用") {
+        confirmDesc.textContent = "启用后，后台子类目按自身配置状态恢复；符合条件的商品重新进入相关展示类目商品池，并恢复原商品排序。";
+        confirmAction.textContent = "确认启用";
       } else if (level === "一级" && actionLabel === "禁用") {
         confirmDesc.textContent = mode === "front"
           ? "禁用一级类目后，其下二级类目不会在C 端展示。"
@@ -6351,7 +6416,15 @@
         const currentLevel = row?.children[2]?.textContent.trim();
         if (text === "新增子类") {
           if (mode === "front" && currentLevel === "二级") return;
-          openModal(currentLevel === "一级" ? "二级" : "三级", "create", { parentName: cleanCategoryName(row) });
+          const modeForRow = rowMode(row);
+          const parentProductCount = modeForRow === "back"
+            ? Number(row.children[col("productCount", "back")].textContent.trim()) || 0
+            : 0;
+          openModal(currentLevel === "一级" ? "二级" : "三级", "create", {
+            parentName: cleanCategoryName(row),
+            parentProductCount,
+            parentWasLeaf: directChildRows(row).length === 0
+          });
         }
         if (text === "移动") openMoveModal(row);
         if (text === "商品排序") openProductSortModal(row);
@@ -6499,7 +6572,11 @@
     backendMapSearch.addEventListener("input", applyBackendMapFilter);
     backendMapLevel.addEventListener("change", applyBackendMapFilter);
     backendMapOptions.addEventListener("change", event => {
-      if (event.target.matches("input[type='checkbox']")) renderSelectedMapSummary();
+      if (!event.target.matches("input[type='checkbox']")) return;
+      if (event.target.dataset.unavailable === "true" && !event.target.checked) {
+        event.target.disabled = true;
+      }
+      renderSelectedMapSummary();
     });
     citySearch.addEventListener("input", applyCityFilter);
     citySearch.addEventListener("focus", () => {
@@ -6587,7 +6664,15 @@
         deleteCategoryRow(pendingAction.row);
         showToast("类目删除成功");
       } else if (pendingAction?.action === "status") {
-        appendOperationLog(pendingAction.actionLabel, rowLogObject(pendingAction.row), `状态变更为${pendingAction.actionLabel === "禁用" ? "禁用" : "启用"}`);
+        const modeForRow = rowMode(pendingAction.row);
+        let detail = `状态变更为${pendingAction.actionLabel === "禁用" ? "禁用" : "启用"}`;
+        if (modeForRow === "back") {
+          const impact = backendStatusImpact(pendingAction.row);
+          detail = pendingAction.actionLabel === "禁用"
+            ? `禁用后台类目；影响后台子类目 ${impact.descendantCount} 个、关联商品 ${impact.productCount} 个、展示类目 ${impact.mappedFrontRows.length} 个；商品不自动下架，映射和商品排序保留`
+            : `启用后台类目；后台子类目按自身配置状态恢复，符合条件商品重新进入展示类目商品池并恢复原商品排序`;
+        }
+        appendOperationLog(pendingAction.actionLabel, rowLogObject(pendingAction.row), detail);
         applyStatusChange(pendingAction.row, pendingAction.actionLabel);
         showToast("状态更新成功");
       } else if (pendingAction?.action === "image-delete") {

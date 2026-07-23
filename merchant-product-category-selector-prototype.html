@@ -898,7 +898,7 @@
             <div class="category-field">
               <button class="category-trigger" type="button" id="categoryTrigger">
                 <span class="selected-path placeholder" id="triggerPath">
-                  <span class="path-node">商品类目需选择到三级类目</span>
+                  <span class="path-node">请选择商品三级类目</span>
                 </span>
               </button>
 
@@ -1038,7 +1038,7 @@
       const nodes = new Map(snapshot.map(item => [item.id, {
         ...item,
         disabled: !item.effective,
-        reason: item.status === "禁用" ? "当前已禁用" : !item.effective ? "上级已禁用" : "",
+        reason: item.status === "禁用" ? "当前后台类目已禁用" : !item.effective ? "上级后台类目已禁用" : "",
         children: []
       }]));
       nodes.forEach(node => {
@@ -1124,7 +1124,9 @@
 
     function treePositionById(categoryId) {
       for (let ai = 0; ai < data.length; ai += 1) {
+        if (data[ai].id === categoryId) return { ai, bi: null, ci: null };
         for (let bi = 0; bi < (data[ai].children || []).length; bi += 1) {
+          if (data[ai].children[bi].id === categoryId) return { ai, bi, ci: null };
           const ci = (data[ai].children[bi].children || []).findIndex(item => item.id === categoryId);
           if (ci >= 0) return { ai, bi, ci };
         }
@@ -1132,37 +1134,55 @@
       return null;
     }
 
-    function selectedLeaf() {
-      const item = nodeById(state.selectedId);
-      return item?.level === 3 && item.effective ? item : null;
+    function hasAvailableLevelThree(item) {
+      if (!item?.effective) return false;
+      if (item.level === 3) return true;
+      return (item.children || []).some(hasAvailableLevelThree);
     }
 
-    function setSelectedLeaf(item, position = treePositionById(item?.id)) {
+    function selectedLevelThree() {
+      const item = nodeById(state.selectedId);
+      const treeItem = item ? treeNodeById(item.id) : null;
+      return treeItem && treeItem.level === 3 && treeItem.effective ? treeItem : null;
+    }
+
+    function setSelectedLevelThree(item, position = treePositionById(item?.id)) {
       if (!item || item.level !== 3 || !item.effective || !position) return false;
       state.l1 = position.ai;
-      state.l2 = position.bi;
-      state.l3 = position.ci;
+      state.l2 = position.bi ?? 0;
+      state.l3 = position.ci ?? 0;
       state.selectedId = item.id;
       state.selected = categoryPathById(item.id);
       clearCategoryError();
       return true;
     }
 
-    function firstAvailableIndex(rows = [], requireLeaf = false) {
-      return rows.findIndex(item => item.effective && (!requireLeaf || (item.children || []).some(child => child.level === 3 && child.effective)));
+    function treeNodeById(categoryId) {
+      for (const first of data) {
+        if (first.id === categoryId) return first;
+        for (const second of first.children || []) {
+          if (second.id === categoryId) return second;
+          const third = (second.children || []).find(item => item.id === categoryId);
+          if (third) return third;
+        }
+      }
+      return null;
+    }
+
+    function firstAvailableIndex(rows = []) {
+      return rows.findIndex(hasAvailableLevelThree);
     }
 
     function itemTemplate(item, active, onClick) {
       const div = document.createElement("div");
       div.className = `cat-item${active ? " active" : ""}${item.disabled ? " disabled" : ""}`;
-      const emptyReason = item.level < 3 && !(item.children || []).length ? "暂无可用下级类目" : "";
-      const reason = item.reason || emptyReason;
+      const reason = item.reason || "";
       div.innerHTML = `
         <div class="cat-main">
           <div class="cat-name">${escapeHtml(item.name)}</div>
           ${reason ? `<div class="cat-sub">${escapeHtml(reason)}</div>` : ""}
         </div>
-        <span class="tag ${item.disabled ? "bad" : ""}">${item.disabled ? "禁用" : ""}</span>
+          <span class="tag ${item.disabled ? "bad" : ""}">${item.disabled ? "禁用" : ""}</span>
       `;
       div.addEventListener("click", () => {
         if (!item.disabled) onClick();
@@ -1186,7 +1206,7 @@
         level1.appendChild(itemTemplate(item, state.l1 === index, () => {
           state.l1 = index;
           const secondRows = item.children || [];
-          const firstBranch = firstAvailableIndex(secondRows, true);
+          const firstBranch = firstAvailableIndex(secondRows);
           state.l2 = firstBranch >= 0 ? firstBranch : 0;
           state.l3 = 0;
           syncSelectedFromCascade();
@@ -1208,7 +1228,9 @@
           renderCascade();
         }));
       });
-      if (!second.length) level2.innerHTML = '<div class="empty-state">暂无二级类目</div>';
+      if (!second.length) {
+        level2.innerHTML = '<div class="empty-state">暂无二级类目</div>';
+      }
 
       const third = second[state.l2]?.children || [];
       state.l3 = Math.min(state.l3, Math.max(0, third.length - 1));
@@ -1217,11 +1239,13 @@
       third.forEach((item, index) => {
         level3.appendChild(itemTemplate(item, state.l3 === index, () => {
           state.l3 = index;
-          setSelectedLeaf(item, { ai: state.l1, bi: state.l2, ci: index });
+          setSelectedLevelThree(item, { ai: state.l1, bi: state.l2, ci: index });
           renderCascade();
         }));
       });
-      if (!third.length) level3.innerHTML = '<div class="empty-state">暂无可用三级类目</div>';
+      if (!third.length) {
+        level3.innerHTML = '<div class="empty-state">暂无可用三级类目</div>';
+      }
       updateChoice();
     }
 
@@ -1232,24 +1256,22 @@
       const third = secondItem?.children || [];
       const preferredIndex = third[state.l3]?.effective ? state.l3 : firstAvailableIndex(third);
       const leaf = preferredIndex >= 0 ? third[preferredIndex] : null;
-      if (leaf && first?.effective && secondItem?.effective) {
+      if (leaf?.level === 3 && leaf.effective && first?.effective && secondItem?.effective) {
         state.l3 = preferredIndex;
-        setSelectedLeaf(leaf, { ai: state.l1, bi: state.l2, ci: preferredIndex });
+        setSelectedLevelThree(leaf, { ai: state.l1, bi: state.l2, ci: preferredIndex });
       } else {
         state.selectedId = "";
-        state.selected = first
-          ? [first.name, secondItem?.name || "请选择二级类目", "请选择可用三级类目"]
-          : [];
+        state.selected = [];
       }
     }
 
     function updateChoice() {
-      const leaf = selectedLeaf();
+      const leaf = selectedLevelThree();
       if (!leaf) {
         const draft = state.selected.length ? state.selected.join(" / ") : "未选择";
         currentChoice.innerHTML = `已选：<strong>${escapeHtml(draft)}</strong>`;
         triggerPath.classList.add("placeholder");
-        triggerPath.innerHTML = '<span class="path-node">商品类目需选择到三级类目</span>';
+        triggerPath.innerHTML = '<span class="path-node">请选择商品三级类目</span>';
         return;
       }
       const path = state.selected;
@@ -1264,7 +1286,17 @@
     function flatCategories() {
       const rows = [];
       data.forEach((a, ai) => {
+        rows.push({
+          path: [a.name], ai, bi: null, ci: null, item: a, leaf: false,
+          disabled: true,
+          reason: "一级后台类目仅用于定位，不可绑定商品"
+        });
         (a.children || []).forEach((b, bi) => {
+          rows.push({
+            path: [a.name, b.name], ai, bi, ci: null, item: b, leaf: false,
+            disabled: true,
+            reason: "二级后台类目仅用于定位，不可绑定商品"
+          });
           (b.children || []).forEach((c, ci) => {
             rows.push({
               path: [a.name, b.name, c.name],
@@ -1272,8 +1304,9 @@
               bi,
               ci,
               item: c,
+              leaf: true,
               disabled: !a.effective || !b.effective || !c.effective,
-              reason: c.status === "禁用" ? "当前类目已禁用" : (!a.effective || !b.effective) ? "上级类目已禁用" : ""
+              reason: c.status === "禁用" ? "当前后台类目已禁用" : (!a.effective || !b.effective) ? "上级后台类目已禁用" : ""
             });
           });
         });
@@ -1304,19 +1337,29 @@
         div.innerHTML = `
           <div class="cat-main">
             <div class="cat-name">${highlight(row.path.join(" / "), q)}</div>
-            <div class="cat-sub">${escapeHtml(row.disabled ? row.reason || "该路径当前不可选" : "可选择的后台三级类目")}</div>
+            <div class="cat-sub">${escapeHtml(row.disabled ? row.reason || "该路径当前不可选" : "可选择的三级后台类目")}</div>
           </div>
-          <span class="tag ${row.disabled ? "bad" : ""}">${row.disabled ? "禁用" : ""}</span>
+          <span class="tag ${row.leaf && row.disabled ? "bad" : ""}">${!row.leaf ? "不可选" : row.disabled ? "禁用" : ""}</span>
         `;
         div.addEventListener("click", () => {
+          if (!row.leaf) {
+            state.l1 = row.ai;
+            const secondRows = data[state.l1]?.children || [];
+            state.l2 = row.bi ?? Math.max(0, firstAvailableIndex(secondRows));
+            state.l3 = 0;
+            syncSelectedFromCascade();
+            searchInput.value = "";
+            renderCascade();
+            return;
+          }
           if (row.disabled) return;
-          setSelectedLeaf(row.item, { ai: row.ai, bi: row.bi, ci: row.ci });
+          setSelectedLevelThree(row.item, { ai: row.ai, bi: row.bi, ci: row.ci });
           searchInput.value = "";
           renderCascade();
         });
         searchResults.appendChild(div);
       });
-      if (!rows.length) searchResults.innerHTML = '<div class="empty-state">无匹配三级类目</div>';
+      if (!rows.length) searchResults.innerHTML = '<div class="empty-state">无匹配后台类目</div>';
     }
 
     function readRecentCategoryIds() {
@@ -1331,12 +1374,12 @@
 
     function renderRecentCategories() {
       const rows = readRecentCategoryIds()
-        .map(nodeById)
+        .map(treeNodeById)
         .filter(item => item?.level === 3)
         .slice(0, 3);
       recentCategories.innerHTML = '<span class="recent-label">最近：</span>' + (rows.length
         ? rows.map(item => {
-          const reason = item.effective ? "" : (item.status === "禁用" ? "当前后台类目已禁用" : "上级后台类目已禁用");
+          const reason = item.effective ? "" : (item.reason || "当前后台类目已禁用");
           const path = categoryPathById(item.id).join(" / ");
           return `<button class="quick-chip" type="button" data-category-id="${escapeHtml(item.id)}" title="${escapeHtml(path + (reason ? `；${reason}` : ""))}"${item.effective ? "" : " disabled"}>${escapeHtml(item.name)}${reason ? `（${escapeHtml(reason)}）` : ""}</button>`;
         }).join("")
@@ -1355,15 +1398,21 @@
 
     function reconcileSelectedCategory() {
       if (!state.selectedId) return;
-      const leaf = nodeById(state.selectedId);
+      const leaf = treeNodeById(state.selectedId);
       const position = treePositionById(state.selectedId);
+      if (leaf && leaf.level !== 3) {
+        state.selectedId = "";
+        state.selected = [];
+        showCategoryError("所选后台类目不是三级类目，请重新选择商品类目");
+        return;
+      }
       if (!leaf || !leaf.effective || !position) {
         state.selectedId = "";
         state.selected = [];
-        showCategoryError("原选择类目已被禁用、移动为非三级或删除，请重新选择");
+        showCategoryError("原选择后台类目已被禁用或删除，请重新选择商品类目");
         return;
       }
-      setSelectedLeaf(leaf, position);
+      setSelectedLevelThree(leaf, position);
     }
 
     function setCategoryOpen(open) {
@@ -1396,8 +1445,8 @@
     recentCategories.addEventListener("click", event => {
       const chip = event.target.closest(".quick-chip");
       if (!chip) return;
-      const item = nodeById(chip.dataset.categoryId);
-      if (!item || !setSelectedLeaf(item)) {
+      const item = treeNodeById(chip.dataset.categoryId);
+      if (!item || !setSelectedLevelThree(item)) {
         showCategoryError("该最近使用类目已不可用，请重新选择");
         renderRecentCategories();
         return;
@@ -1416,8 +1465,12 @@
     });
 
     document.getElementById("confirmBtn").addEventListener("click", () => {
-      if (!selectedLeaf()) {
-        showCategoryError("请选择商品三级类目");
+      reloadCategoryData();
+      reconcileSelectedCategory();
+      if (!selectedLevelThree()) {
+        if (!categoryError.textContent) showCategoryError("请选择商品三级类目");
+        renderRecentCategories();
+        renderSearch(searchInput.value);
         return;
       }
       clearCategoryError();
@@ -1443,8 +1496,8 @@
     document.getElementById("saveProduct").addEventListener("click", () => {
       reloadCategoryData();
       reconcileSelectedCategory();
-      if (!selectedLeaf()) {
-        showCategoryError("请选择商品三级类目");
+      if (!selectedLevelThree()) {
+        if (!categoryError.textContent) showCategoryError("请选择商品三级类目");
         setCategoryOpen(true);
         return;
       }
