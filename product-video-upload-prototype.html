@@ -1,0 +1,1407 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>示例商城｜商品新增（视频上传原型）</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23ff7326'/%3E%3Cpath d='M7 9h18v7c0 6-3.6 9-9 9s-9-3-9-9V9Zm5 4v3c0 2.8 1.4 4 4 4s4-1.2 4-4v-3h-8Z' fill='%23fffaf5'/%3E%3C/svg%3E" />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink-strong: oklch(0.29 0.012 265);
+        --ink: oklch(0.42 0.012 265);
+        --ink-muted: oklch(0.6 0.01 265);
+        --line: oklch(0.9 0.008 265);
+        --line-strong: oklch(0.82 0.01 265);
+        --surface: oklch(0.995 0.003 75);
+        --surface-soft: oklch(0.975 0.006 75);
+        --surface-warm: oklch(0.97 0.018 65);
+        --accent: oklch(0.72 0.19 45);
+        --accent-hover: oklch(0.66 0.2 42);
+        --accent-soft: oklch(0.96 0.038 55);
+        --danger: oklch(0.6 0.2 25);
+        --success: oklch(0.58 0.14 150);
+        --topbar: oklch(0.32 0.012 270);
+        --radius: 3px;
+        --shadow-popover: 0 12px 28px oklch(0.25 0.01 265 / 0.16);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 1120px;
+        background: var(--surface-soft);
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Microsoft YaHei", system-ui, sans-serif;
+        font-size: 14px;
+        background: var(--surface-soft);
+      }
+
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .topbar {
+        position: fixed;
+        inset: 0 0 auto 0;
+        z-index: 20;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        color: oklch(0.97 0.004 75);
+        background: var(--topbar);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 17px;
+      }
+
+      .brand-mark {
+        position: relative;
+        width: 25px;
+        height: 18px;
+        border-radius: 4px 4px 12px 12px;
+        background: oklch(0.985 0.003 75);
+      }
+
+      .brand-mark::before {
+        content: "";
+        position: absolute;
+        inset: 0 5px auto;
+        height: 6px;
+        background: var(--topbar);
+        border-radius: 0 0 4px 4px;
+      }
+
+      .brand-divider {
+        height: 18px;
+        width: 1px;
+        background: oklch(0.72 0.008 265 / 0.7);
+      }
+
+      .brand-platform {
+        color: oklch(0.86 0.006 265);
+        font-weight: 400;
+      }
+
+      .user-actions {
+        display: flex;
+        align-items: center;
+        gap: 26px;
+        color: oklch(0.83 0.006 265);
+        font-size: 13px;
+      }
+
+      .user-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 210px minmax(0, 1fr);
+        min-height: 100vh;
+        padding-top: 56px;
+      }
+
+      .sidebar {
+        position: fixed;
+        inset: 56px auto 0 0;
+        width: 210px;
+        overflow: auto;
+        padding: 24px 0;
+        border-right: 1px solid var(--line);
+        background: var(--surface);
+      }
+
+      .nav-eyebrow {
+        margin: 0 28px 16px;
+        color: var(--ink-muted);
+        font-size: 12px;
+      }
+
+      .nav-group-title,
+      .nav-item {
+        display: flex;
+        align-items: center;
+        min-height: 40px;
+        padding: 0 28px;
+      }
+
+      .nav-group-title {
+        margin-top: 8px;
+        color: var(--ink-strong);
+        font-weight: 600;
+      }
+
+      .nav-item {
+        position: relative;
+        color: var(--ink);
+        text-decoration: none;
+      }
+
+      .nav-item:hover {
+        color: var(--accent-hover);
+        background: var(--surface-warm);
+      }
+
+      .nav-item.active {
+        color: var(--accent-hover);
+        background: var(--accent-soft);
+      }
+
+      .nav-item.active::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 3px;
+        background: var(--accent);
+      }
+
+      main {
+        grid-column: 2;
+        padding: 22px 28px 96px;
+      }
+
+      .page-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .page-title {
+        margin: 0;
+        color: var(--ink-strong);
+        font-size: 20px;
+        font-weight: 650;
+      }
+
+      .breadcrumb {
+        color: var(--ink-muted);
+        font-size: 13px;
+      }
+
+      .form-shell {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface);
+      }
+
+      .section-title {
+        display: flex;
+        align-items: center;
+        height: 48px;
+        margin: 0;
+        padding: 0 24px;
+        color: var(--ink-strong);
+        font-size: 15px;
+        font-weight: 650;
+        border-bottom: 1px solid var(--line);
+        background: oklch(0.986 0.004 75);
+      }
+
+      .form-content {
+        padding: 22px 28px 30px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 168px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+        margin-bottom: 18px;
+      }
+
+      .field-label {
+        min-height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 6px;
+        color: var(--ink);
+        line-height: 20px;
+        text-align: right;
+      }
+
+      .required::before {
+        content: "*";
+        margin-right: -2px;
+        color: var(--danger);
+      }
+
+      .optional {
+        color: var(--ink-muted);
+        font-size: 12px;
+        font-weight: 400;
+      }
+
+      .video-label {
+        flex-direction: column;
+        align-items: flex-end;
+        justify-content: center;
+        gap: 0;
+        white-space: nowrap;
+      }
+
+      .control,
+      .select,
+      .number-control {
+        width: 100%;
+        height: 34px;
+        padding: 0 10px;
+        color: var(--ink-strong);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius);
+        outline: 0;
+        background: var(--surface);
+        transition: border-color 160ms ease-out, box-shadow 160ms ease-out;
+      }
+
+      .control:hover,
+      .select:hover,
+      .number-control:hover {
+        border-color: oklch(0.72 0.05 45);
+      }
+
+      .control:focus,
+      .select:focus,
+      .number-control:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px oklch(0.82 0.12 50 / 0.22);
+      }
+
+      .control::placeholder {
+        color: oklch(0.72 0.008 265);
+      }
+
+      .inline-controls {
+        display: grid;
+        grid-template-columns: minmax(170px, 1fr) minmax(170px, 1fr);
+        gap: 12px;
+      }
+
+      .radio-line {
+        min-height: 34px;
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 22px;
+      }
+
+      .radio-line label {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        white-space: nowrap;
+      }
+
+      input[type="radio"] {
+        accent-color: var(--accent);
+      }
+
+      .subsection {
+        margin: 24px 0 20px;
+        padding-top: 22px;
+        border-top: 1px solid var(--line);
+      }
+
+      .subsection-heading {
+        margin: 0 0 20px;
+        color: var(--ink-strong);
+        font-size: 15px;
+        font-weight: 650;
+      }
+
+      .upload-list {
+        display: flex;
+        align-items: flex-start;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      .picture-card,
+      .upload-picture {
+        position: relative;
+        width: 116px;
+        height: 116px;
+        border-radius: var(--radius);
+      }
+
+      .picture-card {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        background: linear-gradient(145deg, oklch(0.94 0.025 65), oklch(0.985 0.005 75));
+      }
+
+      .picture-card::before {
+        content: "";
+        position: absolute;
+        width: 56px;
+        height: 45px;
+        left: 30px;
+        top: 30px;
+        border: 2px solid oklch(0.72 0.035 65);
+        border-radius: 8px;
+        transform: rotate(-4deg);
+        background: oklch(0.88 0.055 65);
+        box-shadow: inset 0 0 0 7px oklch(0.94 0.025 65);
+      }
+
+      .picture-card::after {
+        content: "主图";
+        position: absolute;
+        inset: 0 auto auto 0;
+        padding: 3px 8px;
+        color: oklch(0.985 0.003 75);
+        font-size: 11px;
+        background: var(--accent);
+      }
+
+      .upload-picture,
+      .video-dropzone {
+        border: 1px dashed var(--line-strong);
+        color: var(--ink-muted);
+        background: oklch(0.992 0.003 75);
+        transition:
+          border-color 160ms ease-out,
+          color 160ms ease-out,
+          background 160ms ease-out,
+          box-shadow 160ms ease-out;
+      }
+
+      .upload-picture {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+      }
+
+      .upload-picture:hover,
+      .video-dropzone:hover,
+      .video-dropzone.is-dragging {
+        color: var(--accent-hover);
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .plus {
+        position: relative;
+        width: 20px;
+        height: 20px;
+      }
+
+      .plus::before,
+      .plus::after {
+        content: "";
+        position: absolute;
+        inset: 9px 2px auto;
+        height: 2px;
+        border-radius: 2px;
+        background: currentColor;
+      }
+
+      .plus::after {
+        transform: rotate(90deg);
+      }
+
+      .helper {
+        margin: 9px 0 0;
+        color: var(--ink-muted);
+        font-size: 12px;
+        line-height: 20px;
+      }
+
+      .helper strong {
+        color: var(--ink);
+        font-weight: 500;
+      }
+
+      .video-field {
+        position: relative;
+      }
+
+      .video-dropzone {
+        position: relative;
+        width: min(100%, 680px);
+        min-height: 166px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        border-radius: 4px;
+        outline: 0;
+        cursor: pointer;
+      }
+
+      .video-dropzone:focus-visible {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px oklch(0.82 0.12 50 / 0.22);
+      }
+
+      .upload-empty {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-align: center;
+      }
+
+      .video-icon {
+        width: 37px;
+        height: 31px;
+        color: var(--ink-muted);
+      }
+
+      .upload-title {
+        color: var(--ink-strong);
+        font-weight: 600;
+      }
+
+      .upload-copy {
+        color: var(--ink-muted);
+        font-size: 12px;
+      }
+
+      .upload-progress {
+        position: relative;
+        display: none;
+        width: 100%;
+        padding: 10px 30px;
+        text-align: center;
+      }
+
+      .progress-content {
+        width: min(100%, 390px);
+        margin: 0 auto;
+      }
+
+      .cancel-upload-button {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 4px 0;
+        color: var(--danger);
+        border: 0;
+        background: transparent;
+        font-size: 12px;
+      }
+
+      .cancel-upload-button:hover {
+        color: oklch(0.52 0.2 27);
+        text-decoration: underline;
+      }
+
+      .progress-name {
+        max-width: 100%;
+        margin-bottom: 12px;
+        overflow: hidden;
+        color: var(--ink-strong);
+        font-weight: 550;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .progress-track {
+        overflow: hidden;
+        height: 7px;
+        border-radius: 10px;
+        background: oklch(0.91 0.009 265);
+      }
+
+      .progress-bar {
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--accent);
+        transition: width 180ms ease-out;
+      }
+
+      .progress-text {
+        margin-top: 9px;
+        color: var(--ink-muted);
+        font-size: 12px;
+      }
+
+      .video-result {
+        display: none;
+        width: min(100%, 680px);
+        min-height: 166px;
+        align-items: center;
+        gap: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: var(--surface);
+      }
+
+      .video-preview {
+        position: relative;
+        flex: 0 0 188px;
+        height: 126px;
+        overflow: hidden;
+        border-radius: 3px;
+        background: oklch(0.28 0.01 265);
+      }
+
+      .video-preview video {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+      }
+
+      .play-button {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        transform: translate(-50%, -50%);
+        border: 0;
+        border-radius: 50%;
+        background: oklch(0.985 0.003 75 / 0.9);
+        box-shadow: 0 2px 10px oklch(0.2 0.01 265 / 0.28);
+      }
+
+      .play-button::before {
+        content: "";
+        position: absolute;
+        inset: 10px auto auto 14px;
+        width: 0;
+        height: 0;
+        border-top: 8px solid transparent;
+        border-bottom: 8px solid transparent;
+        border-left: 12px solid var(--accent-hover);
+      }
+
+      .video-meta {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .video-name {
+        margin: 0 0 8px;
+        overflow: hidden;
+        color: var(--ink-strong);
+        font-weight: 600;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .status-line {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-bottom: 9px;
+        color: var(--success);
+        font-size: 13px;
+      }
+
+      .status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: currentColor;
+      }
+
+      .meta-line {
+        color: var(--ink-muted);
+        font-size: 12px;
+        line-height: 20px;
+      }
+
+      .video-actions {
+        display: flex;
+        gap: 16px;
+        margin-top: 13px;
+      }
+
+      .link-button {
+        padding: 0;
+        color: oklch(0.53 0.15 245);
+        border: 0;
+        background: transparent;
+      }
+
+      .link-button:hover {
+        color: oklch(0.44 0.17 245);
+      }
+
+      .link-button.danger {
+        color: var(--danger);
+      }
+
+      .field-error {
+        display: none;
+        margin-top: 8px;
+        color: var(--danger);
+        font-size: 12px;
+        line-height: 18px;
+      }
+
+      .editor {
+        min-height: 150px;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius);
+      }
+
+      .editor-toolbar {
+        height: 36px;
+        display: flex;
+        align-items: center;
+        gap: 17px;
+        padding: 0 12px;
+        border-bottom: 1px solid var(--line);
+        background: oklch(0.978 0.005 75);
+        color: var(--ink);
+      }
+
+      .editor-body {
+        padding: 12px;
+        color: oklch(0.69 0.008 265);
+      }
+
+      .actions {
+        position: fixed;
+        inset: auto 0 0 210px;
+        z-index: 15;
+        height: 68px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        border-top: 1px solid var(--line);
+        background: oklch(0.995 0.003 75 / 0.96);
+        box-shadow: 0 -4px 16px oklch(0.3 0.01 265 / 0.06);
+      }
+
+      .button {
+        min-width: 96px;
+        height: 34px;
+        padding: 0 18px;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius);
+        color: var(--ink);
+        background: var(--surface);
+        transition: background 160ms ease-out, border-color 160ms ease-out;
+      }
+
+      .button:hover {
+        border-color: oklch(0.71 0.04 45);
+        background: var(--surface-warm);
+      }
+
+      .button.primary {
+        color: oklch(0.985 0.003 75);
+        border-color: var(--accent);
+        background: var(--accent);
+      }
+
+      .button.primary:hover {
+        border-color: var(--accent-hover);
+        background: var(--accent-hover);
+      }
+
+      .button:focus-visible,
+      .link-button:focus-visible,
+      .play-button:focus-visible {
+        outline: 3px solid oklch(0.82 0.12 50 / 0.32);
+        outline-offset: 2px;
+      }
+
+      .toast {
+        position: fixed;
+        z-index: 60;
+        inset: 76px 28px auto auto;
+        max-width: 360px;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 15px;
+        color: var(--ink-strong);
+        border: 1px solid var(--line);
+        border-radius: 5px;
+        background: var(--surface);
+        box-shadow: var(--shadow-popover);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-8px);
+        transition: opacity 180ms ease-out, transform 180ms ease-out;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast-icon {
+        width: 18px;
+        height: 18px;
+        flex: none;
+        display: grid;
+        place-items: center;
+        color: oklch(0.985 0.003 75);
+        border-radius: 50%;
+        background: var(--success);
+        font-size: 12px;
+      }
+
+      dialog {
+        width: min(860px, calc(100vw - 80px));
+        padding: 0;
+        border: 0;
+        border-radius: 6px;
+        background: var(--surface);
+        box-shadow: 0 24px 64px oklch(0.2 0.01 265 / 0.32);
+      }
+
+      dialog::backdrop {
+        background: oklch(0.2 0.01 265 / 0.56);
+      }
+
+      .dialog-head {
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+        color: var(--ink-strong);
+        border-bottom: 1px solid var(--line);
+        font-weight: 600;
+      }
+
+      .dialog-close {
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        color: var(--ink-muted);
+        border: 0;
+        background: transparent;
+        font-size: 23px;
+      }
+
+      .dialog-body {
+        display: grid;
+        place-items: center;
+        min-height: 450px;
+        padding: 20px;
+        background: oklch(0.25 0.01 265);
+      }
+
+      .dialog-body video {
+        max-width: 100%;
+        max-height: 68vh;
+      }
+
+      .confirm-dialog {
+        width: min(420px, calc(100vw - 48px));
+      }
+
+      .confirm-body {
+        padding: 24px 20px 12px;
+        color: var(--ink);
+        line-height: 1.7;
+      }
+
+      .confirm-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 12px 20px 20px;
+      }
+
+      @media (max-width: 1260px) {
+        .form-row {
+          grid-template-columns: 146px minmax(0, 1fr);
+        }
+
+        .video-dropzone,
+        .video-result {
+          width: min(100%, 620px);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand" aria-label="示例商城商户后台">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <strong>示例商城</strong>
+        <span class="brand-divider" aria-hidden="true"></span>
+        <span class="brand-platform">商户后台</span>
+      </div>
+      <div class="user-actions">
+        <span class="user-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8" />
+            <path d="M5.5 20c.7-4.1 3-6 6.5-6s5.8 1.9 6.5 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          </svg>
+          138****0000
+        </span>
+        <span>回到首页</span>
+      </div>
+    </header>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="nav-eyebrow">商户</div>
+        <div class="nav-group-title">商户管理</div>
+        <a class="nav-item" href="#">门店管理</a>
+        <a class="nav-item active" href="#" aria-current="page">商品管理</a>
+        <a class="nav-item" href="#">订单管理</a>
+        <div class="nav-group-title">商户券</div>
+        <a class="nav-item" href="#">创建商户券</a>
+        <a class="nav-item" href="#">商户券管理</a>
+        <a class="nav-item" href="#">核销商户券</a>
+      </aside>
+
+      <main>
+        <div class="page-header">
+          <h1 class="page-title">商品新增</h1>
+          <span class="breadcrumb">商品管理 / 商品新增</span>
+        </div>
+
+        <form class="form-shell" id="productForm">
+          <h2 class="section-title">基本信息</h2>
+          <div class="form-content">
+            <div class="form-row">
+              <label class="field-label required" for="channel">发布渠道</label>
+              <div class="radio-line" id="channel">
+                <label><input checked name="channel" type="radio" /> 商城商家版</label>
+                <label><input name="channel" type="radio" /> 司机积分商城</label>
+                <label><input name="channel" type="radio" /> 新版司机积分商城</label>
+                <label><input name="channel" type="radio" /> 花小猪活动商城</label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label class="field-label required" for="category">商品品类</label>
+              <select class="select" id="category">
+                <option>请选择商品品类</option>
+                <option>汽车用品 / 车载电器</option>
+                <option>汽车用品 / 清洁养护</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label class="field-label required" for="name">商品名称</label>
+              <input class="control" id="name" maxlength="23" placeholder="商品名称需在23个字符以内" />
+            </div>
+
+            <div class="form-row">
+              <label class="field-label required" for="merchant">商户名称</label>
+              <select class="select" id="merchant">
+                <option>请选择商户</option>
+                <option>示例商城官方旗舰店</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label class="field-label required" for="productType">商品类型</label>
+              <select class="select" id="productType">
+                <option>虚拟商品</option>
+                <option>实体商品</option>
+              </select>
+            </div>
+
+            <div class="form-row">
+              <label class="field-label" for="tags">推荐标签</label>
+              <div>
+                <input class="control" id="tags" placeholder="请输入推荐标签，最多2个" />
+                <p class="helper">标签应突出商品核心卖点，每个标签2至4个字。</p>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-heading">销售信息</h3>
+
+              <div class="form-row">
+                <label class="field-label required" for="price">原价</label>
+                <div class="inline-controls">
+                  <input class="number-control" id="price" inputmode="decimal" placeholder="0.00 元" />
+                  <input class="number-control" inputmode="decimal" placeholder="售卖价格（元）" />
+                </div>
+              </div>
+
+              <div class="form-row">
+                <label class="field-label required" for="stock">库存</label>
+                <input class="number-control" id="stock" inputmode="numeric" placeholder="请输入库存数量" />
+              </div>
+
+              <div class="form-row">
+                <label class="field-label required" for="validity">商品有效期</label>
+                <div class="inline-controls">
+                  <input class="number-control" id="validity" inputmode="numeric" placeholder="有效天数" />
+                  <input class="number-control" inputmode="numeric" placeholder="可使用次数" />
+                </div>
+              </div>
+            </div>
+
+            <div class="subsection">
+              <h3 class="subsection-heading">图文与视频</h3>
+
+              <div class="form-row">
+                <div class="field-label required">商品列表页图片</div>
+                <div>
+                  <div class="upload-list">
+                    <button class="upload-picture" type="button" aria-label="上传商品列表页图片">
+                      <span class="plus" aria-hidden="true"></span>
+                      <span>上传图片</span>
+                    </button>
+                  </div>
+                  <p class="helper">图片尺寸为350×350px，大小不超过200KB，最多1张。</p>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="field-label required">商品详情页轮播图</div>
+                <div>
+                  <div class="upload-list">
+                    <div class="picture-card" aria-label="已上传的商品主图"></div>
+                    <button class="upload-picture" type="button" aria-label="继续上传轮播图">
+                      <span class="plus" aria-hidden="true"></span>
+                      <span>上传图片</span>
+                    </button>
+                  </div>
+                  <p class="helper">图片尺寸为800×800px，大小不超过200KB，最多5张；第一张为商品主图，拖拽可调整顺序。</p>
+                </div>
+              </div>
+
+              <div class="form-row" id="videoRow">
+                <div class="field-label video-label">
+                  商品详情页轮播视频
+                  <span class="optional">（非必填）</span>
+                </div>
+                <div class="video-field">
+                  <input id="videoInput" type="file" accept="video/mp4,.mp4" hidden />
+                  <div
+                    class="video-dropzone"
+                    id="videoDropzone"
+                    role="button"
+                    tabindex="0"
+                    aria-label="上传商品详情页轮播视频"
+                    aria-describedby="videoHelp videoError"
+                  >
+                    <div class="upload-empty" id="uploadEmpty">
+                      <svg class="video-icon" viewBox="0 0 44 36" fill="none" aria-hidden="true">
+                        <rect x="2" y="4" width="29" height="28" rx="3" stroke="currentColor" stroke-width="2" />
+                        <path d="m31 13 9-5v20l-9-5V13Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                        <path d="M16.5 12v12M10.5 18h12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                      </svg>
+                      <div class="upload-title">点击或拖拽上传视频</div>
+                      <div class="upload-copy">仅支持上传1个视频</div>
+                    </div>
+
+                    <div class="upload-progress" id="uploadProgress" aria-live="polite">
+                      <button class="cancel-upload-button" id="cancelUpload" type="button">取消上传</button>
+                      <div class="progress-content">
+                        <div class="progress-name" id="progressName"></div>
+                        <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
+                        <div class="progress-text" id="progressText">正在校验视频…</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="video-result" id="videoResult">
+                    <div class="video-preview">
+                      <video id="previewVideo" muted playsinline></video>
+                      <button class="play-button" id="playPreview" type="button" aria-label="预览视频"></button>
+                    </div>
+                    <div class="video-meta">
+                      <p class="video-name" id="videoName"></p>
+                      <div class="status-line"><span class="status-dot"></span>上传成功</div>
+                      <div class="meta-line" id="videoInfo"></div>
+                      <div class="video-actions">
+                        <button class="link-button" id="previewAction" type="button">预览</button>
+                        <button class="link-button danger" id="deleteVideo" type="button">删除</button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p class="helper" id="videoHelp">
+                    视频要求：<strong>MP4格式，5至60秒，支持1:1、3:4、16:9，720p及以上，大小不超过200MB</strong>。
+                  </p>
+                  <div class="field-error" id="videoError" role="alert"></div>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="field-label">商品描述</div>
+                <div>
+                  <div class="editor" role="textbox" aria-label="商品描述" aria-multiline="true">
+                    <div class="editor-toolbar" aria-hidden="true">
+                      <strong>B</strong><em>I</em><u>U</u><span>≡</span><span>↗</span><span>↶</span><span>↷</span>
+                    </div>
+                    <div class="editor-body">请输入详细的商品介绍及购买说明。</div>
+                  </div>
+                  <p class="helper">支持文字、图片混排，文本最多1500字。</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </main>
+    </div>
+
+    <div class="actions">
+      <button class="button" type="button" id="backButton">返回</button>
+      <button class="button primary" type="submit" form="productForm">保存</button>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <span class="toast-icon">✓</span>
+      <span id="toastText"></span>
+    </div>
+
+    <dialog class="confirm-dialog" id="cancelUploadDialog" aria-labelledby="cancelUploadTitle">
+      <div class="dialog-head">
+        <span id="cancelUploadTitle">取消上传</span>
+      </div>
+      <div class="confirm-body">确认取消上传？当前上传进度不会保留。</div>
+      <div class="confirm-actions">
+        <button class="button" id="continueUpload" type="button">继续上传</button>
+        <button class="button primary" id="confirmCancelUpload" type="button">确认取消</button>
+      </div>
+    </dialog>
+
+    <dialog id="previewDialog">
+      <div class="dialog-head">
+        <span>视频预览</span>
+        <button class="dialog-close" id="closeDialog" type="button" aria-label="关闭预览">×</button>
+      </div>
+      <div class="dialog-body">
+        <video id="dialogVideo" controls playsinline></video>
+      </div>
+    </dialog>
+
+    <script>
+      (() => {
+        const input = document.getElementById("videoInput");
+        const dropzone = document.getElementById("videoDropzone");
+        const empty = document.getElementById("uploadEmpty");
+        const progress = document.getElementById("uploadProgress");
+        const progressBar = document.getElementById("progressBar");
+        const progressName = document.getElementById("progressName");
+        const progressText = document.getElementById("progressText");
+        const cancelUpload = document.getElementById("cancelUpload");
+        const cancelUploadDialog = document.getElementById("cancelUploadDialog");
+        const result = document.getElementById("videoResult");
+        const videoError = document.getElementById("videoError");
+        const previewVideo = document.getElementById("previewVideo");
+        const dialogVideo = document.getElementById("dialogVideo");
+        const videoName = document.getElementById("videoName");
+        const videoInfo = document.getElementById("videoInfo");
+        const dialog = document.getElementById("previewDialog");
+        const toast = document.getElementById("toast");
+        const toastText = document.getElementById("toastText");
+
+        let objectUrl = "";
+        let uploading = false;
+        let uploaded = false;
+        let toastTimer = 0;
+        let uploadTimer = 0;
+        let uploadCompletionTimer = 0;
+        let uploadSession = 0;
+        let pendingObjectUrl = "";
+
+        const clearUploadTimers = () => {
+          window.clearInterval(uploadTimer);
+          window.clearTimeout(uploadCompletionTimer);
+          uploadTimer = 0;
+          uploadCompletionTimer = 0;
+        };
+
+        const clearPendingObjectUrl = () => {
+          if (!pendingObjectUrl) return;
+          URL.revokeObjectURL(pendingObjectUrl);
+          pendingObjectUrl = "";
+        };
+
+        const showToast = (message) => {
+          toastText.textContent = message;
+          toast.classList.add("show");
+          window.clearTimeout(toastTimer);
+          toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2600);
+        };
+
+        const showError = (message) => {
+          clearUploadTimers();
+          uploadSession += 1;
+          clearPendingObjectUrl();
+          videoError.textContent = message;
+          videoError.style.display = "block";
+          progress.style.display = "none";
+          empty.style.display = "flex";
+          dropzone.style.display = "flex";
+          uploading = false;
+          input.value = "";
+        };
+
+        const clearError = () => {
+          videoError.textContent = "";
+          videoError.style.display = "none";
+        };
+
+        const formatBytes = (bytes) => {
+          if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)}KB`;
+          return `${(bytes / 1024 / 1024).toFixed(1)}MB`;
+        };
+
+        const formatDuration = (seconds) => {
+          const rounded = Math.round(seconds);
+          const minutes = Math.floor(rounded / 60);
+          const remainder = String(rounded % 60).padStart(2, "0");
+          return `${minutes}:${remainder}`;
+        };
+
+        const isAllowedRatio = (width, height) => {
+          const ratio = width / height;
+          return [1, 3 / 4, 16 / 9].some((allowed) => Math.abs(ratio - allowed) <= 0.025);
+        };
+
+        const resetVideo = () => {
+          clearUploadTimers();
+          uploadSession += 1;
+          clearPendingObjectUrl();
+          if (objectUrl) URL.revokeObjectURL(objectUrl);
+          objectUrl = "";
+          uploading = false;
+          uploaded = false;
+          input.value = "";
+          previewVideo.removeAttribute("src");
+          dialogVideo.removeAttribute("src");
+          result.style.display = "none";
+          dropzone.style.display = "flex";
+          empty.style.display = "flex";
+          progress.style.display = "none";
+          progressBar.style.width = "0%";
+          clearError();
+        };
+
+        const completeUpload = (file, metadata, session) => {
+          let percent = 8;
+          progressText.textContent = "正在上传视频… 8%";
+          progressBar.style.width = "8%";
+
+          uploadTimer = window.setInterval(() => {
+            if (!uploading || session !== uploadSession) {
+              clearUploadTimers();
+              return;
+            }
+
+            percent = Math.min(100, percent + Math.ceil(Math.random() * 17));
+            progressBar.style.width = `${percent}%`;
+            progressText.textContent = percent < 100 ? `正在上传视频… ${percent}%` : "上传完成";
+
+            if (percent >= 100) {
+              window.clearInterval(uploadTimer);
+              uploadTimer = 0;
+              uploadCompletionTimer = window.setTimeout(() => {
+                uploadCompletionTimer = 0;
+                if (!uploading || session !== uploadSession) return;
+                if (cancelUploadDialog.open) cancelUploadDialog.close();
+                clearError();
+                dropzone.style.display = "none";
+                progress.style.display = "none";
+                result.style.display = "flex";
+                previewVideo.src = objectUrl;
+                dialogVideo.src = objectUrl;
+                videoName.textContent = file.name;
+                videoInfo.textContent = `${metadata.width}×${metadata.height} · ${formatDuration(metadata.duration)} · ${formatBytes(file.size)} · MP4`;
+                uploading = false;
+                uploaded = true;
+                showToast("视频上传成功");
+              }, 240);
+            }
+          }, 150);
+        };
+
+        const inspectFile = (file) => {
+          clearError();
+          clearUploadTimers();
+          uploadSession += 1;
+          const session = uploadSession;
+
+          const extensionIsMp4 = /\.mp4$/i.test(file.name);
+          const mimeIsMp4 = !file.type || file.type === "video/mp4";
+          if (!extensionIsMp4 || !mimeIsMp4) {
+            showError("文件格式不支持，请上传MP4格式的视频。");
+            return;
+          }
+
+          if (file.size > 200 * 1024 * 1024) {
+            showError("视频大小超过200MB，请压缩后重新上传。");
+            return;
+          }
+
+          uploading = true;
+          empty.style.display = "none";
+          progress.style.display = "block";
+          progressName.textContent = file.name;
+          progressText.textContent = "正在校验视频…";
+          progressBar.style.width = "3%";
+
+          const candidateUrl = URL.createObjectURL(file);
+          pendingObjectUrl = candidateUrl;
+          const metadataVideo = document.createElement("video");
+          metadataVideo.preload = "metadata";
+
+          const failMetadata = () => {
+            if (session !== uploadSession) return;
+            showError("无法读取视频信息，请确认文件未损坏并重新上传。");
+          };
+
+          metadataVideo.addEventListener("loadedmetadata", () => {
+            if (!uploading || session !== uploadSession) return;
+
+            const metadata = {
+              duration: metadataVideo.duration,
+              width: metadataVideo.videoWidth,
+              height: metadataVideo.videoHeight,
+            };
+
+            if (!Number.isFinite(metadata.duration) || metadata.duration < 5 || metadata.duration > 60) {
+              showError("视频时长需在5至60秒之间，请重新选择。");
+              return;
+            }
+
+            if (Math.min(metadata.width, metadata.height) < 720) {
+              showError("视频分辨率低于720p，请上传更清晰的视频。");
+              return;
+            }
+
+            if (!isAllowedRatio(metadata.width, metadata.height)) {
+              showError("视频比例不符合要求，仅支持1:1、3:4或16:9。");
+              return;
+            }
+
+            objectUrl = candidateUrl;
+            pendingObjectUrl = "";
+            completeUpload(file, metadata, session);
+          }, { once: true });
+
+          metadataVideo.addEventListener("error", failMetadata, { once: true });
+          metadataVideo.src = candidateUrl;
+        };
+
+        dropzone.addEventListener("click", () => {
+          if (!uploading && !uploaded) input.click();
+        });
+
+        dropzone.addEventListener("keydown", (event) => {
+          if ((event.key === "Enter" || event.key === " ") && !uploading && !uploaded) {
+            event.preventDefault();
+            input.click();
+          }
+        });
+
+        ["dragenter", "dragover"].forEach((name) => {
+          dropzone.addEventListener(name, (event) => {
+            event.preventDefault();
+            if (!uploading && !uploaded) dropzone.classList.add("is-dragging");
+          });
+        });
+
+        ["dragleave", "drop"].forEach((name) => {
+          dropzone.addEventListener(name, (event) => {
+            event.preventDefault();
+            dropzone.classList.remove("is-dragging");
+          });
+        });
+
+        dropzone.addEventListener("drop", (event) => {
+          if (uploading || uploaded) return;
+          const file = event.dataTransfer.files[0];
+          if (file) inspectFile(file);
+        });
+
+        input.addEventListener("change", () => {
+          const file = input.files[0];
+          if (file) inspectFile(file);
+        });
+
+        cancelUpload.addEventListener("click", (event) => {
+          event.stopPropagation();
+          if (uploading) cancelUploadDialog.showModal();
+        });
+
+        document.getElementById("continueUpload").addEventListener("click", () => cancelUploadDialog.close());
+        document.getElementById("confirmCancelUpload").addEventListener("click", () => {
+          cancelUploadDialog.close();
+          resetVideo();
+          showToast("已取消上传");
+        });
+
+        cancelUploadDialog.addEventListener("click", (event) => {
+          if (event.target === cancelUploadDialog) cancelUploadDialog.close();
+        });
+
+        const openPreview = () => {
+          if (!objectUrl) return;
+          dialog.showModal();
+          dialogVideo.play().catch(() => {});
+        };
+
+        document.getElementById("playPreview").addEventListener("click", openPreview);
+        document.getElementById("previewAction").addEventListener("click", openPreview);
+        document.getElementById("deleteVideo").addEventListener("click", () => {
+          resetVideo();
+          showToast("视频已删除，可重新上传");
+        });
+
+        document.getElementById("closeDialog").addEventListener("click", () => dialog.close());
+        dialog.addEventListener("close", () => {
+          dialogVideo.pause();
+          dialogVideo.currentTime = 0;
+        });
+
+        dialog.addEventListener("click", (event) => {
+          if (event.target === dialog) dialog.close();
+        });
+
+        document.getElementById("productForm").addEventListener("submit", (event) => {
+          event.preventDefault();
+          if (uploading) {
+            videoError.textContent = "视频仍在上传，请等待上传完成后再保存。";
+            videoError.style.display = "block";
+            showToast("视频仍在上传，请稍后保存");
+            return;
+          }
+          if (!uploaded) clearError();
+          showToast(uploaded ? "商品与轮播视频已保存" : "商品已保存，轮播视频为非必填项");
+        });
+
+        document.getElementById("backButton").addEventListener("click", () => showToast("已返回商品管理列表（原型演示）"));
+
+        window.addEventListener("beforeunload", () => {
+          clearUploadTimers();
+          clearPendingObjectUrl();
+          if (objectUrl) URL.revokeObjectURL(objectUrl);
+        });
+      })();
+    </script>
+  </body>
+</html>
