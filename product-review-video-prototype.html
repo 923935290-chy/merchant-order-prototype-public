@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="noindex, nofollow" />
-    <title>商品审核工作台｜商品审核视频预览原型</title>
+    <title>商品审核工作台｜商品审核视频编辑原型</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 29 9v14l-13 7-13-7V9Z' fill='%233b78f2'/%3E%3Cpath d='m16 16 13-7v14l-13 7Z' fill='%23f7954b'/%3E%3C/svg%3E" />
     <style>
       :root {
@@ -32,6 +32,10 @@
 
       * {
         box-sizing: border-box;
+      }
+
+      [hidden] {
+        display: none !important;
       }
 
       html {
@@ -414,6 +418,26 @@
         background: oklch(0.31 0.025 265);
       }
 
+      .video-item {
+        flex: 0 0 94px;
+        width: 94px;
+      }
+
+      .video-item .media-card {
+        width: 100%;
+      }
+
+      .video-status {
+        position: absolute;
+        inset: auto auto 6px 6px;
+        z-index: 2;
+        padding: 2px 5px;
+        color: oklch(0.99 0.003 75);
+        border-radius: 2px;
+        background: var(--accent);
+        font-size: 9px;
+      }
+
       .media-tag {
         position: absolute;
         inset: 0 auto auto 0;
@@ -466,6 +490,117 @@
       .eye-icon {
         width: 30px;
         height: 22px;
+      }
+
+      .media-actions {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 6px;
+      }
+
+      .media-action {
+        padding: 0;
+        color: var(--accent);
+        border: 0;
+        background: transparent;
+        font-size: 12px;
+      }
+
+      .media-action:hover {
+        color: var(--accent-hover);
+        text-decoration: underline;
+      }
+
+      .media-action.danger-link {
+        color: var(--danger);
+      }
+
+      .upload-card {
+        display: grid;
+        place-items: center;
+        color: var(--ink-muted);
+        border-style: dashed;
+        background: var(--surface);
+      }
+
+      .upload-card:hover {
+        color: var(--accent);
+        border-color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .upload-card span {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        font-size: 12px;
+      }
+
+      .upload-plus {
+        font-size: 26px;
+        font-weight: 300;
+        line-height: 1;
+      }
+
+      .upload-panel {
+        max-width: 560px;
+        display: grid;
+        grid-template-columns: minmax(180px, 1fr) minmax(160px, 260px) 44px 64px;
+        align-items: center;
+        gap: 10px;
+        margin-top: 8px;
+        padding: 9px 10px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--surface-soft);
+        font-size: 12px;
+      }
+
+      .upload-name {
+        overflow: hidden;
+        color: var(--ink);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .upload-track {
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--line);
+      }
+
+      .upload-progress {
+        display: block;
+        width: 0;
+        height: 100%;
+        border-radius: inherit;
+        background: var(--accent);
+        transition: width 120ms linear;
+      }
+
+      .upload-percent {
+        color: var(--ink-muted);
+        font-variant-numeric: tabular-nums;
+        text-align: right;
+      }
+
+      .upload-cancel {
+        padding: 0;
+        color: var(--accent);
+        border: 0;
+        background: transparent;
+      }
+
+      .edit-hint {
+        color: var(--accent);
+      }
+
+      .edit-hint.danger-text {
+        color: var(--danger);
       }
 
       .media-help {
@@ -766,6 +901,25 @@
         font-weight: 600;
       }
 
+      .confirm-dialog {
+        width: min(420px, calc(100vw - 48px));
+      }
+
+      .confirm-body {
+        padding: 22px 20px;
+        color: var(--ink);
+        line-height: 1.7;
+      }
+
+      .confirm-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        padding: 14px 18px;
+        border-top: 1px solid var(--line);
+        background: var(--surface-soft);
+      }
+
       .toast {
         position: fixed;
         inset: 72px 22px auto auto;
@@ -989,27 +1143,45 @@
                 <div class="field-label required">商品轮播图</div>
                 <div class="media-block">
                   <div class="media-list" aria-label="商品视频与商品图片">
-                    <button class="media-card video-card" id="openVideo" type="button" aria-label="预览商品视频">
-                      <span class="media-tag">宝贝主图</span>
-                      <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-detail"></use></svg>
-                      <span class="video-type">VIDEO</span>
-                      <span class="video-hover">
-                        <span class="eye-button">
-                          <svg class="eye-icon" viewBox="0 0 36 24" fill="none" aria-hidden="true">
-                            <path d="M2 12s6-9 16-9 16 9 16 9-6 9-16 9S2 12 2 12Z" stroke="currentColor" stroke-width="2" />
-                            <circle cx="18" cy="12" r="4" stroke="currentColor" stroke-width="2" />
-                          </svg>
-                          查看视频
+                    <div class="video-item" id="videoItem">
+                      <button class="media-card video-card" id="openVideo" type="button" aria-label="预览商品视频">
+                        <span class="media-tag" id="videoMainTag">宝贝主图</span>
+                        <span class="video-status" id="videoChangedBadge" hidden>已修改</span>
+                        <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-detail"></use></svg>
+                        <span class="video-type">VIDEO</span>
+                        <span class="video-hover">
+                          <span class="eye-button">
+                            <svg class="eye-icon" viewBox="0 0 36 24" fill="none" aria-hidden="true">
+                              <path d="M2 12s6-9 16-9 16 9 16 9-6 9-16 9S2 12 2 12Z" stroke="currentColor" stroke-width="2" />
+                              <circle cx="18" cy="12" r="4" stroke="currentColor" stroke-width="2" />
+                            </svg>
+                            预览视频
+                          </span>
                         </span>
-                      </span>
+                      </button>
+                      <div class="media-actions" aria-label="视频编辑操作">
+                        <button class="media-action" id="replaceVideo" type="button">更换</button>
+                        <button class="media-action danger-link" id="deleteVideo" type="button">删除</button>
+                      </div>
+                    </div>
+                    <button class="media-card upload-card" id="uploadVideo" type="button" hidden>
+                      <span><b class="upload-plus">＋</b>上传视频</span>
                     </button>
-                    <div class="media-card" aria-label="商品图片1"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-thumb"></use></svg></div>
+                    <input id="videoInput" type="file" accept="video/mp4,.mp4" hidden />
+                    <div class="media-card" id="firstImage" aria-label="商品图片1"><span class="media-tag" id="imageMainTag" hidden>宝贝主图</span><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-thumb"></use></svg></div>
                     <div class="media-card" aria-label="商品图片2"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-detail"></use></svg></div>
                     <div class="media-card" aria-label="商品图片3"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-thumb"></use></svg></div>
                     <div class="media-card" aria-label="商品图片4"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-detail"></use></svg></div>
                     <div class="media-card" aria-label="商品图片5"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-package"></use></svg></div>
                   </div>
-                  <p class="media-help">视频要求：MP4格式，5至60秒，支持1:1、3:4、16:9，720p及以上，大小不超过200MB。<strong>已上传1/1个</strong></p>
+                  <p class="media-help">视频要求：MP4格式，5至60秒，支持1:1、3:4、16:9，720p及以上，大小不超过200MB。<strong id="videoCount">已上传1/1个</strong></p>
+                  <div class="upload-panel" id="uploadPanel" hidden>
+                    <span class="upload-name" id="uploadFileName">视频上传中</span>
+                    <span class="upload-track" aria-hidden="true"><span class="upload-progress" id="uploadProgress"></span></span>
+                    <span class="upload-percent" id="uploadPercent">0%</span>
+                    <button class="upload-cancel" id="cancelUpload" type="button">取消</button>
+                  </div>
+                  <p class="media-help edit-hint" id="videoEditHint">运营可预览、更换或删除视频，修改随商品整体审核结果生效。</p>
                   <p class="media-help">图片要求：尺寸为800×800，小于等于200KB。已上传5/5张。</p>
                 </div>
               </div>
@@ -1033,7 +1205,7 @@
     </main>
 
     <footer class="review-bar">
-      <span class="prototype-note">视频与图片随商品整体审核，不单独出具审核结果</span>
+      <span class="prototype-note" id="reviewNote">视频可编辑，与图片随商品整体审核，不单独出具审核结果</span>
       <button class="button" id="backButton" type="button">返回</button>
       <button class="button danger" id="rejectButton" type="button">审核驳回</button>
       <button class="button primary" id="approveButton" type="button">审核通过</button>
@@ -1051,12 +1223,24 @@
       <div class="video-controls">
         <button class="control-button" id="playToggle" type="button" aria-label="播放视频">▶</button>
         <input class="range" id="progress" type="range" min="0" max="32" step="0.1" value="0" aria-label="视频播放进度" />
-        <div class="time-code"><span id="currentTime">00:00</span> / 00:32</div>
+        <div class="time-code"><span id="currentTime">00:00</span> / <span id="totalTime">00:32</span></div>
         <button class="control-button" id="muteToggle" type="button" aria-label="开启声音">🔇</button>
       </div>
       <div class="dialog-meta">
-        <span><strong>卤香鸭商品展示.mp4</strong></span>
-        <span>1280×720　00:32　18.6MB　MP4</span>
+        <span><strong id="videoMetaName">卤香鸭商品展示.mp4</strong></span>
+        <span id="videoMetaDetail">1280×720　00:32　18.6MB　MP4</span>
+      </div>
+    </dialog>
+
+    <dialog class="confirm-dialog" id="confirmDialog" aria-labelledby="confirmTitle">
+      <header class="dialog-header">
+        <h2 class="dialog-title" id="confirmTitle">确认操作</h2>
+        <button class="dialog-close" id="closeConfirm" type="button" aria-label="关闭确认弹窗">×</button>
+      </header>
+      <div class="confirm-body" id="confirmMessage">请确认是否继续。</div>
+      <div class="confirm-actions">
+        <button class="button" id="cancelConfirm" type="button">取消</button>
+        <button class="button primary" id="confirmAction" type="button">确认</button>
       </div>
     </dialog>
 
@@ -1074,25 +1258,62 @@
         const centerPlay = document.getElementById("centerPlay");
         const progress = document.getElementById("progress");
         const currentTime = document.getElementById("currentTime");
+        const totalTime = document.getElementById("totalTime");
         const muteToggle = document.getElementById("muteToggle");
         const videoStage = document.getElementById("videoStage");
         const toast = document.getElementById("toast");
         const toastText = document.getElementById("toastText");
-        const duration = 32;
+        const videoItem = document.getElementById("videoItem");
+        const uploadVideo = document.getElementById("uploadVideo");
+        const videoInput = document.getElementById("videoInput");
+        const replaceVideo = document.getElementById("replaceVideo");
+        const deleteVideo = document.getElementById("deleteVideo");
+        const imageMainTag = document.getElementById("imageMainTag");
+        const videoChangedBadge = document.getElementById("videoChangedBadge");
+        const videoCount = document.getElementById("videoCount");
+        const videoEditHint = document.getElementById("videoEditHint");
+        const reviewNote = document.getElementById("reviewNote");
+        const uploadPanel = document.getElementById("uploadPanel");
+        const uploadFileName = document.getElementById("uploadFileName");
+        const uploadProgress = document.getElementById("uploadProgress");
+        const uploadPercent = document.getElementById("uploadPercent");
+        const cancelUpload = document.getElementById("cancelUpload");
+        const videoMetaName = document.getElementById("videoMetaName");
+        const videoMetaDetail = document.getElementById("videoMetaDetail");
+        const confirmDialog = document.getElementById("confirmDialog");
+        const confirmTitle = document.getElementById("confirmTitle");
+        const confirmMessage = document.getElementById("confirmMessage");
+        const confirmAction = document.getElementById("confirmAction");
+        let duration = 32;
         let elapsed = 0;
         let playing = false;
         let muted = true;
         let timer = null;
         let toastTimer = null;
+        let uploadTimer = null;
+        let uploading = false;
+        let dirty = false;
+        let hasVideo = true;
+        let confirmCallback = null;
+        let committedHasVideo = true;
+        const committedVideo = {
+          name: "卤香鸭商品展示.mp4",
+          detail: "1280×720　00:32　18.6MB　MP4",
+          duration: 32,
+        };
 
         function formatTime(value) {
-          const seconds = Math.max(0, Math.min(duration, Math.floor(value)));
-          return `00:${String(seconds).padStart(2, "0")}`;
+          const totalSeconds = Math.max(0, Math.min(duration, Math.floor(value)));
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+          return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
         }
 
         function renderPlayer() {
           progress.value = String(elapsed);
+          progress.max = String(duration);
           currentTime.textContent = formatTime(elapsed);
+          totalTime.textContent = formatTime(duration);
           playToggle.textContent = playing ? "❚❚" : "▶";
           playToggle.setAttribute("aria-label", playing ? "暂停视频" : "播放视频");
           centerPlay.hidden = playing;
@@ -1153,7 +1374,171 @@
           toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
         }
 
+        function setDirty(nextDirty, message = "") {
+          dirty = nextDirty;
+          videoEditHint.classList.remove("danger-text");
+          videoChangedBadge.hidden = !dirty || !hasVideo;
+          reviewNote.textContent = dirty
+            ? "视频存在未保存修改，审核通过后与商品整体生效"
+            : "视频可编辑，与图片随商品整体审核，不单独出具审核结果";
+          if (message) videoEditHint.textContent = message;
+        }
+
+        function renderVideoState() {
+          videoItem.hidden = !hasVideo;
+          uploadVideo.hidden = hasVideo || uploading;
+          imageMainTag.hidden = hasVideo;
+          videoCount.textContent = hasVideo ? "已上传1/1个" : "已上传0/1个";
+          videoChangedBadge.hidden = !dirty || !hasVideo;
+        }
+
+        function openConfirm(title, message, buttonText, callback, danger = false) {
+          confirmTitle.textContent = title;
+          confirmMessage.textContent = message;
+          confirmAction.textContent = buttonText;
+          confirmAction.classList.toggle("danger", danger);
+          confirmAction.classList.toggle("primary", !danger);
+          confirmCallback = callback;
+          confirmDialog.showModal();
+          confirmAction.focus();
+        }
+
+        function closeConfirmDialog() {
+          confirmCallback = null;
+          confirmDialog.close();
+        }
+
+        function resetOriginalVideo() {
+          window.clearInterval(uploadTimer);
+          uploading = false;
+          uploadPanel.hidden = true;
+          hasVideo = committedHasVideo;
+          videoMetaName.textContent = committedVideo.name;
+          videoMetaDetail.textContent = committedVideo.detail;
+          duration = committedVideo.duration;
+          videoInput.value = "";
+          setDirty(false, "运营可预览、更换或删除视频，修改随商品整体审核结果生效。");
+          renderVideoState();
+        }
+
+        function cancelCurrentUpload() {
+          window.clearInterval(uploadTimer);
+          uploadTimer = null;
+          uploading = false;
+          uploadPanel.hidden = true;
+          uploadProgress.style.width = "0%";
+          uploadPercent.textContent = "0%";
+          videoInput.value = "";
+          renderVideoState();
+          showToast(hasVideo ? "已取消上传，原视频保持不变" : "已取消上传");
+        }
+
+        function validateVideo(file) {
+          if (!file.name.toLowerCase().endsWith(".mp4") || (file.type && file.type !== "video/mp4")) {
+            return Promise.reject(new Error("仅支持上传MP4格式视频"));
+          }
+          if (file.size > 200 * 1024 * 1024) {
+            return Promise.reject(new Error("视频大小不能超过200MB"));
+          }
+
+          return new Promise((resolve, reject) => {
+            const probe = document.createElement("video");
+            const objectUrl = URL.createObjectURL(file);
+            probe.preload = "metadata";
+            probe.onloadedmetadata = () => {
+              const width = probe.videoWidth;
+              const height = probe.videoHeight;
+              const videoDuration = probe.duration;
+              URL.revokeObjectURL(objectUrl);
+              const ratio = width / height;
+              const validRatio = [1, 3 / 4, 16 / 9].some((target) => Math.abs(ratio - target) <= 0.03);
+              if (videoDuration < 5 || videoDuration > 60) return reject(new Error("视频时长不满足5-60秒"));
+              if (!validRatio) return reject(new Error("视频尺寸不符合要求，支持1:1、3:4或16:9"));
+              if (Math.min(width, height) < 720) return reject(new Error("要求上传分辨率为720p及以上的视频"));
+              resolve({ width, height, duration: videoDuration });
+            };
+            probe.onerror = () => {
+              URL.revokeObjectURL(objectUrl);
+              reject(new Error("视频文件无法读取，请重新选择"));
+            };
+            probe.src = objectUrl;
+          });
+        }
+
+        function startUpload(file, metadata) {
+          uploading = true;
+          uploadVideo.hidden = true;
+          uploadPanel.hidden = false;
+          uploadFileName.textContent = file.name;
+          uploadProgress.style.width = "0%";
+          uploadPercent.textContent = "0%";
+          videoEditHint.classList.remove("danger-text");
+          videoEditHint.textContent = hasVideo ? "新视频上传成功前保留原视频。" : "视频正在上传，上传完成前不可审核通过。";
+          let percent = 0;
+          uploadTimer = window.setInterval(() => {
+            percent = Math.min(100, percent + 10);
+            uploadProgress.style.width = `${percent}%`;
+            uploadPercent.textContent = `${percent}%`;
+            if (percent < 100) return;
+            window.clearInterval(uploadTimer);
+            uploadTimer = null;
+            uploading = false;
+            uploadPanel.hidden = true;
+            hasVideo = true;
+            const seconds = Math.round(metadata.duration);
+            duration = seconds;
+            const size = `${(file.size / 1024 / 1024).toFixed(1)}MB`;
+            videoMetaName.textContent = file.name;
+            videoMetaDetail.textContent = `${metadata.width}×${metadata.height}　${formatTime(seconds)}　${size}　MP4`;
+            videoInput.value = "";
+            setDirty(true, "视频已修改，审核通过后与商品整体生效。");
+            renderVideoState();
+            showToast("视频上传成功，已记录为本次审核修改");
+          }, 100);
+        }
+
+        function chooseVideo() {
+          if (!uploading) videoInput.click();
+        }
+
         openButton.addEventListener("click", openDialog);
+        replaceVideo.addEventListener("click", chooseVideo);
+        uploadVideo.addEventListener("click", chooseVideo);
+        deleteVideo.addEventListener("click", () => {
+          if (uploading) return showToast("视频正在处理，请取消或等待完成后再删除", "danger");
+          openConfirm("删除商品视频", "确认删除该视频？视频为非必填项，删除后可重新上传。", "确认删除", () => {
+            hasVideo = false;
+            setDirty(true, "视频已删除，可重新上传；审核通过后删除结果生效。");
+            renderVideoState();
+            closeConfirmDialog();
+            showToast("视频已删除，审核通过后生效");
+          }, true);
+        });
+        videoInput.addEventListener("change", async () => {
+          const [file] = videoInput.files;
+          if (!file) return;
+          uploading = true;
+          renderVideoState();
+          videoEditHint.classList.remove("danger-text");
+          videoEditHint.textContent = "正在校验视频格式、大小、时长、比例和分辨率…";
+          try {
+            const metadata = await validateVideo(file);
+            startUpload(file, metadata);
+          } catch (error) {
+            uploading = false;
+            videoInput.value = "";
+            renderVideoState();
+            videoEditHint.classList.add("danger-text");
+            videoEditHint.textContent = error.message;
+            showToast(error.message, "danger");
+          }
+        });
+        cancelUpload.addEventListener("click", () => {
+          openConfirm("取消上传", "确认取消上传？当前上传进度不会保留。", "确认取消", () => {
+            closeConfirmDialog();
+            cancelCurrentUpload();
+          }, true);
+        });
         closeButton.addEventListener("click", closeDialog);
         playToggle.addEventListener("click", () => setPlaying(!playing));
         centerPlay.addEventListener("click", () => setPlaying(true));
@@ -1172,10 +1557,55 @@
         });
         dialog.addEventListener("close", resetPlayer);
 
-        document.getElementById("approveButton").addEventListener("click", () => showToast("审核通过，已提交商品整体审核结果"));
-        document.getElementById("rejectButton").addEventListener("click", () => showToast("请在现有审核流程中选择驳回原因", "danger"));
-        document.getElementById("backButton").addEventListener("click", () => showToast("返回商品审核列表"));
+        document.getElementById("closeConfirm").addEventListener("click", closeConfirmDialog);
+        document.getElementById("cancelConfirm").addEventListener("click", closeConfirmDialog);
+        confirmAction.addEventListener("click", () => {
+          if (confirmCallback) confirmCallback();
+        });
+        confirmDialog.addEventListener("cancel", (event) => {
+          event.preventDefault();
+          closeConfirmDialog();
+        });
 
+        document.getElementById("approveButton").addEventListener("click", () => {
+          if (uploading) return showToast("视频仍在上传，请等待上传完成后再审核通过", "danger");
+          const message = dirty ? "商品修改已保存并审核通过" : "审核通过，已提交商品整体审核结果";
+          committedHasVideo = hasVideo;
+          if (hasVideo) {
+            committedVideo.name = videoMetaName.textContent;
+            committedVideo.detail = videoMetaDetail.textContent;
+            committedVideo.duration = duration;
+          }
+          setDirty(false, "运营可预览、更换或删除视频，修改随商品整体审核结果生效。");
+          renderVideoState();
+          showToast(message);
+        });
+        document.getElementById("rejectButton").addEventListener("click", () => {
+          if (uploading) return showToast("视频仍在上传，请取消或等待上传完成", "danger");
+          if (!dirty) return showToast("请在现有审核流程中选择驳回原因", "danger");
+          openConfirm("审核驳回", "驳回后本次运营修改不会生效，仍按现有流程填写驳回原因。", "继续驳回", () => {
+            resetOriginalVideo();
+            closeConfirmDialog();
+            showToast("本次视频修改未生效，请继续选择驳回原因", "danger");
+          }, true);
+        });
+        document.getElementById("backButton").addEventListener("click", () => {
+          if (uploading) return showToast("视频仍在上传，请取消上传后再离开", "danger");
+          if (!dirty) return showToast("返回商品审核列表");
+          openConfirm("放弃本次修改", "当前视频修改尚未随审核提交，确认放弃并返回？", "放弃修改", () => {
+            resetOriginalVideo();
+            closeConfirmDialog();
+            showToast("已放弃修改，返回商品审核列表");
+          }, true);
+        });
+
+        window.addEventListener("beforeunload", (event) => {
+          if (!dirty && !uploading) return;
+          event.preventDefault();
+          event.returnValue = "";
+        });
+
+        renderVideoState();
         renderPlayer();
       })();
     </script>
