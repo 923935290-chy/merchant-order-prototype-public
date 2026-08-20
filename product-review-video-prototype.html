@@ -1,0 +1,1183 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>商品审核工作台｜商品审核视频预览原型</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 2 29 9v14l-13 7-13-7V9Z' fill='%233b78f2'/%3E%3Cpath d='m16 16 13-7v14l-13 7Z' fill='%23f7954b'/%3E%3C/svg%3E" />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink-strong: oklch(0.3 0.018 265);
+        --ink: oklch(0.46 0.018 265);
+        --ink-muted: oklch(0.63 0.016 265);
+        --ink-faint: oklch(0.76 0.012 265);
+        --line: oklch(0.91 0.008 265);
+        --line-strong: oklch(0.84 0.012 265);
+        --canvas: oklch(0.965 0.006 265);
+        --surface: oklch(0.995 0.003 265);
+        --surface-soft: oklch(0.98 0.005 265);
+        --field: oklch(0.97 0.008 265);
+        --accent: oklch(0.62 0.19 258);
+        --accent-hover: oklch(0.55 0.2 258);
+        --accent-soft: oklch(0.955 0.035 258);
+        --orange: oklch(0.76 0.17 57);
+        --orange-soft: oklch(0.95 0.05 62);
+        --danger: oklch(0.6 0.21 27);
+        --success: oklch(0.57 0.15 151);
+        --shadow: 0 16px 42px oklch(0.24 0.015 265 / 0.18);
+        --radius: 4px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        min-width: 1160px;
+        background: var(--canvas);
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Microsoft YaHei", system-ui, sans-serif;
+        font-size: 14px;
+        background: var(--canvas);
+      }
+
+      button,
+      input,
+      textarea {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid oklch(0.75 0.13 258 / 0.34);
+        outline-offset: 2px;
+      }
+
+      .app-header {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 30;
+        height: 56px;
+        display: grid;
+        grid-template-columns: 300px minmax(680px, 1fr) 260px;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+        background: var(--surface);
+      }
+
+      .brand {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 22px;
+        color: var(--ink-strong);
+        font-weight: 700;
+      }
+
+      .brand-logo {
+        width: 30px;
+        height: 30px;
+      }
+
+      .brand-name {
+        font-size: 18px;
+        letter-spacing: 0.01em;
+      }
+
+      .brand-env {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--ink-muted);
+        font-weight: 500;
+      }
+
+      .caret {
+        width: 0;
+        height: 0;
+        border-right: 5px solid transparent;
+        border-left: 5px solid transparent;
+        border-top: 6px solid currentColor;
+      }
+
+      .top-navigation {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: clamp(20px, 2.4vw, 42px);
+        white-space: nowrap;
+      }
+
+      .top-link {
+        position: relative;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        color: var(--ink-strong);
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .top-link.active {
+        color: var(--accent);
+      }
+
+      .top-link.active::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0;
+        height: 2px;
+        background: var(--accent);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        padding-right: 18px;
+      }
+
+      .search-pill {
+        width: 88px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 0 12px;
+        color: var(--ink-faint);
+        border: 0;
+        border-radius: 18px;
+        background: var(--field);
+      }
+
+      .header-icon,
+      .avatar {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border: 0;
+        border-radius: 50%;
+        color: var(--ink);
+        background: var(--field);
+      }
+
+      .avatar {
+        color: oklch(0.98 0.008 75);
+        background: oklch(0.48 0.08 55);
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .app-sidebar {
+        position: fixed;
+        inset: 56px auto 0 0;
+        z-index: 20;
+        width: 184px;
+        overflow-y: auto;
+        border-right: 1px solid var(--line);
+        background: var(--surface);
+      }
+
+      .nav-section {
+        padding: 18px 0 12px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .nav-section-title {
+        margin: 0 22px 8px;
+        color: var(--ink-faint);
+        font-size: 12px;
+        font-weight: 500;
+      }
+
+      .side-item {
+        width: 100%;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 22px;
+        color: var(--ink-strong);
+        text-decoration: none;
+        background: transparent;
+      }
+
+      .side-item:hover {
+        background: var(--surface-soft);
+      }
+
+      .side-item.parent-active {
+        color: var(--accent);
+        font-weight: 650;
+      }
+
+      .side-item.child {
+        padding-left: 45px;
+      }
+
+      .side-item.child.active {
+        color: var(--accent);
+        background: var(--accent-soft);
+        font-weight: 650;
+      }
+
+      .menu-lines {
+        position: relative;
+        width: 12px;
+        height: 10px;
+        border-top: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+      }
+
+      .menu-lines::after {
+        content: "";
+        position: absolute;
+        inset: 3px 0 auto;
+        border-top: 1.5px solid currentColor;
+      }
+
+      .side-caret {
+        margin-left: auto;
+        font-size: 12px;
+      }
+
+      .workspace {
+        min-height: 100vh;
+        padding: 74px 18px 92px 202px;
+      }
+
+      .page-shell {
+        min-height: calc(100vh - 110px);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: var(--surface);
+      }
+
+      .page-heading {
+        height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 22px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .breadcrumb {
+        color: var(--ink-strong);
+        font-size: 15px;
+        font-weight: 650;
+      }
+
+      .audit-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        padding: 5px 10px;
+        color: oklch(0.57 0.15 73);
+        border-radius: 3px;
+        background: var(--orange-soft);
+        font-size: 12px;
+        font-weight: 600;
+      }
+
+      .audit-badge::before {
+        content: "";
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--orange);
+      }
+
+      .page-content {
+        padding: 20px 20px 30px;
+      }
+
+      .section {
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+      }
+
+      .section + .section {
+        margin-top: 18px;
+      }
+
+      .section-title {
+        height: 44px;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        color: var(--ink-strong);
+        border-bottom: 1px solid var(--line);
+        background: var(--surface-soft);
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .form-body {
+        padding: 16px 22px 24px;
+      }
+
+      .form-row {
+        display: grid;
+        grid-template-columns: 136px minmax(0, 1fr);
+        gap: 16px;
+        align-items: start;
+        margin-bottom: 14px;
+      }
+
+      .form-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .field-label {
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        color: oklch(0.52 0.02 265);
+        text-align: right;
+      }
+
+      .required::before {
+        content: "*";
+        margin-right: 5px;
+        color: var(--danger);
+      }
+
+      .read-value {
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        padding: 0 10px;
+        color: oklch(0.58 0.016 265);
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius);
+        background: var(--field);
+      }
+
+      .plain-value {
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        color: var(--ink);
+      }
+
+      .media-block {
+        min-width: 0;
+      }
+
+      .media-list {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        overflow-x: auto;
+        padding: 1px 1px 5px;
+      }
+
+      .media-card {
+        position: relative;
+        flex: 0 0 94px;
+        width: 94px;
+        height: 94px;
+        overflow: hidden;
+        padding: 0;
+        border: 1px solid var(--line-strong);
+        border-radius: 3px;
+        background: oklch(0.96 0.025 70);
+      }
+
+      .media-card svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .media-card.video-card {
+        border-color: oklch(0.78 0.08 258);
+        background: oklch(0.31 0.025 265);
+      }
+
+      .media-tag {
+        position: absolute;
+        inset: 0 auto auto 0;
+        z-index: 2;
+        padding: 3px 7px;
+        color: oklch(0.99 0.004 75);
+        background: var(--orange);
+        font-size: 11px;
+        line-height: 18px;
+      }
+
+      .video-type {
+        position: absolute;
+        inset: auto 6px 6px auto;
+        z-index: 2;
+        padding: 2px 5px;
+        color: oklch(0.98 0.004 75);
+        border-radius: 2px;
+        background: oklch(0.25 0.015 265 / 0.8);
+        font-size: 9px;
+        letter-spacing: 0.06em;
+      }
+
+      .video-hover {
+        position: absolute;
+        inset: 0;
+        z-index: 3;
+        display: grid;
+        place-items: center;
+        color: oklch(0.99 0.003 75);
+        background: oklch(0.22 0.015 265 / 0.58);
+        opacity: 0;
+        transition: opacity 160ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .video-card:hover .video-hover,
+      .video-card:focus-visible .video-hover {
+        opacity: 1;
+      }
+
+      .eye-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .eye-icon {
+        width: 30px;
+        height: 22px;
+      }
+
+      .media-help {
+        margin: 7px 0 0;
+        color: var(--ink-muted);
+        font-size: 12px;
+        line-height: 19px;
+      }
+
+      .media-help strong {
+        color: var(--accent);
+        font-weight: 600;
+      }
+
+      .description-preview {
+        height: 130px;
+        overflow: hidden;
+        border: 1px solid var(--line-strong);
+        border-radius: var(--radius);
+        background: oklch(0.94 0.13 28);
+      }
+
+      .editor-toolbar {
+        height: 36px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 0 12px;
+        color: var(--ink);
+        border-bottom: 1px solid var(--line-strong);
+        background: var(--surface-soft);
+        font-weight: 600;
+      }
+
+      .description-art {
+        height: 104px;
+        display: grid;
+        grid-template-columns: 1fr 240px;
+        align-items: center;
+        padding: 0 44px;
+        color: oklch(0.95 0.05 70);
+        background: oklch(0.46 0.18 27);
+      }
+
+      .description-art strong {
+        display: block;
+        font-size: 26px;
+        letter-spacing: 0.12em;
+      }
+
+      .description-art span {
+        display: block;
+        margin-top: 6px;
+        color: oklch(0.88 0.07 69);
+        font-size: 12px;
+      }
+
+      .plate {
+        position: relative;
+        width: 160px;
+        height: 78px;
+        justify-self: end;
+        border-radius: 50%;
+        background: oklch(0.94 0.025 80);
+        box-shadow: inset 0 0 0 10px oklch(0.85 0.06 68);
+      }
+
+      .plate::before,
+      .plate::after {
+        content: "";
+        position: absolute;
+        width: 84px;
+        height: 12px;
+        left: 38px;
+        border-radius: 50%;
+        background: oklch(0.54 0.12 55);
+        box-shadow:
+          0 14px 0 oklch(0.58 0.11 55),
+          0 28px 0 oklch(0.49 0.1 52);
+        transform: rotate(-8deg);
+      }
+
+      .plate::before {
+        top: 17px;
+      }
+
+      .plate::after {
+        top: 24px;
+        transform: rotate(8deg);
+        opacity: 0.85;
+      }
+
+      .review-bar {
+        position: fixed;
+        inset: auto 0 0 184px;
+        z-index: 25;
+        height: 66px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        border-top: 1px solid var(--line);
+        background: oklch(0.995 0.003 265 / 0.98);
+        box-shadow: 0 -6px 18px oklch(0.25 0.015 265 / 0.05);
+      }
+
+      .button {
+        min-width: 92px;
+        height: 34px;
+        padding: 0 18px;
+        color: var(--ink-strong);
+        border: 1px solid var(--line-strong);
+        border-radius: 3px;
+        background: var(--surface);
+      }
+
+      .button:hover {
+        border-color: oklch(0.72 0.06 258);
+        background: var(--surface-soft);
+      }
+
+      .button.primary {
+        color: oklch(0.99 0.003 75);
+        border-color: var(--accent);
+        background: var(--accent);
+      }
+
+      .button.primary:hover {
+        border-color: var(--accent-hover);
+        background: var(--accent-hover);
+      }
+
+      .button.danger {
+        color: var(--danger);
+        border-color: oklch(0.78 0.08 27);
+      }
+
+      .prototype-note {
+        color: var(--ink-muted);
+        font-size: 12px;
+      }
+
+      dialog {
+        width: min(760px, calc(100vw - 48px));
+        padding: 0;
+        border: 0;
+        border-radius: 6px;
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      dialog::backdrop {
+        background: oklch(0.2 0.018 265 / 0.55);
+      }
+
+      .dialog-header {
+        height: 52px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .dialog-title {
+        margin: 0;
+        color: var(--ink-strong);
+        font-size: 16px;
+        font-weight: 650;
+      }
+
+      .dialog-close {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        color: var(--ink-muted);
+        border: 0;
+        border-radius: 3px;
+        background: transparent;
+        font-size: 23px;
+      }
+
+      .dialog-close:hover {
+        color: var(--ink-strong);
+        background: var(--field);
+      }
+
+      .video-stage {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        margin: 18px 18px 0;
+        color: oklch(0.98 0.004 75);
+        background: oklch(0.25 0.018 265);
+      }
+
+      .video-stage .dish-scene {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .video-stage::after {
+        content: "商品展示视频";
+        position: absolute;
+        inset: 22px auto auto 24px;
+        padding: 5px 9px;
+        color: oklch(0.98 0.004 75);
+        background: oklch(0.24 0.018 265 / 0.72);
+        font-size: 12px;
+      }
+
+      .center-play {
+        position: absolute;
+        inset: 50% auto auto 50%;
+        width: 58px;
+        height: 58px;
+        display: grid;
+        place-items: center;
+        padding: 0;
+        transform: translate(-50%, -50%);
+        color: var(--ink-strong);
+        border: 0;
+        border-radius: 50%;
+        background: oklch(0.98 0.004 75 / 0.94);
+        box-shadow: 0 6px 20px oklch(0.2 0.02 265 / 0.3);
+      }
+
+      .center-play[hidden] {
+        display: none;
+      }
+
+      .play-triangle {
+        width: 0;
+        height: 0;
+        margin-left: 4px;
+        border-top: 10px solid transparent;
+        border-bottom: 10px solid transparent;
+        border-left: 15px solid currentColor;
+      }
+
+      .video-controls {
+        height: 56px;
+        display: grid;
+        grid-template-columns: 36px minmax(160px, 1fr) 92px 38px;
+        align-items: center;
+        gap: 10px;
+        margin: 0 18px;
+        padding: 0 12px;
+        color: var(--ink);
+        border: 1px solid var(--line);
+        border-top: 0;
+        background: var(--surface-soft);
+      }
+
+      .control-button {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        padding: 0;
+        color: var(--ink);
+        border: 0;
+        border-radius: 3px;
+        background: transparent;
+      }
+
+      .control-button:hover {
+        color: var(--accent);
+        background: var(--accent-soft);
+      }
+
+      .range {
+        width: 100%;
+        accent-color: var(--accent);
+      }
+
+      .time-code {
+        color: var(--ink-muted);
+        font-variant-numeric: tabular-nums;
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .dialog-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 14px 18px 18px;
+        color: var(--ink-muted);
+        font-size: 12px;
+      }
+
+      .dialog-meta strong {
+        color: var(--ink-strong);
+        font-weight: 600;
+      }
+
+      .toast {
+        position: fixed;
+        inset: 72px 22px auto auto;
+        z-index: 80;
+        min-width: 250px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        color: var(--ink-strong);
+        border: 1px solid var(--line);
+        border-radius: 4px;
+        background: var(--surface);
+        box-shadow: 0 10px 28px oklch(0.24 0.015 265 / 0.16);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(-8px);
+        transition:
+          opacity 180ms cubic-bezier(0.16, 1, 0.3, 1),
+          transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .toast-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--success);
+      }
+
+      @media (max-width: 1280px) {
+        .app-header {
+          grid-template-columns: 270px minmax(620px, 1fr) 190px;
+        }
+
+        .top-navigation {
+          gap: 22px;
+        }
+
+        .top-link:nth-last-child(-n + 2),
+        .header-icon:nth-of-type(-n + 2) {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="dish-thumb" viewBox="0 0 100 100">
+        <rect width="100" height="100" fill="oklch(0.84 0.06 70)" />
+        <circle cx="50" cy="54" r="35" fill="oklch(0.94 0.025 80)" />
+        <circle cx="50" cy="54" r="29" fill="oklch(0.77 0.08 62)" />
+        <g fill="none" stroke-linecap="round" stroke-width="8">
+          <path d="M26 42c14-9 33-10 48-2" stroke="oklch(0.54 0.12 55)" />
+          <path d="M23 54c18-8 37-8 54 0" stroke="oklch(0.61 0.13 57)" />
+          <path d="M28 66c14-6 30-5 45 2" stroke="oklch(0.49 0.1 52)" />
+        </g>
+        <g fill="oklch(0.5 0.12 145)">
+          <circle cx="22" cy="29" r="3" />
+          <circle cx="76" cy="71" r="3" />
+          <circle cx="72" cy="28" r="2" />
+        </g>
+      </symbol>
+      <symbol id="dish-detail" viewBox="0 0 100 100">
+        <rect width="100" height="100" fill="oklch(0.95 0.02 76)" />
+        <ellipse cx="51" cy="58" rx="44" ry="29" fill="oklch(0.85 0.08 68)" />
+        <g fill="none" stroke-linecap="round" stroke-width="9">
+          <path d="M16 45c18-10 45-11 69-1" stroke="oklch(0.58 0.13 58)" />
+          <path d="M13 59c22-10 49-9 73 2" stroke="oklch(0.5 0.11 52)" />
+          <path d="M22 73c17-5 35-4 55 3" stroke="oklch(0.64 0.12 59)" />
+        </g>
+        <path d="M66 18l26 40" stroke="oklch(0.34 0.06 42)" stroke-width="4" />
+        <path d="M74 16l22 38" stroke="oklch(0.4 0.07 44)" stroke-width="4" />
+      </symbol>
+      <symbol id="dish-package" viewBox="0 0 100 100">
+        <rect width="100" height="100" fill="oklch(0.68 0.15 33)" />
+        <rect x="30" y="18" width="42" height="62" rx="3" fill="oklch(0.82 0.16 45)" />
+        <rect x="35" y="25" width="32" height="22" fill="oklch(0.92 0.05 75)" />
+        <circle cx="51" cy="58" r="12" fill="oklch(0.95 0.02 78)" />
+        <path d="M40 58c7-5 15-5 22 0" fill="none" stroke="oklch(0.52 0.12 55)" stroke-width="5" stroke-linecap="round" />
+      </symbol>
+      <symbol id="dish-scene" viewBox="0 0 1280 720">
+        <rect width="1280" height="720" fill="oklch(0.35 0.07 47)" />
+        <rect y="430" width="1280" height="290" fill="oklch(0.5 0.1 48)" />
+        <circle cx="650" cy="360" r="270" fill="oklch(0.92 0.03 78)" />
+        <circle cx="650" cy="360" r="225" fill="oklch(0.79 0.08 64)" />
+        <g fill="none" stroke-linecap="round" stroke-width="62">
+          <path d="M430 270c120-75 310-82 450-12" stroke="oklch(0.57 0.13 56)" />
+          <path d="M405 370c145-70 340-70 490 10" stroke="oklch(0.64 0.14 59)" />
+          <path d="M455 478c120-40 260-34 380 24" stroke="oklch(0.49 0.11 51)" />
+        </g>
+        <g fill="oklch(0.46 0.13 145)">
+          <circle cx="390" cy="210" r="18" />
+          <circle cx="905" cy="470" r="17" />
+          <circle cx="850" cy="195" r="13" />
+          <circle cx="370" cy="495" r="12" />
+        </g>
+        <rect x="1000" y="95" width="150" height="280" rx="15" fill="oklch(0.62 0.16 31)" />
+        <rect x="1028" y="127" width="94" height="118" fill="oklch(0.88 0.08 67)" />
+        <path d="M1052 190h48M1052 215h48" stroke="oklch(0.52 0.12 43)" stroke-width="10" stroke-linecap="round" />
+      </symbol>
+    </svg>
+
+    <header class="app-header">
+      <div class="brand">
+        <svg class="brand-logo" viewBox="0 0 40 40" aria-hidden="true">
+          <path d="M20 2 36 11 20 20 4 11Z" fill="oklch(0.68 0.19 258)" />
+          <path d="m4 11 16 9v18L4 29Z" fill="oklch(0.62 0.17 260)" />
+          <path d="m36 11-16 9v18l16-9Z" fill="oklch(0.74 0.18 52)" />
+          <path d="m12 15 8 5-8 5-8-5Z" fill="oklch(0.98 0.01 75)" />
+        </svg>
+        <span class="brand-name">商品审核台</span>
+        <span aria-hidden="true">·</span>
+        <span class="brand-env">Demo <span class="caret"></span></span>
+      </div>
+      <nav class="top-navigation" aria-label="顶部导航">
+        <a class="top-link" href="#">数据分析</a>
+        <a class="top-link" href="#">智能触达</a>
+        <a class="top-link" href="#">内容管理</a>
+        <a class="top-link" href="#">渠道管理</a>
+        <a class="top-link active" href="#">商品服务</a>
+        <a class="top-link" href="#">门店服务</a>
+        <a class="top-link" href="#">营销增长</a>
+        <a class="top-link" href="#">常用工具</a>
+        <a class="top-link" href="#">运营活动</a>
+      </nav>
+      <div class="header-actions">
+        <button class="search-pill" type="button" aria-label="搜索">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" />
+            <path d="m16 16 4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+          搜索
+        </button>
+        <button class="header-icon" type="button" aria-label="帮助">?</button>
+        <button class="header-icon" type="button" aria-label="消息">✉</button>
+        <span class="avatar" aria-label="当前用户">审</span>
+      </div>
+    </header>
+
+    <aside class="app-sidebar" aria-label="侧边导航">
+      <section class="nav-section">
+        <p class="nav-section-title">本地服务</p>
+        <a class="side-item" href="#"><span class="menu-lines"></span>商品管理<span class="side-caret">⌄</span></a>
+        <a class="side-item" href="#"><span class="menu-lines"></span>门店管理<span class="side-caret">⌄</span></a>
+        <a class="side-item" href="#"><span class="menu-lines"></span>订单管理<span class="side-caret">⌄</span></a>
+        <a class="side-item" href="#"><span class="menu-lines"></span>下雨赔<span class="side-caret">⌄</span></a>
+        <a class="side-item" href="#"><span class="menu-lines"></span>优惠活动标签管理</a>
+      </section>
+      <section class="nav-section">
+        <p class="nav-section-title">保障服务</p>
+        <a class="side-item" href="#"><span class="menu-lines"></span>订单列表</a>
+      </section>
+      <section class="nav-section">
+        <p class="nav-section-title">商品中心</p>
+        <a class="side-item parent-active" href="#"><span class="menu-lines"></span>商品管理<span class="side-caret">⌃</span></a>
+        <a class="side-item child active" href="#">商品管理</a>
+        <a class="side-item child" href="#">商品组管理</a>
+        <a class="side-item" href="#"><span class="menu-lines"></span>商品展示管理<span class="side-caret">⌄</span></a>
+        <a class="side-item" href="#"><span class="menu-lines"></span>订单管理</a>
+        <a class="side-item" href="#"><span class="menu-lines"></span>商品活动管理</a>
+      </section>
+      <section class="nav-section">
+        <p class="nav-section-title">会员服务</p>
+        <a class="side-item" href="#"><span class="menu-lines"></span>订单管理</a>
+      </section>
+      <section class="nav-section">
+        <p class="nav-section-title">运营中心</p>
+        <a class="side-item" href="#"><span class="menu-lines"></span>活动价格策略</a>
+      </section>
+    </aside>
+
+    <main class="workspace">
+      <article class="page-shell">
+        <header class="page-heading">
+          <div class="breadcrumb">商品管理 / 商品详情</div>
+          <span class="audit-badge">准售审核</span>
+        </header>
+
+        <div class="page-content">
+          <section class="section">
+            <div class="section-title">基本信息</div>
+            <div class="form-body">
+              <div class="form-row">
+                <div class="field-label required">商户名称</div>
+                <div class="read-value">示例商户</div>
+              </div>
+              <div class="form-row">
+                <div class="field-label required">商品品类</div>
+                <div class="read-value">无券类 / 无券类15%</div>
+              </div>
+              <div class="form-row">
+                <div class="field-label">服务费率</div>
+                <div class="plain-value">15%</div>
+              </div>
+              <div class="form-row">
+                <div class="field-label required">商品标题</div>
+                <div class="read-value">卤香鸭</div>
+              </div>
+              <div class="form-row">
+                <div class="field-label required">商品短标题</div>
+                <div class="read-value">卤香鸭500g半只</div>
+              </div>
+              <div class="form-row">
+                <div class="field-label required">商品列表图</div>
+                <div class="media-block">
+                  <div class="media-list">
+                    <div class="media-card" aria-label="商品列表图">
+                      <span class="media-tag">白底图</span>
+                      <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-thumb"></use></svg>
+                    </div>
+                  </div>
+                  <p class="media-help">图片要求：尺寸为350×350，小于等于200KB。</p>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="field-label required">商品轮播图</div>
+                <div class="media-block">
+                  <div class="media-list" aria-label="商品视频与商品图片">
+                    <button class="media-card video-card" id="openVideo" type="button" aria-label="预览商品视频">
+                      <span class="media-tag">宝贝主图</span>
+                      <svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-detail"></use></svg>
+                      <span class="video-type">VIDEO</span>
+                      <span class="video-hover">
+                        <span class="eye-button">
+                          <svg class="eye-icon" viewBox="0 0 36 24" fill="none" aria-hidden="true">
+                            <path d="M2 12s6-9 16-9 16 9 16 9-6 9-16 9S2 12 2 12Z" stroke="currentColor" stroke-width="2" />
+                            <circle cx="18" cy="12" r="4" stroke="currentColor" stroke-width="2" />
+                          </svg>
+                          查看视频
+                        </span>
+                      </span>
+                    </button>
+                    <div class="media-card" aria-label="商品图片1"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-thumb"></use></svg></div>
+                    <div class="media-card" aria-label="商品图片2"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-detail"></use></svg></div>
+                    <div class="media-card" aria-label="商品图片3"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-thumb"></use></svg></div>
+                    <div class="media-card" aria-label="商品图片4"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-detail"></use></svg></div>
+                    <div class="media-card" aria-label="商品图片5"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#dish-package"></use></svg></div>
+                  </div>
+                  <p class="media-help">视频要求：MP4格式，5至60秒，支持1:1、3:4、16:9，720p及以上，大小不超过200MB。<strong>已上传1/1个</strong></p>
+                  <p class="media-help">图片要求：尺寸为800×800，小于等于200KB。已上传5/5张。</p>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="field-label">商品描述</div>
+                <div class="description-preview" aria-label="商品描述预览">
+                  <div class="editor-toolbar">B　I　U　S　“　&lt;/&gt;　🔗　▧　H₁　H₂　☷　☰</div>
+                  <div class="description-art">
+                    <div>
+                      <strong>卤香鲜嫩 · 地道风味</strong>
+                      <span>严选原料，传统工艺，开袋即食</span>
+                    </div>
+                    <div class="plate" aria-hidden="true"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </article>
+    </main>
+
+    <footer class="review-bar">
+      <span class="prototype-note">视频与图片随商品整体审核，不单独出具审核结果</span>
+      <button class="button" id="backButton" type="button">返回</button>
+      <button class="button danger" id="rejectButton" type="button">审核驳回</button>
+      <button class="button primary" id="approveButton" type="button">审核通过</button>
+    </footer>
+
+    <dialog id="videoDialog" aria-labelledby="dialogTitle">
+      <header class="dialog-header">
+        <h2 class="dialog-title" id="dialogTitle">商品视频预览</h2>
+        <button class="dialog-close" id="closeDialog" type="button" aria-label="关闭视频预览">×</button>
+      </header>
+      <div class="video-stage" id="videoStage">
+        <svg class="dish-scene" viewBox="0 0 1280 720" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><use href="#dish-scene"></use></svg>
+        <button class="center-play" id="centerPlay" type="button" aria-label="播放视频"><span class="play-triangle"></span></button>
+      </div>
+      <div class="video-controls">
+        <button class="control-button" id="playToggle" type="button" aria-label="播放视频">▶</button>
+        <input class="range" id="progress" type="range" min="0" max="32" step="0.1" value="0" aria-label="视频播放进度" />
+        <div class="time-code"><span id="currentTime">00:00</span> / 00:32</div>
+        <button class="control-button" id="muteToggle" type="button" aria-label="开启声音">🔇</button>
+      </div>
+      <div class="dialog-meta">
+        <span><strong>卤香鸭商品展示.mp4</strong></span>
+        <span>1280×720　00:32　18.6MB　MP4</span>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">
+      <span class="toast-dot"></span>
+      <span id="toastText">操作完成</span>
+    </div>
+
+    <script>
+      (() => {
+        const dialog = document.getElementById("videoDialog");
+        const openButton = document.getElementById("openVideo");
+        const closeButton = document.getElementById("closeDialog");
+        const playToggle = document.getElementById("playToggle");
+        const centerPlay = document.getElementById("centerPlay");
+        const progress = document.getElementById("progress");
+        const currentTime = document.getElementById("currentTime");
+        const muteToggle = document.getElementById("muteToggle");
+        const videoStage = document.getElementById("videoStage");
+        const toast = document.getElementById("toast");
+        const toastText = document.getElementById("toastText");
+        const duration = 32;
+        let elapsed = 0;
+        let playing = false;
+        let muted = true;
+        let timer = null;
+        let toastTimer = null;
+
+        function formatTime(value) {
+          const seconds = Math.max(0, Math.min(duration, Math.floor(value)));
+          return `00:${String(seconds).padStart(2, "0")}`;
+        }
+
+        function renderPlayer() {
+          progress.value = String(elapsed);
+          currentTime.textContent = formatTime(elapsed);
+          playToggle.textContent = playing ? "❚❚" : "▶";
+          playToggle.setAttribute("aria-label", playing ? "暂停视频" : "播放视频");
+          centerPlay.hidden = playing;
+          muteToggle.textContent = muted ? "🔇" : "🔊";
+          muteToggle.setAttribute("aria-label", muted ? "开启声音" : "关闭声音");
+        }
+
+        function stopTimer() {
+          if (timer) {
+            window.clearInterval(timer);
+            timer = null;
+          }
+        }
+
+        function setPlaying(nextState) {
+          playing = nextState;
+          stopTimer();
+          if (playing) {
+            if (elapsed >= duration) elapsed = 0;
+            timer = window.setInterval(() => {
+              elapsed = Math.min(duration, elapsed + 0.1);
+              if (elapsed >= duration) {
+                playing = false;
+                elapsed = 0;
+                stopTimer();
+              }
+              renderPlayer();
+            }, 100);
+          }
+          renderPlayer();
+        }
+
+        function resetPlayer() {
+          stopTimer();
+          playing = false;
+          muted = true;
+          elapsed = 0;
+          renderPlayer();
+        }
+
+        function openDialog() {
+          resetPlayer();
+          dialog.showModal();
+          centerPlay.focus();
+        }
+
+        function closeDialog() {
+          resetPlayer();
+          dialog.close();
+          openButton.focus();
+        }
+
+        function showToast(message, type = "success") {
+          window.clearTimeout(toastTimer);
+          toastText.textContent = message;
+          toast.querySelector(".toast-dot").style.background = type === "danger" ? "var(--danger)" : "var(--success)";
+          toast.classList.add("show");
+          toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2200);
+        }
+
+        openButton.addEventListener("click", openDialog);
+        closeButton.addEventListener("click", closeDialog);
+        playToggle.addEventListener("click", () => setPlaying(!playing));
+        centerPlay.addEventListener("click", () => setPlaying(true));
+        videoStage.addEventListener("dblclick", () => setPlaying(!playing));
+        muteToggle.addEventListener("click", () => {
+          muted = !muted;
+          renderPlayer();
+        });
+        progress.addEventListener("input", (event) => {
+          elapsed = Number(event.target.value);
+          renderPlayer();
+        });
+        dialog.addEventListener("cancel", (event) => {
+          event.preventDefault();
+          closeDialog();
+        });
+        dialog.addEventListener("close", resetPlayer);
+
+        document.getElementById("approveButton").addEventListener("click", () => showToast("审核通过，已提交商品整体审核结果"));
+        document.getElementById("rejectButton").addEventListener("click", () => showToast("请在现有审核流程中选择驳回原因", "danger"));
+        document.getElementById("backButton").addEventListener("click", () => showToast("返回商品审核列表"));
+
+        renderPlayer();
+      })();
+    </script>
+  </body>
+</html>
