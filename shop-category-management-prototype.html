@@ -962,6 +962,10 @@
       color: var(--red);
     }
 
+    .image-field.invalid-image .error {
+      display: block;
+    }
+
     .upload {
       width: 72px;
       height: 72px;
@@ -3217,6 +3221,7 @@
             <div class="tips">
               一级展示类目必须上传展示图片；二级展示类目不支持配置图片。建议尺寸 160 × 160，支持 PNG/JPG。
             </div>
+            <div class="error">请上传一级类目图片</div>
             <div class="image-actions" id="imageActions">
               <button class="btn secondary" type="button" id="replaceImage">更新图片</button>
               <button class="btn secondary" type="button" id="deleteImage">删除图片</button>
@@ -3275,10 +3280,14 @@
         </div>
         <div class="field hidden" id="moveImageField" style="grid-column: 1 / -1;">
           <label>一级类目图片</label>
-          <div style="display:flex;align-items:center;gap:12px;">
+          <div id="moveUploadImageControl" style="display:flex;align-items:center;gap:12px;">
             <span class="upload" id="moveUploadBox">+</span>
             <input id="moveImageFileInput" type="file" accept="image/png,image/jpeg" hidden>
             <span class="tips">二级类目移动为一级类目时必须上传图片，支持 PNG/JPG。</span>
+          </div>
+          <div class="hidden" id="moveDeleteImageControl" style="display:flex;align-items:center;gap:12px;">
+            <button class="btn danger" type="button" id="moveDeleteImage">删除图片并继续移动</button>
+            <span class="tips">一级类目移动为二级类目前，必须删除已配置的一级类目图片。</span>
           </div>
           <div class="error">请上传一级类目图片</div>
         </div>
@@ -3508,6 +3517,9 @@
     const moveLevelInput = document.querySelector("#moveLevelInput");
     const moveSortInput = document.querySelector("#moveSortInput");
     const moveImageField = document.querySelector("#moveImageField");
+    const moveUploadImageControl = document.querySelector("#moveUploadImageControl");
+    const moveDeleteImageControl = document.querySelector("#moveDeleteImageControl");
+    const moveDeleteImage = document.querySelector("#moveDeleteImage");
     const moveUploadBox = document.querySelector("#moveUploadBox");
     const moveImageFileInput = document.querySelector("#moveImageFileInput");
     const moveImpact = document.querySelector("#moveImpact");
@@ -3555,8 +3567,8 @@
     let logCurrentPage = 1;
     let imageFileAction = "upload";
     let imageObjectUrl = "";
-    let imageRemoved = false;
     let moveImageObjectUrl = "";
+    let moveExistingImageRemoved = false;
     const backendCategoryStorageKey = "didiShopBackendCategoriesV1";
     const cityCatalog = `北京市、天津市、上海市、重庆市、石家庄市、唐山市、秦皇岛市、邯郸市、邢台市、保定市、张家口市、承德市、沧州市、廊坊市、衡水市、太原市、大同市、阳泉市、长治市、晋城市、朔州市、晋中市、运城市、忻州市、临汾市、吕梁市、呼和浩特市、包头市、乌海市、赤峰市、通辽市、鄂尔多斯市、呼伦贝尔市、巴彦淖尔市、乌兰察布市、兴安盟、锡林郭勒盟、阿拉善盟、沈阳市、大连市、鞍山市、抚顺市、本溪市、丹东市、锦州市、营口市、阜新市、辽阳市、盘锦市、铁岭市、朝阳市、葫芦岛市、长春市、吉林市、四平市、辽源市、通化市、白山市、松原市、白城市、延边朝鲜族自治州、哈尔滨市、齐齐哈尔市、鸡西市、鹤岗市、双鸭山市、大庆市、伊春市、佳木斯市、七台河市、牡丹江市、黑河市、绥化市、大兴安岭地区、南京市、无锡市、徐州市、常州市、苏州市、南通市、连云港市、淮安市、盐城市、扬州市、镇江市、泰州市、宿迁市、杭州市、宁波市、温州市、嘉兴市、湖州市、绍兴市、金华市、衢州市、舟山市、台州市、丽水市、合肥市、芜湖市、蚌埠市、淮南市、马鞍山市、淮北市、铜陵市、安庆市、黄山市、滁州市、阜阳市、宿州市、六安市、亳州市、池州市、宣城市、福州市、厦门市、莆田市、三明市、泉州市、漳州市、南平市、龙岩市、宁德市、南昌市、景德镇市、萍乡市、九江市、新余市、鹰潭市、赣州市、吉安市、宜春市、抚州市、上饶市、济南市、青岛市、淄博市、枣庄市、东营市、烟台市、潍坊市、济宁市、泰安市、威海市、日照市、临沂市、德州市、聊城市、滨州市、菏泽市、郑州市、开封市、洛阳市、平顶山市、安阳市、鹤壁市、新乡市、焦作市、濮阳市、许昌市、漯河市、三门峡市、南阳市、商丘市、信阳市、周口市、驻马店市、济源市、武汉市、黄石市、十堰市、宜昌市、襄阳市、鄂州市、荆门市、孝感市、荆州市、黄冈市、咸宁市、随州市、恩施土家族苗族自治州、仙桃市、潜江市、天门市、神农架林区、长沙市、株洲市、湘潭市、衡阳市、邵阳市、岳阳市、常德市、张家界市、益阳市、郴州市、永州市、怀化市、娄底市、湘西土家族苗族自治州、广州市、韶关市、深圳市、珠海市、汕头市、佛山市、江门市、湛江市、茂名市、肇庆市、惠州市、梅州市、汕尾市、河源市、阳江市、清远市、东莞市、中山市、潮州市、揭阳市、云浮市、南宁市、柳州市、桂林市、梧州市、北海市、防城港市、钦州市、贵港市、玉林市、百色市、贺州市、河池市、来宾市、崇左市、海口市、三亚市、三沙市、儋州市、成都市、自贡市、攀枝花市、泸州市、德阳市、绵阳市、广元市、遂宁市、内江市、乐山市、南充市、眉山市、宜宾市、广安市、达州市、雅安市、巴中市、资阳市、阿坝藏族羌族自治州、甘孜藏族自治州、凉山彝族自治州、贵阳市、六盘水市、遵义市、安顺市、毕节市、铜仁市、黔西南布依族苗族自治州、黔东南苗族侗族自治州、黔南布依族苗族自治州、昆明市、曲靖市、玉溪市、保山市、昭通市、丽江市、普洱市、临沧市、楚雄彝族自治州、红河哈尼族彝族自治州、文山壮族苗族自治州、西双版纳傣族自治州、大理白族自治州、德宏傣族景颇族自治州、怒江傈僳族自治州、迪庆藏族自治州、拉萨市、日喀则市、昌都市、林芝市、山南市、那曲市、阿里地区、西安市、铜川市、宝鸡市、咸阳市、渭南市、延安市、汉中市、榆林市、安康市、商洛市、兰州市、嘉峪关市、金昌市、白银市、天水市、武威市、张掖市、平凉市、酒泉市、庆阳市、定西市、陇南市、临夏回族自治州、甘南藏族自治州、西宁市、海东市、海北藏族自治州、黄南藏族自治州、海南藏族自治州、果洛藏族自治州、玉树藏族自治州、海西蒙古族藏族自治州、银川市、石嘴山市、吴忠市、固原市、中卫市、乌鲁木齐市、克拉玛依市、吐鲁番市、哈密市、昌吉回族自治州、博尔塔拉蒙古自治州、巴音郭楞蒙古自治州、阿克苏地区、克孜勒苏柯尔克孜自治州、喀什地区、和田地区、伊犁哈萨克自治州、塔城地区、阿勒泰地区、石河子市、阿拉尔市、图木舒克市、五家渠市、北屯市、铁门关市、双河市、可克达拉市、昆玉市、胡杨河市、香港特别行政区、澳门特别行政区、台北市、高雄市、台中市、台南市、桃园市、基隆市、新竹市、嘉义市`.split("、");
     const operationLogs = [
@@ -5438,21 +5450,26 @@
         ? `当前层级：${levelLabel(oldLevel)}；移动后层级：${levelLabel(targetLevel)}。`
         : `类目层级固定为${levelLabel(oldLevel)}，仅更换上级类目；受影响子类目：${affectedChildren} 个。`;
       const blocked = rowMode(row) === "front" && deepestLevel > maxLevel;
-      const imageBlocksCrossLevelMove = rowMode(row) === "front"
+      const needsMoveImageDelete = rowMode(row) === "front"
         && oldLevel === 1
         && targetLevel !== oldLevel
         && rowHasImage(row);
       const needsMoveImage = rowMode(row) === "front" && oldLevel === 2 && targetLevel === 1;
-      moveImageField.classList.toggle("hidden", !needsMoveImage);
+      moveImageField.classList.toggle("hidden", !needsMoveImage && !needsMoveImageDelete);
+      moveUploadImageControl.classList.toggle("hidden", !needsMoveImage);
+      moveDeleteImageControl.classList.toggle("hidden", !needsMoveImageDelete);
+      moveDeleteImage.textContent = moveExistingImageRemoved ? "图片已删除" : "删除图片并继续移动";
+      moveDeleteImage.disabled = moveExistingImageRemoved;
       moveImpact.innerHTML = `
         <div>${moveScopeText}</div>
         ${rowMode(row) === "front" ? `<div>移动后最深层级：${deepestLevel <= 3 ? levelLabel(deepestLevel) : `${deepestLevel}级`}${blocked ? `，超过展示类目最大支持层级 ${maxLevel}，不允许保存。` : "，符合层级限制。"}</div>` : "<div>移动前后层级保持不变，二级只能选择一级上级，三级只能选择二级上级。</div>"}
         <div>${cSideText}</div>
         ${productSortText ? `<div>${productSortText}</div>` : ""}
-        ${imageBlocksCrossLevelMove ? '<div>当前一级类目已配置图片，请先在编辑类目中删除图片，再进行跨级移动。</div>' : ""}
+        ${needsMoveImageDelete && !moveExistingImageRemoved ? '<div>当前一级类目已配置图片，请先删除图片，再进行跨级移动。</div>' : ""}
+        ${needsMoveImageDelete && moveExistingImageRemoved ? '<div>一级类目图片已删除，可保存跨级移动。</div>' : ""}
         ${needsMoveImage ? '<div>移动为一级类目后必须配置图片，否则不允许保存。</div>' : ""}
       `;
-      moveImpact.style.color = blocked || imageBlocksCrossLevelMove || (needsMoveImage && !moveImageObjectUrl) ? "var(--danger)" : "var(--muted)";
+      moveImpact.style.color = blocked || (needsMoveImageDelete && !moveExistingImageRemoved) || (needsMoveImage && !moveImageObjectUrl) ? "var(--danger)" : "var(--muted)";
     }
 
     function renderMoveParentOptions(selectedKey = moveParentSelect.value) {
@@ -5505,6 +5522,7 @@
       moveContext = { row };
       if (moveImageObjectUrl.startsWith("blob:")) URL.revokeObjectURL(moveImageObjectUrl);
       moveImageObjectUrl = "";
+      moveExistingImageRemoved = false;
       moveImageFileInput.value = "";
       moveUploadBox.classList.remove("has-image", "has-preview");
       moveUploadBox.style.backgroundImage = "";
@@ -5532,10 +5550,11 @@
       const deepestLevel = targetLevel + subtreeDepth(row);
       const targetParentLevel = selectedMoveParentRow() ? Number(selectedMoveParentRow().dataset.level) : 0;
       const levelMismatch = rowMode(row) === "back" && targetParentLevel !== Number(row.dataset.level) - 1;
-      const imageBlocksCrossLevelMove = rowMode(row) === "front"
+      const needsMoveImageDelete = rowMode(row) === "front"
         && Number(row.dataset.level) === 1
         && targetLevel !== Number(row.dataset.level)
         && rowHasImage(row);
+      const moveImageDeleteOk = !needsMoveImageDelete || moveExistingImageRemoved;
       const needsMoveImage = rowMode(row) === "front" && Number(row.dataset.level) === 2 && targetLevel === 1;
       const moveImageOk = !needsMoveImage || !!moveImageObjectUrl;
       const sortValue = moveSortInput.value.trim();
@@ -5550,7 +5569,7 @@
         const itemParent = targetLevel === 1 ? "-" : item.children[col("parent", rowMode(item))].textContent.trim();
         return itemParent === targetParentName && item.children[col("sort", rowMode(item))].textContent.trim() === sortValue;
       });
-      const blocked = (rowMode(row) === "front" && deepestLevel > maxLevel) || imageBlocksCrossLevelMove || !moveImageOk || levelMismatch || nameConflict || sortConflict || !sortOk;
+      const blocked = (rowMode(row) === "front" && deepestLevel > maxLevel) || !moveImageDeleteOk || !moveImageOk || levelMismatch || nameConflict || sortConflict || !sortOk;
       const sortError = moveSortInput.closest(".field").querySelector(".error");
       if (!sortOk) {
         sortError.textContent = "请输入 0-9999 的整数";
@@ -5559,12 +5578,12 @@
       }
       moveSortInput.closest(".field").classList.toggle("invalid", !sortOk || sortConflict);
       moveImageField.classList.toggle("invalid", !moveImageOk);
-      moveParentSelect.closest(".field").classList.toggle("invalid", (rowMode(row) === "front" && deepestLevel > maxLevel) || imageBlocksCrossLevelMove || levelMismatch || nameConflict);
+      moveParentSelect.closest(".field").classList.toggle("invalid", (rowMode(row) === "front" && deepestLevel > maxLevel) || !moveImageDeleteOk || levelMismatch || nameConflict);
       if (nameConflict) {
         moveParentSelect.closest(".field").querySelector(".error").textContent = "当前类目名称已与其他类目重复，请先修改名称";
       } else if (levelMismatch) {
         moveParentSelect.closest(".field").querySelector(".error").textContent = "移动前后类目层级必须保持不变";
-      } else if (imageBlocksCrossLevelMove) {
+      } else if (!moveImageDeleteOk) {
         moveParentSelect.closest(".field").querySelector(".error").textContent = "当前一级类目已配置图片，请先删除图片后再跨级移动";
       } else if (rowMode(row) === "front" && deepestLevel > maxLevel) {
         moveParentSelect.closest(".field").querySelector(".error").textContent = "移动后子树层级超过系统最大支持层级";
@@ -5588,6 +5607,9 @@
       const delta = targetLevel - oldLevel;
       if (modeForRow === "front" && oldLevel === 2 && targetLevel === 1) {
         row.dataset.imageSrc = moveImageObjectUrl;
+      }
+      if (modeForRow === "front" && oldLevel === 1 && targetLevel === 2 && moveExistingImageRemoved) {
+        delete row.dataset.imageSrc;
       }
       const block = rowBlock(row);
       const tbody = row.closest("tbody");
@@ -5630,7 +5652,10 @@
         publishBackendCategorySnapshot();
         refreshDisplayStates(frontTable);
       }
-      if (modeForRow === "front") syncParentFilterOptions();
+      if (modeForRow === "front") {
+        refreshDisplayStates(frontTable);
+        syncParentFilterOptions();
+      }
       resetFilters(false);
       refreshCurrentPage(pageForRow(row));
       highlightRows(block.filter(item => !item.classList.contains("paged-out")));
@@ -5830,7 +5855,6 @@
       modalLevel.disabled = true;
       parentSelect.disabled = true;
       const hasExistingImage = type === "edit" && level === "一级" && mode === "front" && context.hasImage;
-      imageRemoved = false;
       setImageState(hasExistingImage, context.imageSrc || "");
       imageField.classList.remove("invalid-image");
       modalName.closest(".field").classList.remove("invalid");
@@ -5856,11 +5880,20 @@
     }
 
     function openConfirm(action, row, actionLabel = "") {
+      if (action === "move-image-delete") {
+        pendingAction = { action };
+        confirmTitle.textContent = "确认删除图片";
+        confirmText.textContent = "确认删除一级类目图片并继续移动？";
+        confirmDesc.textContent = "图片将在移动保存成功后删除；取消或移动保存失败时，原图片保持不变。";
+        confirmAction.textContent = "确认删除";
+        confirmMask.classList.add("show");
+        return;
+      }
       if (action === "image-delete") {
         pendingAction = { action };
         confirmTitle.textContent = "确认删除图片";
         confirmText.textContent = "确认删除当前类目图片？";
-        confirmDesc.textContent = "删除并保存后，一级类目将不展示；如需跨级移动，可在删图保存后操作。";
+        confirmDesc.textContent = "一级类目图片必填；删除后必须重新上传图片才能保存。如需移动为二级类目，请在移动弹窗中删除图片。";
         confirmAction.textContent = "确认删除";
         confirmMask.classList.add("show");
         return;
@@ -6321,8 +6354,7 @@
       const sortUniqueOk = !canCheckGeneratedSort || (generatedSortOk && sortValuesUniqueInScope(proposedSortValues));
       const imageOk = mode !== "front"
         || modalLevel.value !== "一级"
-        || (createType === "single" && uploadBox.classList.contains("has-image"))
-        || (formType === "edit" && imageRemoved);
+        || (createType === "single" && uploadBox.classList.contains("has-image"));
       const backendMapOk = mode !== "front" || selectedBackendMaps().length > 0;
       const cityOk = mode !== "front" || cityScopeSelect.value === "全国" || selectedCities().length > 0;
       const nameError = modalName.closest(".field").querySelector(".error");
@@ -6617,7 +6649,6 @@
     imageFileInput.addEventListener("change", () => {
       if (!imageFileInput.files || imageFileInput.files.length === 0) return;
       const previewUrl = URL.createObjectURL(imageFileInput.files[0]);
-      imageRemoved = false;
       setImageState(true, previewUrl);
       showToast(imageFileAction === "replace" ? "图片更新成功" : "图片上传成功");
     });
@@ -6633,6 +6664,7 @@
       refreshMovePreview(false);
       showToast("一级类目图片上传成功");
     });
+    moveDeleteImage.addEventListener("click", () => openConfirm("move-image-delete"));
     document.querySelector("#replaceImage").addEventListener("click", () => {
       imageFileAction = "replace";
       imageFileInput.value = "";
@@ -6747,8 +6779,12 @@
         appendOperationLog(pendingAction.actionLabel, rowLogObject(pendingAction.row), detail);
         applyStatusChange(pendingAction.row, pendingAction.actionLabel);
         showToast("状态更新成功");
+      } else if (pendingAction?.action === "move-image-delete") {
+        moveExistingImageRemoved = true;
+        clearMoveErrors();
+        refreshMovePreview(false);
+        showToast("图片将在移动保存后删除");
       } else if (pendingAction?.action === "image-delete") {
-        imageRemoved = true;
         setImageState(false);
         imageFileInput.value = "";
         showToast("图片已删除");
