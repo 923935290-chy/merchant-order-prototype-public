@@ -3496,6 +3496,7 @@
     const sortStepInput = document.querySelector("#sortStepInput");
     const statusSelect = document.querySelector("#statusSelect");
     const imageField = document.querySelector("#imageField");
+    const imageError = imageField.querySelector(".error");
     const uploadBox = document.querySelector("#uploadBox");
     const imageFileInput = document.querySelector("#imageFileInput");
     const imagePreviewMask = document.querySelector("#imagePreviewMask");
@@ -3517,6 +3518,7 @@
     const moveLevelInput = document.querySelector("#moveLevelInput");
     const moveSortInput = document.querySelector("#moveSortInput");
     const moveImageField = document.querySelector("#moveImageField");
+    const moveImageError = moveImageField.querySelector(".error");
     const moveUploadImageControl = document.querySelector("#moveUploadImageControl");
     const moveDeleteImageControl = document.querySelector("#moveDeleteImageControl");
     const moveDeleteImage = document.querySelector("#moveDeleteImage");
@@ -5106,6 +5108,13 @@
       uploadBox.setAttribute("title", previewUrl ? "点击查看大图" : hasImage ? "图片已上传，可通过下方按钮更新或删除" : "点击选择图片");
     }
 
+    function categoryImageFileOk(file) {
+      if (!file) return false;
+      const mimeOk = ["image/png", "image/jpeg"].includes(file.type);
+      const extensionOk = /\.(png|jpe?g)$/i.test(file.name || "");
+      return mimeOk && extensionOk;
+    }
+
     function operationHtml(level, status) {
       const stateAction = status === "启用" ? "禁用" : "启用";
       const editClass = level === "一级" ? "edit-first" : level === "二级" ? "edit-second" : "edit-third";
@@ -5516,6 +5525,7 @@
       moveImageField.classList.remove("invalid");
       moveParentSelect.closest(".field").querySelector(".error").textContent = "请选择有效的目标上级类目";
       moveSortInput.closest(".field").querySelector(".error").textContent = "请输入 0-9999 的整数，且同一父级同一层级不重复";
+      moveImageError.textContent = "请上传一级类目图片";
     }
 
     function openMoveModal(row) {
@@ -5605,6 +5615,11 @@
       const targetLevel = moveTargetLevel();
       const targetParentRow = selectedMoveParentRow();
       const delta = targetLevel - oldLevel;
+      const imageChangeText = modeForRow === "front" && oldLevel === 1 && targetLevel === 2 && moveExistingImageRemoved
+        ? "，一级类目图片已随移动删除"
+        : modeForRow === "front" && oldLevel === 2 && targetLevel === 1 && moveImageObjectUrl
+          ? "，已同步配置一级类目图片"
+          : "";
       if (modeForRow === "front" && oldLevel === 2 && targetLevel === 1) {
         row.dataset.imageSrc = moveImageObjectUrl;
       }
@@ -5662,7 +5677,7 @@
       const relationImpact = modeForRow === "front"
         ? "，展示地区与展示状态已重算，商品排序按展示类目 ID 保留"
         : `，受影响子类目 ${block.length - 1} 个`;
-      appendOperationLog("移动", rowLogObject(row), `${modeForRow === "front" ? "移动展示类目" : "同层级移动后台类目"}：上级由${oldParent}调整为${targetParentName}，层级${modeForRow === "front" ? `由${levelLabel(oldLevel)}调整为${levelLabel(targetLevel)}` : `保持${levelLabel(oldLevel)}不变`}，排序值由${oldSort}调整为${moveSortInput.value.trim()}${relationImpact}`);
+      appendOperationLog("移动", rowLogObject(row), `${modeForRow === "front" ? "移动展示类目" : "同层级移动后台类目"}：上级由${oldParent}调整为${targetParentName}，层级${modeForRow === "front" ? `由${levelLabel(oldLevel)}调整为${levelLabel(targetLevel)}` : `保持${levelLabel(oldLevel)}不变`}，排序值由${oldSort}调整为${moveSortInput.value.trim()}${imageChangeText}${relationImpact}`);
       showToast(modeForRow === "front"
         ? "类目移动成功，C 端已按最新结构生效"
         : "类目移动成功，后台类目路径及展示类目映射已更新");
@@ -5857,6 +5872,7 @@
       const hasExistingImage = type === "edit" && level === "一级" && mode === "front" && context.hasImage;
       setImageState(hasExistingImage, context.imageSrc || "");
       imageField.classList.remove("invalid-image");
+      imageError.textContent = "请上传一级类目图片";
       modalName.closest(".field").classList.remove("invalid");
       batchNames.closest(".field").classList.remove("invalid");
       backendMapField.classList.remove("invalid");
@@ -6392,6 +6408,7 @@
       sortInput.closest(".field").classList.toggle("invalid", !sortOk || !generatedSortOk || !sortUniqueOk);
       sortStepInput.closest(".field").classList.toggle("invalid", isBatch && !stepOk);
       imageField.classList.toggle("invalid-image", !imageOk);
+      imageError.textContent = "请上传一级类目图片";
       return (isBatch ? batchOk && stepOk : nameOk && nameLengthOk && nameFormatOk && nameUniqueOk) && sortOk && generatedSortOk && sortUniqueOk && imageOk && backendMapOk && cityOk;
     }
 
@@ -6481,7 +6498,9 @@
         cityScope: modeForRow === "front" ? (row.dataset.cityScope || "全国") : "全国",
         cityNames: modeForRow === "front" ? (row.dataset.cityNames || "").split("|").filter(Boolean) : [],
         sortValue: row.children[col("sort", modeForRow)].textContent.trim(),
-        status: rowStatus(row)
+        status: rowStatus(row),
+        hasImage: modeForRow === "front" && rowHasImage(row),
+        imageSrc: modeForRow === "front" ? (row.dataset.imageSrc || "") : ""
       });
       }));
       scope.querySelectorAll(".edit-third").forEach(btn => btn.addEventListener("click", event => {
@@ -6648,19 +6667,38 @@
     });
     imageFileInput.addEventListener("change", () => {
       if (!imageFileInput.files || imageFileInput.files.length === 0) return;
-      const previewUrl = URL.createObjectURL(imageFileInput.files[0]);
+      const file = imageFileInput.files[0];
+      if (!categoryImageFileOk(file)) {
+        imageFileInput.value = "";
+        imageError.textContent = "仅支持 PNG、JPG、JPEG 格式";
+        imageField.classList.add("invalid-image");
+        showToast("图片格式不支持，请上传 PNG/JPG 图片");
+        return;
+      }
+      const previewUrl = URL.createObjectURL(file);
       setImageState(true, previewUrl);
+      imageField.classList.remove("invalid-image");
+      imageError.textContent = "请上传一级类目图片";
       showToast(imageFileAction === "replace" ? "图片更新成功" : "图片上传成功");
     });
     moveUploadBox.addEventListener("click", () => moveImageFileInput.click());
     moveImageFileInput.addEventListener("change", () => {
       if (!moveImageFileInput.files || moveImageFileInput.files.length === 0) return;
+      const file = moveImageFileInput.files[0];
+      if (!categoryImageFileOk(file)) {
+        moveImageFileInput.value = "";
+        moveImageError.textContent = "仅支持 PNG、JPG、JPEG 格式";
+        moveImageField.classList.add("invalid");
+        showToast("图片格式不支持，请上传 PNG/JPG 图片");
+        return;
+      }
       if (moveImageObjectUrl.startsWith("blob:")) URL.revokeObjectURL(moveImageObjectUrl);
-      moveImageObjectUrl = URL.createObjectURL(moveImageFileInput.files[0]);
+      moveImageObjectUrl = URL.createObjectURL(file);
       moveUploadBox.style.backgroundImage = `url("${moveImageObjectUrl}")`;
       moveUploadBox.classList.add("has-image", "has-preview");
       moveUploadBox.textContent = "";
       moveImageField.classList.remove("invalid");
+      moveImageError.textContent = "请上传一级类目图片";
       refreshMovePreview(false);
       showToast("一级类目图片上传成功");
     });
