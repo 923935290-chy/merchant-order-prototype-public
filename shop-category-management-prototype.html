@@ -5998,7 +5998,7 @@
 
     function sortedProductItems(items, row = productSortContext.row) {
       return [...items].sort((a, b) => {
-        if (productSortWeight(a, row) !== productSortWeight(b, row)) return productSortWeight(a, row) - productSortWeight(b, row);
+        if (productSortWeight(a, row) !== productSortWeight(b, row)) return productSortWeight(b, row) - productSortWeight(a, row);
         return a.defaultRank - b.defaultRank;
       });
     }
@@ -6053,11 +6053,15 @@
         if (productSortWeight(item) !== weight) changedCount += 1;
         pendingUpdates.push({ item, weight });
       }
+      const row = productSortContext.row;
+      if (changedCount === 0) {
+        showToast("未修改商品排序值，无需保存");
+        return false;
+      }
       pendingUpdates.forEach(({ item, weight }) => {
         item.weights ||= {};
         item.weights[rowKey(productSortContext.row)] = weight;
       });
-      const row = productSortContext.row;
       syncEffectiveCategoryImageState(row);
       appendOperationLog("排序", rowLogObject(row), `配置展示类目商品排序，变更商品 ${changedCount} 个`);
       showToast("商品排序已保存，C 端下一次请求按最新排序值生效");
@@ -6796,11 +6800,19 @@
     document.addEventListener("keydown", event => {
       if (event.key === "Escape" && imagePreviewMask.classList.contains("show")) closeImagePreview();
     });
-    document.querySelector("#closeConfirm").addEventListener("click", () => confirmMask.classList.remove("show"));
-    document.querySelector("#cancelConfirm").addEventListener("click", () => confirmMask.classList.remove("show"));
+    function closeConfirm() {
+      confirmMask.classList.remove("show");
+      pendingAction = null;
+    }
+
+    document.querySelector("#closeConfirm").addEventListener("click", closeConfirm);
+    document.querySelector("#cancelConfirm").addEventListener("click", closeConfirm);
     document.querySelector("#confirmAction").addEventListener("click", () => {
       confirmMask.classList.remove("show");
-      if (confirmAction.textContent === "我知道了") return;
+      if (confirmAction.textContent === "我知道了") {
+        pendingAction = null;
+        return;
+      }
       if (pendingAction?.action === "delete") {
         appendOperationLog("删除", rowLogObject(pendingAction.row), `删除${mode === "front" ? "展示" : "后台"}类目`);
         deleteCategoryRow(pendingAction.row);
@@ -6830,7 +6842,7 @@
       pendingAction = null;
     });
     confirmMask.addEventListener("click", event => {
-      if (event.target === confirmMask) confirmMask.classList.remove("show");
+      if (event.target === confirmMask) closeConfirm();
     });
     sortScope.addEventListener("change", renderSortList);
     sortList.addEventListener("dragstart", event => {
@@ -6857,6 +6869,10 @@
     document.querySelector("#closeSort").addEventListener("click", () => sortMask.classList.remove("show"));
     document.querySelector("#cancelSort").addEventListener("click", () => sortMask.classList.remove("show"));
     document.querySelector("#saveSort").addEventListener("click", () => {
+      if (!sortHasChanged) {
+        showToast("未调整类目顺序，无需保存");
+        return;
+      }
       const scopeLabel = selectedSortScope().label || "后台类目";
       sortMask.classList.remove("show");
       sortRowsByModalOrder();
