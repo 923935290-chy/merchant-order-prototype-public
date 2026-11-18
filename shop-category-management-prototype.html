@@ -6316,9 +6316,8 @@
 
     function categoryExportRows() {
       const matchedRows = filteredRows();
-      if (mode !== "back") return matchedRows;
       const matchedSet = new Set(matchedRows);
-      return tableRows(backTable).filter(row => {
+      return tableRows(activeTable()).filter(row => {
         if (rowBlock(row).length > 1) return false;
         if (!queryActive) return true;
         return matchedSet.has(row) || ancestorRows(row).some(ancestor => matchedSet.has(ancestor));
