@@ -6263,7 +6263,7 @@
 
     function categoryExportColumns() {
       return mode === "front"
-        ? ["一级类目", "二级类目", "类目 ID", "类目层级", "上级类目", "映射后台类目", "展示地区", "城市 ID", "城市名称", "类目图片", "排序值", "配置状态", "展示状态", "更新时间"]
+        ? ["一级类目", "一级类目图片", "二级类目", "类目 ID", "类目层级", "上级类目", "映射后台类目", "展示地区", "城市 ID", "城市名称", "排序值", "配置状态", "展示状态", "更新时间"]
         : ["一级类目", "二级类目", "三级类目", "类目 ID", "类目层级", "上级类目", "关联商品数", "排序值", "配置状态", "展示状态", "更新时间"];
     }
 
@@ -6273,6 +6273,13 @@
         const index = cityCatalog.findIndex(city => cityValue(city) === value);
         return index >= 0 ? `CITY${String(index + 1).padStart(4, "0")}` : "";
       }).filter(Boolean).join("|");
+    }
+
+    function exportCategoryImageSrc(row) {
+      const firstLevelRow = Number(row.dataset.level) === 1
+        ? row
+        : ancestorRows(row).find(ancestor => Number(ancestor.dataset.level) === 1);
+      return firstLevelRow?.dataset.imageSrc || "";
     }
 
     function categoryExportValues(row) {
@@ -6288,13 +6295,13 @@
         const cityNames = cityScope === "全国" ? "全国" : (row.dataset.cityNames || "").split("|").filter(Boolean).map(cityDisplayName).join("|");
         return [
           path[0] || "",
+          exportCategoryImageSrc(row),
           path[1] || "",
           ...commonTail,
           (row.dataset.backendMaps || "").split("|").filter(Boolean).join("；"),
           cityScope,
           exportCityIds(row),
           cityNames,
-          row.dataset.imageSrc || "",
           row.children[col("sort", "front")].textContent.trim(),
           rowStatus(row),
           row.children[col("display", "front")].textContent.replace(/\s+/g, " ").trim(),
