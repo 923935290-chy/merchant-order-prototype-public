@@ -3377,7 +3377,7 @@
               <span class="success" id="productImportSuccess">可导入 0 条</span>
               <span class="failed" id="productImportFailed">失败 0 条</span>
             </div>
-            <span class="tips">仅商品排序值可修改，数值越小越靠前；全部校验通过后整批生效</span>
+            <span class="tips">仅商品排序值可修改，数值越大越靠前；全部校验通过后整批生效</span>
           </div>
           <div class="product-import-preview">
             <table>
@@ -3415,7 +3415,7 @@
                 <th>后台类目路径</th>
                 <th>商户</th>
                 <th>售卖价格</th>
-                <th>商品排序值<span class="help tooltip-right" data-tip="数值越小排序越靠前；默认排序值为 100；允许相同排序值，相同时由后端默认排序逻辑兜底；支持 0-9999 的整数。">?</span></th>
+                <th>商品排序值<span class="help tooltip-right" data-tip="数值越大排序越靠前；默认排序值为 100；允许相同排序值，相同时由后端默认排序逻辑兜底；支持 0-9999 的整数。">?</span></th>
               </tr>
             </thead>
             <tbody id="productSortRows"></tbody>
@@ -5013,8 +5013,14 @@
       if (rowMode(row) === "front" && mappedBackendCategoriesUnavailable(row)) {
         return '<span class="display-state blocked"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">映射类目不可用</span></span>';
       }
-      if (rowMode(row) === "front" && Number(row.dataset.level) === 1 && !rowHasImage(row)) {
-        return '<span class="display-state blocked"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">未配置类目图片</span></span>';
+      if (rowMode(row) === "front") {
+        const firstLevelRow = Number(row.dataset.level) === 1
+          ? row
+          : ancestorRows(row).find(parentRow => Number(parentRow.dataset.level) === 1);
+        if (!firstLevelRow || !rowHasImage(firstLevelRow)) {
+          const reason = Number(row.dataset.level) === 1 ? "未配置类目图片" : "一级类目未配置图片";
+          return `<span class="display-state blocked"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">${reason}</span></span>`;
+        }
       }
       if (rowMode(row) === "front" && productSortPool(row).length === 0) {
         return '<span class="display-state blocked"><span class="display-dot"></span><span class="state-main">不展示</span><span class="state-reason">无有效商品</span></span>';
@@ -6223,9 +6229,13 @@
 
     function applyProductSortImport() {
       if (!productImportChanges.length || productImportChanges.some(change => change.error)) return;
-      let changedCount = 0;
+      const changedCount = productImportChanges.filter(change => productSortWeight(change.item) !== change.weight).length;
+      if (changedCount === 0) {
+        resetProductSortImport();
+        showToast("导入文件中的商品排序值均未变化，无需导入");
+        return;
+      }
       productImportChanges.forEach(change => {
-        if (productSortWeight(change.item) !== change.weight) changedCount += 1;
         change.item.weights ||= {};
         change.item.weights[rowKey(productSortContext.row)] = change.weight;
       });
